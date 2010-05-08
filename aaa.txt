@@ -1,0 +1,103 @@
+=============== NONTERMINAL: Tree ============================
+--------------------------------------------------------------
+Tree := X:Any_Class;
+
+TYPE Model.Classes.Class_Access
+
+ATTRIBUTES
+ Code : Text_Buffer_Set;
+
+RULE Code
+{
+ Code := 
+  $X.Interface_Body +
+  $X.Director_Specification +
+  $X.Director_Body          +
+  $X.Proxy_Specification    +
+  $X.Proxy_Body             +
+  $X.Proxy_Specification    +
+  $X.Proxy_Body             ;
+}
+
+
+=============== NONTERMINAL: Any_Class =======================
+--------------------------------------------------------------
+Any_Class :=
+   Class                   {}
+ | QObject_Subclass        { ?.Is_QObject_Subclass }
+ | QGraphicsItem_Subclass  { ?.Is_QGraphicsItem_Subclass }
+;
+
+TYPE Model.Classes.Class_Access
+
+ATTRIBUTES
+ Interface_Specification : Text_Buffer;
+ Interface_Body          : Text_Buffer;
+ Director_Specification  : Text_Buffer;
+ Director_Body           : Text_Buffer;
+ Proxy_Specification     : Text_Buffer;
+ Proxy_Body              : Text_Buffer;
+ Proxy_Parent_Context    : Ada_Unit_Contexts.Unit_Context;
+ Proxy_Context           : Ada_Unit_Contexts.Unit_Context;
+ Proxy_Parent_Type       : String;
+
+--------------------------------------------------------------
+QObject_Subclass := Class
+
+RULE Interface_Specification COPY
+RULE Interface_Body          COPY
+RULE Director_Specification  COPY
+RULE Director_Body           COPY
+
+
+ATTRIBUTES
+ Proxy_Specification_Context : Ada_Unit_Contexts.Unit_Context;
+ Proxy_Body_Context          : Ada_Unit_Contexts.Unit_Context;
+
+RULE Proxy_Specification
+{
+declare
+   File : Text_Buffer renames $Self.Proxy_Specification;
+begin
+   New_Line (File);
+   Put_Line (File, "package " & Class.Ada_Proxy_Package_Name & " is");
+
+   New_Line (File);
+   Put_Line (File, "   pragma Elaborate_Body;");
+
+   New_Line (File);
+   Put (File, "   type " & Class.Ada_Proxy_Type_Name & " is new" &
+     $Self.Proxy_Parent_Type);
+
+   New_Line (File);
+   Put (File,
+        "       and "
+        & Class.Ada_Type_Full_Qualified_Name (Model.Native_Interface));
+
+   Put_Line (File, " with null record;");
+
+   Add (File, $Self.All_Operations.Subprogram_Declaration);
+end;
+}
+
+RULE Proxy_Parent_Context
+{
+  $Self.Proxy_Parent_Context :=
+    $Super.Proxy_Context DEFAULT ("Qt_Ada.Internals.Objects");
+}
+
+RULE Proxy_Parent_Type
+{
+  $Self.Proxy_Parent_Context :=
+    $Super.Ada_Proxy_Package_Name
+   DEFAULT ("Qt_Ada.Internals.Objects.Q_Object_Impl_Base");
+}
+
+--------------------------------------------------------------
+Class := Super:Class
+
+RULE Proxy_Context
+{
+  Proxy_Context.Add (Self.Ada_Proxy_Package_Name)
+}
+

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<attribute_grammar>
+  <nonterminal name='S' type='Type_S'>
+    <attribute_declaration name='r' type='Type_R'/>
+    <production>
+      <part name="E" reference="E"/>
+      <rule part="E" attribute="i">
+        <argument part="E" attribute="s"/>
+	<text>E.i := g(E.s);</text>
+      </rule>
+      <rule attribute="r">
+        <argument part="E" attribute="t"/>
+	<text>S.r := E.t;</text>
+      </rule>
+    </production>
+  </nonterminal>
+
+  <nonterminal name='E' type='Type_S' case='Kind (Node)' >
+    <attribute_declaration name='s' type='Type_SS'/>
+    <attribute_declaration name='i' type='Type_I'/>
+    <attribute_declaration name='t' type='Type_T'/>
+
+    <production kind="Kind1" >
+      <part name="E1" reference="E"/>
+      <part name="E2" reference="E"/>
+      <rule attribute="s">
+        <argument part="E1" attribute="s"/>
+        <argument part="E2" attribute="s"/>
+	<text>E.s := fs(E1.s, E2.s);</text>
+      </rule>
+      <rule part="E1" attribute="i">
+        <argument attribute="i"/>
+	<text>E1.i := fi1 (E.i);</text>
+      </rule>
+      <rule part="E2" attribute="i">
+        <argument attribute="i"/>
+	<text>E2.i := fi2 (E.i);</text>
+      </rule>
+      <rule attribute="t">
+        <argument part="E1" attribute="t"/>
+        <argument part="E2" attribute="t"/>
+	<text>E.t := ft (E1.t, E2.t);</text>
+      </rule>
+    </production>
+
+    <production kind="Kind2" >
+      <rule attribute="s">
+	<text>E.s := id.s;</text>
+      </rule>
+      <rule attribute="t">
+        <argument attribute="i"/>
+	<text>E.t := h (E.i);</text>
+      </rule>
+    </production>
+  </nonterminal>
+</attribute_grammar>

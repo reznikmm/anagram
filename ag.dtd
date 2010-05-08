@@ -1,0 +1,34 @@
+<!ELEMENT attribute_grammar     (nonterminal+) >
+<!ELEMENT nonterminal           (attribute_declaration*, production+) >
+<!ELEMENT attribute_declaration EMPTY>
+<!ELEMENT production            (part*, rule*) >
+<!ELEMENT part                  EMPTY>
+<!ELEMENT rule                  (argument*, text) >
+<!ELEMENT argument              EMPTY>
+<!ELEMENT text                  #PCDATA>
+
+
+<!ATTLIST nonterminal
+  name CDATA #REQUIRED
+  case CDATA #IMPLIED
+  type CDATA #REQUIRED >
+
+<!ATTLIST production
+  kind CDATA #IMPLIED >
+
+<!ATTLIST attribute_declaration
+  name CDATA #REQUIRED
+  type CDATA #REQUIRED >
+
+<!ATTLIST part
+   name       CDATA #REQUIRED
+   reference  CDATA #REQUIRED >
+
+<!ATTLIST rule
+   attribute  CDATA #REQUIRED
+   part       CDATA #IMPLIED  >
+
+<!ATTLIST argument
+   attribute  CDATA #REQUIRED
+   part       CDATA #IMPLIED  >
+
