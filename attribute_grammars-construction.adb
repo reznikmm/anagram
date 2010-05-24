@@ -15,7 +15,7 @@ package body Attribute_Grammars.Construction is
    ------------
 
    procedure Create
-     (Object     : in out Attribute_Grammar;
+     (Object     : in     Attribute_Grammar;
       Name       : in     String;
       Type_Name  : in     String;
       Expression : in     String;
@@ -36,7 +36,7 @@ package body Attribute_Grammars.Construction is
    ------------
 
    procedure Create
-     (Object  : in out Nonterminal;
+     (Object  : in     Nonterminal;
       Kind    : in     String;
       Result  :    out Production)
    is
@@ -53,7 +53,7 @@ package body Attribute_Grammars.Construction is
    ------------
 
    procedure Create
-     (Object    : in out Nonterminal;
+     (Object    : in     Nonterminal;
       Name      : in     String;
       Type_Name : in     String;
       Result    :    out Attribute_Declaration)
@@ -72,7 +72,7 @@ package body Attribute_Grammars.Construction is
    ------------
 
    procedure Create
-     (Object  : in out Production;
+     (Object  : in     Production;
       Name    : in     String;
       Result  :    out Part)
    is
@@ -90,7 +90,7 @@ package body Attribute_Grammars.Construction is
    ------------
 
    procedure Create
-     (Object  : in out Production;
+     (Object  : in     Production;
       Result  :    out Rule)
    is
    begin
@@ -105,7 +105,7 @@ package body Attribute_Grammars.Construction is
    -------------------
 
    procedure Create_Result
-     (Object  : in out Rule;
+     (Object  : in     Rule;
       Result  :    out Attribute)
    is
    begin
@@ -119,7 +119,7 @@ package body Attribute_Grammars.Construction is
    -------------------
 
    procedure Create_Result
-     (Object  : in out Rule;
+     (Object  : in     Rule;
       Result  :    out Attribute;
       Origin  : in     Part)
    is
@@ -135,7 +135,7 @@ package body Attribute_Grammars.Construction is
    ---------------------
 
    procedure Create_Argument
-     (Object  : in out Rule;
+     (Object  : in     Rule;
       Result  :    out Attribute)
    is
    begin
@@ -150,7 +150,7 @@ package body Attribute_Grammars.Construction is
    ---------------------
 
    procedure Create_Argument
-     (Object  : in out Rule;
+     (Object  : in     Rule;
       Result  :    out Attribute;
       Origin  : in     Part)
    is
@@ -167,7 +167,7 @@ package body Attribute_Grammars.Construction is
    -------------------
 
    procedure Set_Reference
-     (Object  : in out Part;
+     (Object  : in     Part;
       NT      : in     Nonterminal)
    is
    begin
@@ -179,18 +179,29 @@ package body Attribute_Grammars.Construction is
    ---------------------
 
    procedure Set_Declaration
-     (Object  : in out Attribute;
+     (Object  : in     Attribute;
       Decl    : in     Attribute_Declaration) is
    begin
       Object.Declaration := Decl;
    end Set_Declaration;
+
+   --------------------
+   -- Set_Expression --
+   --------------------
+
+   procedure Set_Expression
+     (Object     : in     Nonterminal;
+      Expression : in     String) is
+   begin
+      Object.Expression := To_Unbounded_String (Expression);
+   end Set_Expression;
 
    --------------
    -- Set_Text --
    --------------
 
    procedure Set_Text
-     (Object  : in out Rule;
+     (Object  : in     Rule;
       Text    : in     String) is
    begin
       Object.Text := To_Unbounded_String (Text);

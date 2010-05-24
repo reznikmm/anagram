@@ -1,0 +1,1573 @@
+<?xml version="1.0"?>
+<ast>
+  <alt_rule name="compilation_unit">
+    <alternative name="compilation_library_item"/>
+    <alternative name="compilation_subunit"/>
+  </alt_rule>
+
+  <rule name="compilation_library_item"
+        kind="A_Procedure..A_Package_Body">
+    <child name="context_item" get="Context_Clause_Elements" list="y"/>
+    <child name="library_item" get="Unit_Declaration"/>
+    <child name="pragma" get="Compilation_Pragmas" list="opt"/>
+  </rule>
+
+  <rule name="compilation_subunit" kind="A_Subunit">
+    <child name="context_item" get="Context_Clause_Elements" list="y"/>
+    <child name="subunit" get="Unit_Declaration"/>
+    <child name="pragma" get="Compilation_Pragmas" list="opt"/>
+  </rule>
+
+  <alt_rule name="context_item">
+    <alternative name="with_clause"/>
+    <alternative name="use_clause"/>
+    <alternative name="pragma"/>
+  </alt_rule>
+
+  <rule name="with_clause" kind="A_With_Clause">
+    <child name="program_unit_name" get="Clause_Names" list="y"/>
+  </rule>
+
+  <alt_rule name="use_clause">
+    <alternative name="use_package_clause"/>
+    <alternative name="use_type_clause"/>
+  </alt_rule>
+
+  <rule name="use_package_clause" kind="A_Use_Package_Clause">
+    <child name="program_unit_name" get="Clause_Names" list="y"/>
+  </rule>
+
+  <rule name="use_type_clause" kind="A_Use_Type_Clause">
+    <child name="subtype_mark" get="Clause_Names" list="y"/>
+  </rule>
+
+  <alt_rule name="library_item">
+    <alternative name="library_unit_declaration"/>
+    <alternative name="library_unit_body"/>
+    <alternative name="library_unit_renaming_declaration"/>
+  </alt_rule>
+
+  <alt_rule name="library_unit_declaration">
+    <alternative name="subprogram_declaration"/>
+    <alternative name="package_declaration"/>
+    <alternative name="generic_declaration"/>
+    <alternative name="generic_instantiation"/>
+  </alt_rule>
+
+  <alt_rule name="library_unit_body">
+    <alternative name="subprogram_body"/>
+    <alternative name="package_body"/>
+  </alt_rule>
+
+  <alt_rule name="library_unit_renaming_declaration">
+    <alternative name="package_renaming_declaration"/>
+    <alternative name="generic_renaming_declaration"/>
+    <alternative name="subprogram_renaming_declaration"/>
+  </alt_rule>
+
+  <alt_rule name="subunit">
+    <alternative name="proper_body"/>
+  </alt_rule>
+
+  <alt_rule name="proper_body">
+    <alternative name="subprogram_body"/>
+    <alternative name="package_body"/>
+    <alternative name="task_body"/>
+    <alternative name="protected_body"/>
+  </alt_rule>
+
+  <alt_rule name="subprogram_declaration">
+    <alternative name="procedure_declaration"/>
+    <alternative name="function_declaration"/>
+  </alt_rule>
+
+  <rule name="procedure_declaration" kind="A_Procedure_Declaration">
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+  </rule>
+
+  <rule name="function_declaration" kind="A_Function_Declaration">
+    <child name="defining_designator" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+    <child name="subtype_mark_or_access_definition" get="Result_Subtype"/>
+  </rule>
+
+  <alt_rule name="defining_program_unit_name">
+    <alternative name="defining_identifier"/>
+    <alternative name="defining_expanded_unit_name"/>
+  </alt_rule>
+
+  <rule name="defining_identifier" kind="A_Defining_Identifier"/>
+
+  <rule name="defining_expanded_unit_name"
+        kind="A_Defining_Expanded_Name">
+    <child name="program_unit_name" get="Defining_Prefix"/>
+    <child name="defining_identifier" get="Defining_Selector"/>
+  </rule>
+
+  <alt_rule name="defining_designator">
+    <alternative name="defining_program_unit_name"/>
+    <alternative name="defining_operator_symbol"/>
+  </alt_rule>
+
+  <rule name="defining_operator_symbol" kind="A_Defining_Operator_Symbol"/>
+
+  <rule name="parameter_specification" kind="A_Parameter_Specification">
+    <child name="defining_identifier" get="Names" list="y"/>
+    <child name="subtype_mark_or_access_definition"
+           get="Object_Declaration_Subtype"/>
+    <child name="expression" get="Initialization_Expression" opt="y"/>
+  </rule>
+
+  <rule name="package_declaration" kind="A_Package_Declaration">
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="basic_declarative_item"
+           get="Visible_Part_Declarative_Items" list="opt"/>
+    <child name="basic_declarative_item"
+           get="Private_Part_Declarative_Items" list="opt"/>
+  </rule>
+
+  <alt_rule name="basic_declarative_item">
+    <alternative name="basic_declaration"/>
+    <alternative name="aspect_clause"/>
+    <alternative name="use_clause"/>
+  </alt_rule>
+
+  <alt_rule name="basic_declaration">
+    <alternative name="type_declaration"/>
+    <alternative name="subtype_declaration"/>
+    <alternative name="object_declaration"/>
+    <alternative name="number_declaration"/>
+    <alternative name="subprogram_declaration"/>
+    <!--alternative name="abstract_subprogram_declaration"/>
+    <alternative name="null_procedure_declaration"/-->
+    <alternative name="package_declaration"/>
+    <alternative name="renaming_declaration"/>
+    <alternative name="exception_declaration"/>
+    <alternative name="generic_declaration"/>
+    <alternative name="generic_instantiation"/>
+  </alt_rule>
+
+  <alt_rule name="type_declaration">
+    <alternative name="full_type_declaration"/>
+    <alternative name="incomplete_type_declaration"/>
+    <alternative name="private_type_declaration"/>
+    <alternative name="private_extension_declaration"/>
+    <alternative name="task_type_declaration"/>
+    <alternative name="protected_type_declaration"/>
+  </alt_rule>
+
+  <rule name="full_type_declaration" kind="An_Ordinary_Type_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="known_discriminant_part" get="Discriminant_Part" opt="y"/>
+    <child name="type_definition" get="Type_Declaration_View"/>
+  </rule>
+
+  <rule name="known_discriminant_part" kind="A_Known_Discriminant_Part">
+    <child name="discriminant_specification" get="Discriminants" list="y"/>
+  </rule>
+
+  <rule name="discriminant_specification"
+        kind="A_Discriminant_Specification">
+    <child name="defining_identifier" get="Names" list="y"/>
+    <child name="subtype_mark_or_access_definition"
+           get="Object_Declaration_Subtype"/>
+    <child name="expression" get="Initialization_Expression" opt="y"/>
+  </rule>
+
+  <alt_rule name="type_definition">
+    <alternative name="enumeration_type_definition"/>
+    <alternative name="integer_type_definition"/>
+    <alternative name="real_type_definition"/>
+    <alternative name="array_type_definition"/>
+    <alternative name="record_type_definition"/>
+    <alternative name="access_type_definition"/>
+    <alternative name="derived_type_definition"/>
+    <alternative name="derived_record_definition"/>
+    <alternative name="interface_type_definition"/>
+  </alt_rule>
+
+  <rule name="enumeration_type_definition"
+        kind="An_Enumeration_Type_Definition">
+    <child name="enumeration_literal_specification"
+           get="Enumeration_Literal_Declarations" list="y"/>
+  </rule>
+
+  <rule name="enumeration_literal_specification"
+        kind="An_Enumeration_Literal_Specification">
+    <child name="defining_enumeration_name" get="Names" list="1"/>
+  </rule>
+
+  <alt_rule name="defining_enumeration_name">
+    <alternative name="defining_enumeration_literal"/>
+    <alternative name="defining_character_literal"/>
+  </alt_rule>
+
+  <rule name="defining_enumeration_literal"
+        kind="A_Defining_Enumeration_Literal"/>
+
+  <rule name="defining_character_literal"
+        kind="A_Defining_Character_Literal"/>
+
+  <alt_rule name="integer_type_definition">
+    <alternative name="signed_integer_type_definition"/>
+    <alternative name="modular_type_definition"/>
+  </alt_rule>
+
+  <rule name="signed_integer_type_definition"
+        kind="A_Signed_Integer_Type_Definition">
+    <child name="simple_expression_range" get="Integer_Constraint"/>
+  </rule>
+
+  <rule name="simple_expression_range" kind="A_Simple_Expression_Range">
+    <child name="simple_expression" get="Lower_Bound"/>
+    <child name="simple_expression" get="Upper_Bound"/>
+  </rule>
+
+  <rule name="modular_type_definition" kind="A_Modular_Type_Definition">
+    <child name="expression" get="Mod_Static_Expression"/>
+  </rule>
+
+  <alt_rule name="real_type_definition">
+    <alternative name="floating_point_definition"/>
+    <alternative name="fixed_point_definition"/>
+  </alt_rule>
+
+  <rule name="floating_point_definition" kind="A_Floating_Point_Definition">
+    <child name="expression" get="Digits_Expression"/>
+    <child name="simple_expression_range" get="Real_Range_Constraint" opt="y"/>
+  </rule>
+
+  <alt_rule name="fixed_point_definition">
+    <alternative name="ordinary_fixed_point_definition"/>
+    <alternative name="decimal_fixed_point_definition"/>
+  </alt_rule>
+
+  <rule name="ordinary_fixed_point_definition"
+        kind="An_Ordinary_Fixed_Point_Definition">
+    <child name="expression" get="Delta_Expression"/>
+    <child name="simple_expression_range" get="Real_Range_Constraint"/>
+  </rule>
+
+  <rule name="decimal_fixed_point_definition"
+        kind="A_Decimal_Fixed_Point_Definition">
+    <child name="expression" get="Delta_Expression"/>
+    <child name="expression" get="Digits_Expression"/>
+    <child name="simple_expression_range" get="Real_Range_Constraint" opt="y"/>
+  </rule>
+
+  <alt_rule name="array_type_definition">
+    <alternative name="unconstrained_array_definition"/>
+    <alternative name="constrained_array_definition"/>
+  </alt_rule>
+
+  <rule name="unconstrained_array_definition"
+        kind="An_Unconstrained_Array_Definition">
+    <child name="subtype_mark" get="Index_Subtype_Definitions" list="y"/>
+    <child name="component_definition" get="Array_Component_Definition"/>
+  </rule>
+
+  <rule name="constrained_array_definition"
+        kind="A_Constrained_Array_Definition">
+    <child name="discrete_subtype_definition"
+           get="Discrete_Subtype_Definitions" list="y"/>
+    <child name="component_definition" get="Array_Component_Definition"/>
+  </rule>
+
+  <alt_rule name="discrete_subtype_definition">
+    <alternative name="discrete_subtype_indication"/>
+    <alternative name="discrete_range_attribute_reference"/>
+    <alternative name="discrete_simple_expression_range"/>
+  </alt_rule>
+
+  <rule name="discrete_subtype_indication"
+        kind="A_Discrete_Subtype_Definition"
+        subkind="A_Discrete_Subtype_Indication">
+    <child name="subtype_mark" get="Subtype_Mark"/>
+    <child name="range_constraint" get="Subtype_Constraint"/>
+  </rule>
+
+  <rule name="discrete_range_attribute_reference"
+        kind="A_Discrete_Subtype_Definition"
+        subkind="A_Discrete_Range_Attribute_Reference">
+    <child name="attribute_reference" get="Range_Attribute"/>
+  </rule>
+
+  <rule name="discrete_simple_expression_range"
+        kind="A_Discrete_Subtype_Definition"
+        subkind="A_Discrete_Simple_Expression_Range">
+    <child name="simple_expression" get="Lower_Bound"/>
+    <child name="simple_expression" get="Upper_Bound"/>
+  </rule>
+
+  <alt_rule name="range_constraint">
+    <alternative name="range_attribute_reference"/>
+    <alternative name="simple_expression_range"/>
+  </alt_rule>
+
+
+  <rule name="range_attribute_reference" kind="A_Range_Attribute_Reference">
+    <child name="attribute_reference" get="Range_Attribute"/>
+  </rule>
+
+  <rule name="component_definition" kind="A_Component_Definition">
+    <child name="subtype_indication_or_access_definition"
+           get="Component_Subtype_Indication"/>
+  </rule>
+
+  <rule name="record_type_definition"
+        kind="A_Record_Type_Definition|A_Tagged_Record_Type_Definition">
+    <child name="alt_record_definition"
+           get="Record_Definition"/>
+  </rule>
+
+  <alt_rule name="alt_record_definition">
+    <alternative name="record_definition"/>
+    <alternative name="null_record_definition"/>
+  </alt_rule>
+
+  <rule name="record_definition" kind="A_Record_Definition">
+    <child name="component_item" get="Record_Components" list="y"/>
+  </rule>
+
+  <alt_rule name="component_item">
+    <alternative name="component_declaration"/>
+    <alternative name="aspect_clause"/>
+    <alternative name="variant_part"/>
+    <alternative name="null_component"/>
+  </alt_rule>
+
+  <rule name="component_declaration" kind="A_Component_Declaration">
+    <child name="defining_identifier" get="Names" list="y"/>
+    <child name="component_definition"
+           get="Object_Declaration_Subtype"/>
+    <child name="expression" get="Initialization_Expression" opt="y"/>
+  </rule>
+
+  <rule name="variant_part" kind="A_Variant_Part">
+    <child name="identifier" get="Discriminant_Direct_Name"/>
+    <child name="pragma" get="Pragmas" list="opt"/>
+    <child name="variant" get="Variants" list="y"/>
+  </rule>
+
+  <rule name="variant" kind="A_Variant">
+    <child name="discrete_choice" get="Variant_Choices" list="y"/>
+    <child name="component_item" get="Record_Components" list="y"/>
+  </rule>
+
+  <alt_rule name="discrete_choice">
+    <alternative name="expression"/>
+    <alternative name="discrete_range"/>
+    <alternative name="others_choice"/>
+  </alt_rule>
+
+  <alt_rule name="discrete_range">
+    <alternative name="discrete_subtype_indication2"/>
+    <alternative name="range"/>
+  </alt_rule>
+
+  <alt_rule name="range">
+    <alternative name="range_attribute_reference2"/>
+    <alternative name="simple_expression_range2"/>
+  </alt_rule>
+
+  <rule name="discrete_subtype_indication2"
+        kind="A_Discrete_Range"
+        subkind="A_Discrete_Subtype_Indication">
+    <child name="subtype_mark" get="Subtype_Mark"/>
+    <child name="range_constraint" get="Subtype_Constraint"/>
+  </rule>
+
+  <rule name="range_attribute_reference2"
+        kind="A_Discrete_Range"
+        subkind="A_Discrete_Range_Attribute_Reference">
+    <child name="attribute_reference" get="Range_Attribute"/>
+  </rule>
+
+  <rule name="simple_expression_range2"
+        kind="A_Discrete_Range"
+        subkind="A_Discrete_Simple_Expression_Range">
+    <child name="simple_expression" get="Lower_Bound"/>
+    <child name="simple_expression" get="Upper_Bound"/>
+  </rule>
+
+  <rule name="others_choice" kind="An_Others_Choice"/>
+
+  <rule name="null_component" kind="A_Null_Component"/>
+
+  <rule name="null_record_definition" kind="A_Null_Record_Definition"/>
+
+  <alt_rule name="access_type_definition">
+    <alternative name="access_to_object_definition"/>
+    <alternative name="access_to_function_definition"/>
+    <alternative name="access_to_procedure_definition"/>
+  </alt_rule>
+
+  <rule name="access_to_object_definition"
+        kind="Access_To_Object_Definition">
+    <child name="subtype_indication" get="Access_To_Object_Definition"/>
+  </rule>
+
+  <rule name="access_to_procedure_definition"
+        kind="An_Access_To_Procedure|An_Access_To_Protected_Procedure">
+    <child name="parameter_specification"
+           get="Access_To_Subprogram_Parameter_Profile" list="opt"/>
+  </rule>
+
+  <rule name="access_to_function_definition"
+        kind="An_Access_To_Function|An_Access_To_Protected_Function">
+    <child name="parameter_specification"
+           get="Access_To_Subprogram_Parameter_Profile" list="opt"/>
+    <child name="subtype_mark_or_access_definition"
+           get="Access_To_Function_Result_Subtype"/>
+  </rule>
+
+  <rule name="derived_type_definition" kind="A_Derived_Type_Definition">
+    <child name="subtype_indication" get="Parent_Subtype_Indication"/>
+  </rule>
+
+  <rule name="derived_record_definition"
+        kind="A_Derived_Record_Extension_Definition">
+    <child name="subtype_indication" get="Parent_Subtype_Indication"/>
+    <child name="subtype_mark" get="Progenitor_List" list="opt"/>
+    <child name="record_definition" get="Record_Definition"/>
+  </rule>
+
+  <rule name="interface_type_definition" 
+        kind="An_Interface_Type_Definition">
+    <child name="subtype_mark" get="Progenitor_List" list="opt"/>
+  </rule>
+
+  <rule name="incomplete_type_declaration"
+        kind="An_Incomplete_Type_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="known_discriminant_part" get="Discriminant_Part" opt="y"/>
+    <child name="incomplete_type_definition" get="Type_Declaration_View"/>
+  </rule>
+
+  <alt_rule name="incomplete_type_definition">
+    <alternative name="tagged_incomplete_type_definition"/>
+    <alternative name="untagged_incomplete_type_definition"/>
+  </alt_rule>
+
+  <rule name="tagged_incomplete_type_definition"
+        kind="A_Tagged_Incomplete_Type_Definition"/>
+
+  <rule name="untagged_incomplete_type_definition"
+        kind="An_Incomplete_Type_Definition"/>
+
+  <rule name="private_type_declaration" 
+        kind="A_Private_Type_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="known_discriminant_part" get="Discriminant_Part" opt="y"/>
+    <child name="private_type_definition" get="Type_Declaration_View"/>
+  </rule>
+
+  <alt_rule name="private_type_definition">
+    <alternative name="tagged_private_type_definition"/>
+    <alternative name="untagged_private_type_definition"/>
+  </alt_rule>
+
+  <rule name="tagged_private_type_definition"
+        kind="A_Tagged_Private_Type_Definition"/>
+
+  <rule name="untagged_private_type_definition"
+        kind="A_Private_Type_Definition"/>
+
+  <rule name="private_extension_declaration"
+        kind="A_Private_Extension_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="known_discriminant_part" get="Discriminant_Part" opt="y"/>
+    <child name="private_extension_definition" get="Type_Declaration_View"/>
+    <child name="subtype_mark" get="Progenitor_List" list="opt"/>
+  </rule>
+
+  <rule name="private_extension_definition"
+        kind="A_Private_Extension_Definition">
+    <child name="subtype_indication" get="Ancestor_Subtype_Indication"/>
+  </rule>
+
+  <rule name="task_type_declaration" kind="A_Task_Type_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="known_discriminant_part" get="Discriminant_Part" opt="y"/>
+    <child name="task_definition" get="Type_Declaration_View"/>
+    <child name="subtype_mark" get="Progenitor_List" list="opt"/>
+  </rule>
+
+  <rule name="task_definition" kind="A_Task_Definition">
+    <child name="task_item" get="Visible_Part_Declarative_Items" list="opt"/>
+    <child name="task_item" get="Private_Part_Declarative_Items" list="opt"/>
+  </rule>
+
+  <alt_rule name="task_item">
+    <alternative name="entry_declaration"/>
+    <alternative name="aspect_clause"/>
+  </alt_rule>
+
+  <rule name="entry_declaration" kind="An_Entry_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="discrete_subtype_definition"
+           get="Entry_Family_Definition" opt="y"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+  </rule>
+
+  <rule name="protected_type_declaration"
+	kind="A_Protected_Type_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="known_discriminant_part" get="Discriminant_Part" opt="y"/>
+    <child name="protected_definition" get="Type_Declaration_View"/>
+    <child name="subtype_mark" get="Progenitor_List" list="opt"/>
+  </rule>
+
+  <rule name="protected_definition" kind="A_Protected_Definition">
+    <child name="protected_operation_declaration"
+           get="Visible_Part_Declarative_Items" list="opt"/>
+    <child name="protected_element_declaration"
+           get="Private_Part_Declarative_Items" list="opt"/>
+  </rule>
+
+  <alt_rule name="protected_operation_declaration">
+    <alternative name="subprogram_declaration"/>
+    <alternative name="entry_declaration"/>
+    <alternative name="aspect_clause"/>
+  </alt_rule>
+
+  <alt_rule name="protected_element_declaration">
+    <alternative name="protected_operation_declaration"/>
+    <alternative name="component_declaration"/>
+  </alt_rule>
+
+  <rule name="subtype_declaration" kind="A_Subtype_Declaration">
+    <child name="defining_identifier" get="Names" list="y"/>
+    <child name="subtype_indication" get="Type_Declaration_View"/>
+  </rule>
+
+  <rule name="subtype_indication" kind="A_Subtype_Indication">
+    <child name="subtype_mark" get="Subtype_Mark"/>
+    <child name="constraint" get="Subtype_Constraint" opt="y"/>
+  </rule>
+
+  <alt_rule name="subtype_mark">
+    <alternative name="identifier"/>
+    <alternative name="selected_identifier"/>
+    <alternative name="subtype_attribute_reference"/>
+  </alt_rule>
+
+  <alt_rule name="constraint">
+    <alternative name="scalar_constraint"/>
+    <alternative name="composite_constraint"/>
+  </alt_rule>
+
+  <alt_rule name="scalar_constraint">
+    <alternative name="range_constraint"/>
+    <alternative name="digits_constraint"/>
+    <alternative name="delta_constraint"/>
+  </alt_rule>
+
+  <alt_rule name="composite_constraint">
+    <alternative name="index_constraint"/>
+    <alternative name="discriminant_constraint"/>
+  </alt_rule>
+
+  <rule name="digits_constraint" kind="A_Digits_Constraint">
+    <child name="expression" get="Digits_Expression"/>
+    <child name="range_constraint" get="Real_Range_Constraint" opt="y"/>
+  </rule>
+
+  <rule name="delta_constraint" kind="A_Delta_Constraint">
+    <child name="expression" get="Delta_Expression"/>
+    <child name="range_constraint" get="Real_Range_Constraint" opt="y"/>
+  </rule>
+
+  <rule name="index_constraint" kind="An_Index_Constraint">
+    <child name="discrete_range" get="Discrete_Ranges" list="y"/>
+  </rule>
+
+  <rule name="discriminant_constraint" kind="A_Discriminant_Constraint">
+    <child name="discriminant_association"
+           get="Discriminant_Associations" list="y"/>
+  </rule>
+
+  <rule name="discriminant_association" kind="A_Discriminant_Association">
+    <child name="identifier" get="Discriminant_Selector_Names" opt="y"/>
+    <child name="expression" get="Discriminant_Expression"/>
+  </rule>
+
+  <alt_rule name="object_declaration">
+    <alternative name="variable_declaration"/>
+    <alternative name="constant_declaration"/>
+    <alternative name="deferred_constant_declaration"/>
+    <alternative name="single_task_declaration"/>
+    <alternative name="single_protected_declaration"/>
+  </alt_rule>
+
+  <rule name="variable_declaration" kind="A_Variable_Declaration">
+    <child name="defining_identifier" get="Names" list="y"/>
+    <child name="object_definition"
+           get="Object_Declaration_Subtype"/>
+    <child name="expression" get="Initialization_Expression" opt="y"/>
+  </rule>
+
+  <rule name="constant_declaration" kind="A_Constant_Declaration">
+    <child name="defining_identifier" get="Names" list="y"/>
+    <child name="object_definition" get="Object_Declaration_Subtype"/>
+    <child name="expression" get="Initialization_Expression"/>
+  </rule>
+
+  <rule name="deferred_constant_declaration"
+        kind="A_Deferred_Constant_Declaration">
+    <child name="defining_identifier" get="Names" list="y"/>
+    <child name="object_definition" get="Object_Declaration_Subtype"/>
+  </rule>
+
+  <alt_rule name="object_definition">
+    <alternative name="subtype_indication"/>
+    <alternative name="access_definition"/>
+    <alternative name="array_type_definition"/>
+  </alt_rule>
+
+  <rule name="single_task_declaration" kind="A_Single_Task_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="subtype_mark" get="Progenitor_List" list="opt"/>
+    <child name="task_definition" get="Object_Declaration_Subtype"/>
+  </rule>
+
+  <rule name="single_protected_declaration"
+        kind="A_Single_Protected_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="subtype_mark" get="Progenitor_List" list="opt"/>
+    <child name="protected_definition" get="Object_Declaration_Subtype"/>
+  </rule>
+
+  <rule name="number_declaration"
+        kind="An_Integer_Number_Declaration|A_Real_Number_Declaration">
+    <child name="defining_identifier" get="Names" list="y"/>
+    <child name="expression" get="Initialization_Expression"/>
+  </rule>
+
+  <alt_rule name="renaming_declaration">
+    <alternative name="object_renaming_declaration"/>
+    <alternative name="exception_renaming_declaration"/>
+    <alternative name="package_renaming_declaration"/>
+    <alternative name="subprogram_renaming_declaration"/>
+    <alternative name="generic_renaming_declaration"/>
+  </alt_rule>
+
+  <rule name="object_renaming_declaration" 
+        kind="An_Object_Renaming_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="subtype_mark_or_access_definition"
+           get="Object_Declaration_Subtype"/>
+    <child name="name" get="Renamed_Entity"/>
+  </rule>
+
+  <rule name="exception_renaming_declaration" 
+        kind="An_Exception_Renaming_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="name" get="Renamed_Entity"/>
+  </rule>
+
+  <rule name="package_renaming_declaration" 
+        kind="A_Package_Renaming_Declaration">
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="name" get="Renamed_Entity"/>
+  </rule>
+
+  <alt_rule name="subprogram_renaming_declaration">
+    <alternative name="procedure_renaming_declaration"/>
+    <alternative name="function_renaming_declaration"/>
+  </alt_rule>
+
+  <rule name="procedure_renaming_declaration" 
+        kind="A_Procedure_Renaming_Declaration">
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+    <child name="name" get="Renamed_Entity"/>
+  </rule>
+
+  <rule name="function_renaming_declaration" 
+        kind="A_Function_Renaming_Declaration">
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+    <child name="subtype_mark_or_access_definition" get="Result_Subtype"/>
+    <child name="name" get="Renamed_Entity"/>
+  </rule>
+
+  <rule name="generic_renaming_declaration"
+        kind="A_Generic_Package_Renaming_Declaration|
+                 A_Generic_Procedure_Renaming_Declaration|
+                 A_Generic_Function_Renaming_Declaration">
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="name" get="Renamed_Entity"/>
+  </rule>
+
+  <rule name="exception_declaration" kind="An_Exception_Declaration">
+    <child name="defining_identifier" get="Names" list="y"/>
+  </rule>
+
+  <alt_rule name="generic_declaration">
+    <alternative name="generic_package_declaration"/>
+    <alternative name="generic_procedure_declaration"/>
+    <alternative name="generic_function_declaration"/>
+  </alt_rule>
+
+  <rule name="generic_package_declaration"
+        kind="A_Generic_Package_Declaration">
+    <child name="generic_formal_parameter_declaration"
+           get="Generic_Formal_Part" list="opt"/>
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="basic_declarative_item"
+           get="Visible_Part_Declarative_Items" list="opt"/>
+    <child name="basic_declarative_item"
+           get="Private_Part_Declarative_Items" list="opt"/>
+  </rule>
+
+  <rule name="generic_procedure_declaration"
+        kind="A_Generic_Procedure_Declaration">
+    <child name="generic_formal_parameter_declaration"
+           get="Generic_Formal_Part" list="opt"/>
+    <child name="defining_designator" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+  </rule>
+
+  <rule name="generic_function_declaration"
+        kind="A_Generic_Function_Declaration">
+    <child name="generic_formal_parameter_declaration"
+           get="Generic_Formal_Part" list="opt"/>
+    <child name="defining_designator" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+    <child name="subtype_mark_or_access_definition" get="Result_Subtype"/>
+  </rule>
+
+  <alt_rule name="generic_formal_parameter_declaration">
+    <alternative name="use_clause"/>
+    <alternative name="formal_object_declaration"/>
+    <alternative name="formal_type_declaration"/>
+    <alternative name="formal_subprogram_declaration"/>
+    <alternative name="formal_package_declaration"/>
+  </alt_rule>
+
+  <alt_rule name="aspect_clause">
+    <alternative name="attribute_definition_clause"/>
+    <alternative name="enumeration_representation_clause"/>
+    <alternative name="record_representation_clause"/>
+    <alternative name="at_clause"/>
+    <alternative name="pragma"/>
+  </alt_rule>
+
+  <alt_rule name="program_unit_name">
+    <alternative name="identifier"/>
+    <alternative name="selected_identifier"/>
+  </alt_rule>
+
+  <rule name="selected_identifier" kind="A_Selected_Component">
+    <child name="program_unit_name" get="Prefix"/>
+    <child name="identifier" get="Selector"/>
+  </rule>
+
+  <rule name="pragma" kind="A_Pragma">
+    <child name="pragma_argument_association"
+           get="Pragma_Argument_Associations" list="opt"/>
+  </rule>
+
+  <rule name="pragma_argument_association"
+        kind="A_Pragma_Argument_Association">
+    <child name="identifier" get="Formal_Parameter" opt="y"/>
+    <child name="expression" get="Actual_Parameter"/>
+  </rule>
+
+  <alt_rule name="subtype_mark_or_access_definition">
+    <alternative name="subtype_mark"/>
+    <alternative name="access_definition"/>
+  </alt_rule>
+
+  <rule name="identifier" kind="An_Identifier"/>
+
+  <rule name="subtype_attribute_reference" kind="An_Attribute_Reference">
+    <child name="subtype_mark" get="Prefix"/>
+    <child name="identifier" get="Attribute_Designator_Identifier"/>
+  </rule>
+
+  <alt_rule name="expression">
+    <alternative name="short_circuit"/>
+    <alternative name="relation"/>
+  </alt_rule>
+
+  <rule name="short_circuit"
+        kind="An_And_Then_Short_Circuit|An_Or_Else_Short_Circuit">
+    <child name="relation" get="Short_Circuit_Operation_Left_Expression"/>
+    <child name="relation" get="Short_Circuit_Operation_Right_Expression"/>
+  </rule>
+
+  <alt_rule name="relation">
+    <alternative name="range_membership_test"/>
+    <alternative name="type_membership_test"/>
+    <alternative name="simple_expression"/>
+  </alt_rule>
+
+  <rule name="range_membership_test"
+        kind="An_In_Range_Membership_Test|A_Not_In_Range_Membership_Test">
+    <child name="simple_expression" get="Membership_Test_Expression"/>
+    <child name="range_constraint" get="Membership_Test_Range"/>
+  </rule>
+
+  <rule name="type_membership_test"
+        kind="An_In_Type_Membership_Test|A_Not_In_Type_Membership_Test">
+    <child name="simple_expression" get="Membership_Test_Expression"/>
+    <child name="subtype_mark" get="Membership_Test_Subtype_Mark"/>
+  </rule>
+
+  <alt_rule name="simple_expression">
+    <alternative name="integer_literal"/>
+    <alternative name="real_literal"/>
+    <alternative name="null_literal"/>
+    <alternative name="string_literal"/>
+    <alternative name="aggregate"/>
+    <alternative name="name"/>
+    <alternative name="qualified_expression"/>
+    <alternative name="allocator"/>
+    <alternative name="parenthesized_expression"/>
+  </alt_rule>
+
+  <rule name="integer_literal" kind="An_Integer_Literal"/>
+  <rule name="real_literal" kind="A_Real_Literal"/>
+  <rule name="null_literal" kind="A_Null_Literal"/>
+  <rule name="string_literal" kind="A_String_Literal"/>
+
+  <alt_rule name="aggregate">
+    <alternative name="record_aggregate"/>
+    <alternative name="extension_aggregate"/>
+    <alternative name="array_aggregate"/>
+  </alt_rule>
+
+  <rule name="record_aggregate" kind="An_Integer_Literal">
+    <child name="record_component_association"
+           get="Record_Component_Associations" list="opt"/>
+  </rule>
+
+  <rule name="record_component_association"
+        kind="A_Record_Component_Association">
+    <child name="component_choice" get="Record_Component_Choices" list="opt"/>
+    <child name="expression" get="Component_Expression"/>
+  </rule>
+
+  <alt_rule name="component_choice">
+    <alternative name="identifier"/>
+    <alternative name="others_choice"/>
+  </alt_rule>
+
+  <rule name="extension_aggregate" kind="An_Extension_Aggregate">
+    <child name="record_component_association"
+           get="Record_Component_Associations" list="opt"/>
+    <child name="expression" get="Extension_Aggregate_Expression"/>
+  </rule>
+
+  <rule name="array_aggregate"
+        kind="A_Positional_Array_Aggregate|A_Named_Array_Aggregate">
+    <child name="array_component_association"
+           get="Array_Component_Associations" list="y"/>
+  </rule>
+
+  <rule name="array_component_association"
+        kind="An_Array_Component_Association">
+    <child name="discrete_choice" get="Array_Component_Choices" list="opt"/>
+    <child name="expression_or_box" get="Component_Expression"/>
+  </rule>
+
+  <alt_rule name="expression_or_box">
+    <alternative name="expression"/>
+    <alternative name="box"/>
+  </alt_rule>
+
+  <rule name="box" kind="A_Box_Expression"/>
+
+  <alt_rule name="name">
+    <alternative name="direct_name"/>
+    <alternative name="explicit_dereference"/>
+    <alternative name="indexed_component"/>
+    <alternative name="slice"/>
+    <alternative name="selected_component"/>
+    <alternative name="attribute_reference"/>
+    <alternative name="type_conversion"/>
+    <alternative name="function_call"/>
+    <alternative name="character_literal"/>
+  </alt_rule>
+
+  <alt_rule name="direct_name">
+    <alternative name="identifier"/>
+    <alternative name="operator_symbol"/>
+    <alternative name="enumeration_literal"/>
+  </alt_rule>
+
+  <rule name="operator_symbol" kind="An_Operator_Symbol"/>
+  <rule name="character_literal" kind="A_Character_Literal"/>
+  <rule name="enumeration_literal" kind="An_Enumeration_Literal"/>
+
+  <rule name="explicit_dereference" kind="An_Explicit_Dereference">
+    <child name="name" get="Prefix"/>
+  </rule>
+
+  <rule name="indexed_component" kind="An_Indexed_Component">
+    <child name="prefix" get="Prefix"/>
+    <child name="expression" get="Index_Expressions" list="y"/>
+  </rule>
+
+  <rule name="slice" kind="A_Slice">
+    <child name="prefix" get="Prefix"/>
+    <child name="discrete_range" get="Slice_Range"/>
+  </rule>
+
+  <rule name="selected_component" kind="A_Selected_Component">
+    <child name="prefix" get="Prefix"/>
+    <child name="selector_name" get="Selector"/>
+  </rule>
+
+  <alt_rule name="selector_name">  <!-- direct_name -->
+    <alternative name="identifier"/>
+    <alternative name="operator_symbol"/>
+    <alternative name="enumeration_literal"/>
+  </alt_rule>
+
+  <rule name="attribute_reference" kind="An_Attribute_Reference">
+    <child name="prefix" get="Prefix"/>
+    <child name="identifier" get="Attribute_Designator_Identifier"/>
+    <child name="expression" get="Attribute_Designator_Expressions"
+           list="opt"/>
+  </rule>
+
+  <rule name="type_conversion" kind="A_Type_Conversion">
+    <child name="subtype_mark" get="Converted_Or_Qualified_Subtype_Mark"/>
+    <child name="expression" get="Converted_Or_Qualified_Expression"/>
+  </rule>
+
+  <rule name="qualified_expression" kind="A_Qualified_Expression">
+    <child name="subtype_mark" get="Converted_Or_Qualified_Subtype_Mark"/>
+    <child name="expression" get="Converted_Or_Qualified_Expression"/>
+  </rule>
+
+  <rule name="function_call" kind="A_Function_Call">
+    <child name="prefix" get="Prefix"/>
+    <child name="parameter_association"
+           get="Function_Call_Parameters"/>
+  </rule>
+
+  <rule name="parameter_association" kind="A_Parameter_Association">
+    <child name="identifier" get="Formal_Parameter" opt="y"/>
+    <child name="expression" get="Actual_Parameter"/>
+  </rule>
+
+  <alt_rule name="allocator">
+    <alternative name="allocation_from_subtype"/>
+    <alternative name="allocation_from_qualified_expression"/>
+  </alt_rule>
+
+  <rule name="allocation_from_subtype" kind="An_Allocation_From_Subtype">
+    <child name="subtype_indication" get="Allocator_Subtype_Indication"/>
+  </rule>
+
+  <rule name="allocation_from_qualified_expression"
+        kind="An_Allocation_From_Qualified_Expression">
+    <child name="qualified_expression" get="Allocator_Qualified_Expression"/>
+  </rule>
+
+  <rule name="parenthesized_expression" kind="A_Parenthesized_Expression">
+    <child name="expression" get="Expression_Parenthesized"/>
+  </rule>
+
+  <alt_rule name="prefix">
+    <alternative name="name"/>
+  </alt_rule>
+
+  <alt_rule name="access_definition">
+    <alternative name="anonymous_access_to_object_definition"/>
+    <alternative name="anonymous_access_to_function_definition"/>
+    <alternative name="anonymous_access_to_procedure_definition"/>
+  </alt_rule>
+
+  <rule name="anonymous_access_to_object_definition"
+        kind="An_Anonymous_Access_to_Object_Definition">
+    <child name="subtype_mark" get="Anonymous_Access_To_Object_Subtype_Mark"/>
+  </rule>
+
+  <rule name="anonymous_access_to_procedure_definition"
+        kind="An_Anonymous_Access_To_Procedure|An_Anonymous_Access_To_Protected_Procedure">
+    <child name="parameter_specification"
+           get="Access_To_Subprogram_Parameter_Profile" list="opt"/>
+  </rule>
+
+  <rule name="anonymous_access_to_function_definition"
+        kind="An_Anonymous_Access_To_Function|An_Anonymous_Access_To_Protected_Function">
+    <child name="parameter_specification"
+           get="Access_To_Subprogram_Parameter_Profile" list="opt"/>
+    <child name="subtype_mark_or_access_definition"
+           get="Access_To_Function_Result_Subtype"/>
+  </rule>
+
+  <rule name="attribute_definition_clause"
+        kind="An_Attribute_Definition_Clause">
+    <child name="attribute_reference"
+           get="Representation_Clause_Name"/>
+    <child name="expression" get="Representation_Clause_Expression"/>
+  </rule>
+
+  <rule name="enumeration_representation_clause"
+        kind="An_Enumeration_Representation_Clause">
+    <child name="identifier"
+           get="Representation_Clause_Name"/>
+    <child name="expression" get="Representation_Clause_Expression"/>
+  </rule>
+
+  <rule name="record_representation_clause"
+        kind="A_Record_Representation_Clause">
+    <child name="identifier"
+           get="Representation_Clause_Name"/>
+    <child name="expression" get="Mod_Clause_Expression" opt="y"/>
+    <child name="component_clause" get="Component_Clauses" list="opt"/>
+  </rule>
+
+  <rule name="component_clause"
+        kind="A_Component_Clause">
+    <child name="identifier"
+           get="Representation_Clause_Name"/>
+    <child name="expression" get="Component_Clause_Position"/>
+    <child name="discrete_simple_expression_range"
+	   get="Component_Clause_Range"/>
+  </rule>
+
+  <rule name="at_clause" kind="An_At_Clause">
+    <child name="identifier" get="Representation_Clause_Name"/>
+    <child name="expression" get="Representation_Clause_Expression"/>
+  </rule>
+
+  <alt_rule name="subtype_indication_or_access_definition">
+    <alternative name="subtype_indication"/>
+    <alternative name="access_definition"/>
+  </alt_rule>
+
+  <rule name="formal_object_declaration" kind="A_Formal_Object_Declaration">
+    <child name="defining_identifier" get="Names" list="y"/>
+    <child name="subtype_mark_or_access_definition"
+           get="Object_Declaration_Subtype"/>
+    <child name="expression" get="Initialization_Expression" opt="y"/>
+  </rule>
+
+  <rule name="formal_type_declaration" kind="A_Formal_Type_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="known_discriminant_part" get="Discriminant_Part" opt="y"/>
+    <child name="formal_type_definition" get="Type_Declaration_View"/>
+  </rule>
+
+  <alt_rule name="formal_type_definition">
+    <alternative name="formal_private_type_definition"/>
+    <alternative name="formal_derived_type_definition"/>
+    <alternative name="formal_discrete_type_definition"/>
+    <alternative name="formal_signed_integer_type_definition"/>
+    <alternative name="formal_modular_type_definition"/>
+    <alternative name="formal_floating_point_definition"/>
+    <alternative name="formal_ordinary_fixed_point_definition"/>
+    <alternative name="formal_decimal_fixed_point_definition"/>
+    <alternative name="formal_array_type_definition"/>
+    <alternative name="formal_access_type_definition"/>
+    <alternative name="formal_interface_type_definition"/>
+  </alt_rule>
+
+  <rule name="formal_private_type_definition"
+	kind="A_Formal_Private_Type_Definition|A_Formal_Tagged_Private_Type_Definition"/>
+
+  <rule name="formal_derived_type_definition"
+	kind="A_Formal_Derived_Type_Definition">
+    <child name="subtype_mark" get="Subtype_Mark"/>
+    <child name="subtype_mark" get="Progenitor_List" list="opt"/>
+  </rule>
+
+  <rule name="formal_discrete_type_definition"
+	kind="A_Formal_Discrete_Type_Definition"/>
+
+  <rule name="formal_signed_integer_type_definition"
+	kind="A_Formal_Signed_Integer_Type_Definition"/>
+
+  <rule name="formal_modular_type_definition"
+	kind="A_Formal_Modular_Type_Definition"/>
+
+  <rule name="formal_floating_point_definition"
+	kind="A_Formal_Floating_Point_Definition"/>
+
+  <rule name="formal_ordinary_fixed_point_definition"
+	kind="A_Formal_Ordinary_Fixed_Point_Definition"/>
+
+  <rule name="formal_decimal_fixed_point_definition"
+	kind="A_Formal_Decimal_Fixed_Point_Definition"/>
+
+  <alt_rule name="formal_array_type_definition">
+    <alternative name="formal_unconstrained_array_definition"/>
+    <alternative name="formal_constrained_array_definition"/>
+  </alt_rule>
+
+  <rule name="formal_unconstrained_array_definition"
+        kind="A_Formal_Unconstrained_Array_Definition">
+    <child name="subtype_mark" get="Index_Subtype_Definitions" list="y"/>
+    <child name="component_definition" get="Array_Component_Definition"/>
+  </rule>
+
+  <rule name="formal_constrained_array_definition"
+        kind="A_Formal_Constrained_Array_Definition">
+    <child name="discrete_subtype_definition"
+           get="Discrete_Subtype_Definitions" list="y"/>
+    <child name="component_definition" get="Array_Component_Definition"/>
+  </rule>
+
+  <alt_rule name="formal_access_type_definition">
+    <alternative name="access_type_definition"/>
+  </alt_rule>
+
+  <rule name="formal_interface_type_definition" 
+        kind="A_Formal_Interface_Type_Definition">
+    <child name="subtype_mark" get="Progenitor_List" list="opt"/>
+  </rule>
+
+  <alt_rule name="formal_subprogram_declaration">
+    <alternative name="formal_procedure_declaration"/>
+    <alternative name="formal_function_declaration"/>
+  </alt_rule>
+
+  <rule name="formal_procedure_declaration"
+	kind="A_Formal_Procedure_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+    <child name="name" get="Formal_Subprogram_Default" opt="y"/>
+  </rule>
+
+  <rule name="formal_function_declaration" kind="A_Formal_Function_Declaration">    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+    <child name="name" get="Formal_Subprogram_Default" opt="y"/>
+    <child name="subtype_mark_or_access_definition" get="Result_Subtype"/>
+  </rule>
+
+  <alt_rule name="formal_package_declaration">
+    <alternative name="formal_package_declaration_with_box"/>
+    <alternative name="formal_package_declaration_with_actual_part"/>
+  </alt_rule>
+
+  <rule name="formal_package_declaration_with_box"
+        kind="A_Formal_Package_Declaration_With_Box">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="program_unit_name" get="Generic_Unit_Name"/>
+  </rule>
+
+  <rule name="formal_package_declaration_with_actual_part"
+        kind="A_Formal_Package_Declaration">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="program_unit_name" get="Generic_Unit_Name"/>
+    <child name="generic_association" get="Generic_Actual_Part" list="opt"/>
+  </rule>
+
+  <rule name="generic_association" kind="A_Generic_Association">
+    <child name="generic_formal_parameter" get="Formal_Parameter" opt="y"/>
+    <child name="expression" get="Actual_Parameter"/>
+  </rule>
+
+  <alt_rule name="generic_formal_parameter">
+    <alternative name="selector_name"/>
+    <alternative name="others_choice"/>
+  </alt_rule>
+
+  <alt_rule name="generic_instantiation">
+    <alternative name="package_instantiation"/>
+    <alternative name="procedure_instantiation"/>
+    <alternative name="function_instantiation"/>
+  </alt_rule>
+
+  <rule name="package_instantiation" kind="A_Package_Instantiation">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="program_unit_name" get="Generic_Unit_Name"/>
+    <child name="generic_association" get="Generic_Actual_Part" list="opt"/>
+  </rule>
+
+  <rule name="procedure_instantiation" kind="A_Procedure_Instantiation">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="program_unit_name" get="Generic_Unit_Name"/>
+    <child name="generic_association" get="Generic_Actual_Part" list="opt"/>
+  </rule>
+
+  <rule name="function_instantiation" kind="A_Function_Instantiation">
+    <child name="defining_designator" get="Names" list="1"/>
+    <child name="program_unit_name" get="Generic_Unit_Name"/>
+    <child name="generic_association" get="Generic_Actual_Part" list="opt"/>
+  </rule>
+
+  <alt_rule name="subprogram_body">
+    <alternative name="procedure_body"/>
+    <alternative name="function_body"/>
+  </alt_rule>
+
+  <rule name="procedure_body" kind="A_Procedure_Body_Declaration">
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+    <child name="declarative_item" get="Body_Declarative_Items" list="opt"/>
+    <child name="statement" get="Body_Statements" list="opt"/>
+    <child name="exception_handler" get="Body_Exception_Handlers" list="opt"/>
+  </rule>
+
+  <rule name="function_body" kind="A_Function_Body_Declaration">
+    <child name="defining_designator" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+    <child name="subtype_mark_or_access_definition" get="Result_Subtype"/>
+    <child name="declarative_item" get="Body_Declarative_Items" list="opt"/>
+    <child name="statement" get="Body_Statements" list="opt"/>
+    <child name="exception_handler" get="Body_Exception_Handlers" list="opt"/>
+  </rule>
+
+  <alt_rule name="declarative_item">
+    <alternative name="basic_declarative_item"/>
+    <alternative name="body"/>
+  </alt_rule>
+
+  <alt_rule name="body">
+    <alternative name="proper_body"/>
+    <alternative name="body_stub"/>
+  </alt_rule>
+
+  <alt_rule name="body_stub">
+    <alternative name="procedure_body_stub"/>
+    <alternative name="function_body_stub"/>
+    <alternative name="package_body_stub"/>
+    <alternative name="task_body_stub"/>
+    <alternative name="protected_body_stub"/>
+  </alt_rule>
+
+  <rule name="procedure_body_stub" kind="A_Procedure_Body_Stub">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+  </rule>
+
+  <rule name="function_body_stub" kind="A_Function_Body_Stub">
+    <child name="defining_designator" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+    <child name="subtype_mark_or_access_definition" get="Result_Subtype"/>
+  </rule>
+
+  <rule name="package_body_stub" kind="A_Package_Body_Stub">
+    <child name="defining_identifier" get="Names" list="1"/>
+  </rule>
+
+  <rule name="task_body_stub" kind="A_Task_Body_Stub">
+    <child name="defining_identifier" get="Names" list="1"/>
+  </rule>
+
+  <rule name="protected_body_stub" kind="A_Protected_Body_Stub">
+    <child name="defining_identifier" get="Names" list="1"/>
+  </rule>
+
+  <alt_rule name="statement">
+    <alternative name="simple_statement"/>
+    <alternative name="compound_statement"/>
+  </alt_rule>
+
+  <alt_rule name="simple_statement">
+    <alternative name="null_statement"/>
+    <alternative name="assignment_statement"/>
+    <alternative name="exit_statement"/>
+    <alternative name="goto_statement"/>
+    <alternative name="simple_return_statement"/>
+    <alternative name="entry_call_statement"/>
+    <alternative name="procedure_call_statement"/>
+    <alternative name="requeue_statement"/>
+    <alternative name="delay_statement"/>
+    <alternative name="abort_statement"/>
+    <alternative name="raise_statement"/>
+    <alternative name="code_statement"/>
+    <alternative name="pragma"/>
+  </alt_rule>
+
+  <rule name="null_statement" kind="A_Null_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+  </rule>
+
+  <rule name="assignment_statement" kind="An_Assignment_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="name" get="Assignment_Variable_Name"/>
+    <child name="expression" get="Assignment_Expression"/>
+  </rule>
+
+  <rule name="exit_statement" kind="An_Exit_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="program_unit_name" get="Exit_Loop_Name" opt="y"/>
+    <child name="expression" get="Exit_Condition" opt="y"/>
+  </rule>
+
+  <rule name="goto_statement" kind="A_Goto_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="program_unit_name" get="Goto_Label"/>
+  </rule>
+
+  <rule name="simple_return_statement" kind="A_Simple_Return_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="expression" get="Return_Expression" opt="y"/>
+  </rule>
+
+  <rule name="entry_call_statement" kind="An_Entry_Call_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="name" get="Called_Name"/>
+    <child name="parameter_association"
+	   get="Call_Statement_Parameters" list="opt"/>
+  </rule>
+
+  <rule name="procedure_call_statement" kind="A_Procedure_Call_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="name" get="Called_Name"/>
+    <child name="parameter_association"
+	   get="Call_Statement_Parameters" list="opt"/>
+  </rule>
+
+  <rule name="requeue_statement" kind="A_Requeue_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="name" get="Requeue_Entry_Name"/>
+  </rule>
+
+  <rule name="delay_statement"
+	kind="A_Delay_Until_Statement|A_Delay_Relative_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="expression" get="Delay_Expression"/>
+  </rule>
+
+  <rule name="abort_statement" kind="An_Abort_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="name" get="Aborted_Tasks" list="y"/>
+  </rule>
+
+  <rule name="raise_statement" kind="A_Raise_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="program_unit_name" get="Raised_Exception"/>
+    <child name="expression" get="Raise_Statement_Message" opt="y"/>
+  </rule>
+
+  <rule name="code_statement" kind="A_Code_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="qualified_expression" get="Qualified_Expression"/>
+  </rule>
+
+  <alt_rule name="compound_statement">
+    <alternative name="if_statement"/>
+    <alternative name="case_statement"/>
+    <alternative name="loop_statement"/>
+    <alternative name="while_loop_statement"/>
+    <alternative name="for_loop_statement"/>
+    <alternative name="block_statement"/>
+    <alternative name="extended_return_statement"/>
+    <alternative name="accept_statement"/>
+    <alternative name="select_statement"/>
+  </alt_rule>
+
+  <rule name="if_statement" kind="An_If_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="if_elsif_else_path" get="Statement_Paths" list="y"/>
+  </rule>
+
+  <rule name="case_statement" kind="A_Case_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="expression" get="Case_Expression"/>
+    <child name="case_path" get="Statement_Paths" list="y"/>
+  </rule>
+
+  <rule name="loop_statement" kind="A_Loop_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="defining_identifier" get="Statement_Identifier" opt="y"/>
+    <child name="statement" get="Loop_Statements" list="y"/>
+  </rule>
+
+  <rule name="while_loop_statement" kind="A_While_Loop_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="defining_identifier" get="Statement_Identifier" opt="y"/>
+    <child name="expression" get="While_Condition"/>
+    <child name="statement" get="Loop_Statements" list="y"/>
+  </rule>
+
+  <rule name="for_loop_statement" kind="A_For_Loop_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="defining_identifier" get="Statement_Identifier" opt="y"/>
+    <child name="loop_parameter_specification"
+	   get="Loop_Parameter_Specification"/>
+    <child name="statement" get="Loop_Statements" list="y"/>
+  </rule>
+
+  <rule name="block_statement" kind="A_Block_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="defining_identifier" get="Statement_Identifier" opt="y"/>
+    <child name="declarative_item" get="Block_Declarative_Items" list="opt"/>
+    <child name="statement" get="Block_Statements" list="opt"/>
+    <child name="exception_handler" get="Block_Exception_Handlers" list="opt"/>
+  </rule>
+
+  <rule name="extended_return_statement" kind="An_Extended_Return_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="return_object_specification"
+	   get="Return_Object_Specification"/>
+    <child name="statement" get="Extended_Return_Statements" list="opt"/>
+    <child name="exception_handler"
+	   get="Extended_Return_Exception_Handlers" list="opt"/>
+  </rule>
+
+  <rule name="accept_statement" kind="An_Accept_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="identifier" get="Accept_Entry_Direct_Name"/>
+    <child name="entry_index_specification" get="Accept_Entry_Index" opt="y"/>
+    <child name="parameter_specification" get="Accept_Parameters" list="opt"/>
+    <child name="statement" get="Accept_Body_Statements" list="opt"/>
+    <child name="exception_handler"
+	   get="Accept_Body_Exception_Handlers" list="opt"/>
+  </rule>
+
+  <alt_rule name="select_statement">
+    <alternative name="selective_accept"/>
+    <alternative name="timed_entry_call"/>
+    <alternative name="conditional_entry_call"/>
+    <alternative name="asynchronous_select"/>
+  </alt_rule>
+
+  <rule name="selective_accept" kind="A_Selective_Accept_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="select_or_else_path" get="Statement_Paths" list="y"/>
+  </rule>
+
+  <rule name="timed_entry_call" kind="A_Timed_Entry_Call_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="select_or_path" get="Statement_Paths" list="y"/>
+  </rule>
+
+  <rule name="conditional_entry_call"
+	kind="A_Conditional_Entry_Call_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="select_or_else_path" get="Statement_Paths" list="y"/>
+  </rule>
+
+  <rule name="asynchronous_select"
+	kind="An_Asynchronous_Select_Statement">
+    <child name="defining_identifier" get="Label_Names" list="opt"/>
+    <child name="select_then_abort_path" get="Statement_Paths" list="y"/>
+  </rule>
+
+  <alt_rule name="if_elsif_else_path">
+    <alternative name="if_path"/>
+    <alternative name="elsif_path"/>
+    <alternative name="else_path"/>
+  </alt_rule>
+
+  <rule name="if_path" kind="An_If_Path">
+    <child name="expression" get="Condition_Expression"/>
+    <child name="statement" get="Sequence_Of_Statements" list="y"/>
+  </rule>
+
+  <rule name="elsif_path" kind="An_Elsif_Path">
+    <child name="expression" get="Condition_Expression"/>
+    <child name="statement" get="Sequence_Of_Statements" list="y"/>
+  </rule>
+
+  <rule name="else_path" kind="An_Else_Path">
+    <child name="statement" get="Sequence_Of_Statements" list="y"/>
+  </rule>
+
+  <rule name="case_path" kind="A_Case_Path">
+    <child name="discrete_choice"
+	   get="Case_Statement_Alternative_Choices" list="y"/>
+    <child name="pragma" get="Pragmas" list="opt"/>
+    <child name="statement" get="Sequence_Of_Statements" list="y"/>
+  </rule>
+
+  <alt_rule name="select_or_else_path">
+    <alternative name="select_or_path"/>
+    <alternative name="else_path"/>
+  </alt_rule>
+
+  <rule name="select_or_path" kind="A_Select_Path|An_Or_Path">
+    <child name="expression" get="Guard" opt="y"/>
+    <child name="pragma" get="Pragmas" list="opt"/>
+    <child name="statement" get="Sequence_Of_Statements" list="y"/>
+  </rule>
+
+  <alt_rule name="select_then_abort_path">
+    <alternative name="select_or_path"/>
+    <alternative name="then_abort_path"/>
+  </alt_rule>
+
+  <rule name="then_abort_path" kind="A_Then_Abort_Path">
+    <child name="statement" get="Sequence_Of_Statements" list="y"/>
+  </rule>
+
+  <rule name="loop_parameter_specification"
+	kind="A_Loop_Parameter_Specification">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="discrete_subtype_definition"
+           get="Specification_Subtype_Definition"/>
+  </rule>
+
+  <rule name="entry_index_specification" kind="An_Entry_Index_Specification">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="discrete_subtype_definition"
+           get="Specification_Subtype_Definition"/>
+  </rule>
+
+  <rule name="return_object_specification"
+	kind="A_Return_Object_Specification">
+    <child name="defining_identifier" get="Names" list="1"/>
+    <child name="subtype_indication_or_access_definition"
+           get="Object_Declaration_Subtype"/>
+    <child name="expression" get="Initialization_Expression" opt="y"/>
+  </rule>
+
+  <rule name="exception_handler" kind="An_Exception_Handler">
+    <child name="pragma" get="Pragmas" list="opt"/>
+    <child name="choice_parameter_specification"
+	   get="Choice_Parameter_Specification"/>
+    <child name="exception_choice" get="Exception_Choices" list="y"/>
+    <child name="statement" get="Handler_Statements" list="y"/>
+  </rule>
+
+  <rule name="choice_parameter_specification"
+	kind="A_Choice_Parameter_Specification">
+    <child name="defining_identifier" get="Names" list="1"/>
+  </rule>
+
+  <alt_rule name="exception_choice">
+    <alternative name="program_unit_name"/>
+    <alternative name="others_choice"/>
+  </alt_rule>
+
+  <rule name="package_body" kind="A_Package_Body_Declaration">
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="declarative_item" get="Body_Declarative_Items" list="opt"/>
+    <child name="statement" get="Body_Statements" list="opt"/>
+    <child name="exception_handler" get="Body_Exception_Handlers" list="opt"/>
+  </rule>
+
+  <rule name="task_body" kind="A_Task_Body_Declaration">
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="declarative_item" get="Body_Declarative_Items" list="opt"/>
+    <child name="statement" get="Body_Statements" list="opt"/>
+    <child name="exception_handler" get="Body_Exception_Handlers" list="opt"/>
+  </rule>
+
+  <rule name="protected_body" kind="A_Protected_Body_Declaration">
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="protected_operation_item"
+	   get="Protected_Operation_Items" list="y"/>
+  </rule>
+
+  <alt_rule name="protected_operation_item">
+    <alternative name="subprogram_declaration"/>
+    <alternative name="subprogram_body"/>
+    <alternative name="entry_body"/>
+    <alternative name="aspect_clause"/>
+  </alt_rule>
+
+  <rule name="entry_body" kind="An_Entry_Body_Declaration">
+    <child name="defining_program_unit_name" get="Names" list="1"/>
+    <child name="parameter_specification" get="Parameter_Profile" list="opt"/>
+    <child name="entry_index_specification"
+	   get="Entry_Index_Specification" opt="y"/>
+    <child name="expression" get="Entry_Barrier" opt="y"/>
+    <child name="declarative_item" get="Body_Declarative_Items" list="opt"/>
+    <child name="statement" get="Body_Statements" list="opt"/>
+    <child name="exception_handler" get="Body_Exception_Handlers" list="opt"/>
+  </rule>
+
+</ast>

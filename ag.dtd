@@ -5,7 +5,7 @@
 <!ELEMENT part                  EMPTY>
 <!ELEMENT rule                  (argument*, text) >
 <!ELEMENT argument              EMPTY>
-<!ELEMENT text                  #PCDATA>
+<!ELEMENT text                  (#PCDATA)>
 
 
 <!ATTLIST nonterminal

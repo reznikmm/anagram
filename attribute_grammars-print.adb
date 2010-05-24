@@ -34,7 +34,8 @@ begin
          PL : constant Production_List := Productions (List (J));
       begin
          for P in PL'Range loop
-            Put (Name (List (J)) & " -> ");
+            --Put (Name (List (J)) & " -> ");
+            Put (Kind (PL (P)) & " => ");
 
             declare
                PT : constant Part_List := Parts (PL (P));

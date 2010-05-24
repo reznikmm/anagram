@@ -3,61 +3,65 @@ package Attribute_Grammars.Construction is
    function Create return Attribute_Grammar;
 
    procedure Create
-     (Object     : in out Attribute_Grammar;
+     (Object     : in     Attribute_Grammar;
       Name       : in     String;
       Type_Name  : in     String;
       Expression : in     String;
       Result     :    out Nonterminal);
 
    procedure Create
-     (Object  : in out Nonterminal;
+     (Object  : in     Nonterminal;
       Kind    : in     String;
       Result  :    out Production);
 
    procedure  Create
-     (Object    : in out Nonterminal;
+     (Object    : in     Nonterminal;
       Name      : in     String;
       Type_Name : in     String;
       Result    :    out Attribute_Declaration);
 
    procedure Create
-     (Object  : in out Production;
+     (Object  : in     Production;
       Name    : in     String;
       Result  :    out Part);
 
    procedure Create
-     (Object  : in out Production;
+     (Object  : in     Production;
       Result  :    out Rule);
 
    procedure Create_Result
-     (Object  : in out Rule;
+     (Object  : in     Rule;
       Result  :    out Attribute);
 
    procedure Create_Result
-     (Object  : in out Rule;
+     (Object  : in     Rule;
       Result  :    out Attribute;
       Origin  : in     Part);
 
    procedure Create_Argument
-     (Object  : in out Rule;
+     (Object  : in     Rule;
       Result  :    out Attribute);
 
    procedure Create_Argument
-     (Object  : in out Rule;
+     (Object  : in     Rule;
       Result  :    out Attribute;
       Origin  : in     Part);
 
    procedure Set_Text
-     (Object  : in out Rule;
+     (Object  : in     Rule;
       Text    : in     String);
 
    procedure Set_Reference
-     (Object  : in out Part;
+     (Object  : in     Part;
       NT      : in     Nonterminal);
 
    procedure Set_Declaration
-     (Object  : in out Attribute;
+     (Object  : in     Attribute;
       Decl    : in     Attribute_Declaration);
+
+   procedure Set_Expression
+     (Object     : in     Nonterminal;
+      Expression : in     String);
 
    function Find
      (Object    : Production;

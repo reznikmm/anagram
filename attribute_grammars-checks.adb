@@ -68,7 +68,7 @@ package body Attribute_Grammars.Checks is
 
             for J in PL'Range loop
                declare
-                  Pos : Positive := Offset (J);
+                  Pos : Natural := Offset (J);
                   AL : constant Attribute_Declaration_List :=
                     Attributes (Reference (PL (J)));
                begin
@@ -101,6 +101,17 @@ package body Attribute_Grammars.Checks is
             end loop;
          end;
       end loop;
+
+      declare
+         --  Attributes for root symbol
+         AL : constant Attribute_Declaration_List := Attributes (NL (1));
+      begin
+         for A in AL'Range loop
+            if not Is_Synthesized (AL (A)) then
+               return False;
+            end if;
+         end loop;
+      end;
 
       return True;
    end Is_Well_Formed;

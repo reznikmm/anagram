@@ -1,0 +1,294 @@
+with Ada.Strings.Unbounded;
+with Ada.Containers.Ordered_Maps;
+
+with Text_Streams.File;
+with XML_IO.Stream_Readers;
+
+with Ada.Text_IO;
+
+with Attribute_Grammars.Construction;
+with Attribute_Grammars.Print;
+
+procedure Read is
+   use XML_IO;
+   use Ada.Strings.Unbounded;
+   package R renames XML_IO.Stream_Readers;
+
+   function "+" (Text : String) return Unbounded_String renames
+     To_Unbounded_String;
+
+   type Modifier_Kind is (Optional, Required,
+                          Single_Item_List,
+                          Optional_List,
+                          Not_Empty_List);
+
+   type Child is record
+      Name     : Unbounded_String;
+      Get      : Unbounded_String;
+      Modifier : Modifier_Kind;
+   end record;
+
+   type Child_Array is array (1 .. 10) of Child;
+
+   type Rule is record
+      Name     : Unbounded_String;
+      Kind     : Unbounded_String;
+      Sub_Kind : Unbounded_String;
+      Childs   : Child_Array;
+      Length   : Natural := 0;
+   end record;
+
+   type Unbounded_String_Array is array (1 .. 20) of Unbounded_String;
+
+   type Alt_Rule is record
+      Name     : Unbounded_String;
+      Items    : Unbounded_String_Array;
+      Length   : Natural := 0;
+   end record;
+
+   package Rule_Maps is new Ada.Containers.Ordered_Maps
+     (Unbounded_String, Rule);
+
+   package Alt_Rule_Maps is new Ada.Containers.Ordered_Maps
+     (Unbounded_String, Alt_Rule);
+
+   use type Attribute_Grammars.Nonterminal;
+
+   type NT_Info is record
+      NT      : Attribute_Grammars.Nonterminal;
+      Is_List : Boolean;
+      List_NT : Attribute_Grammars.Nonterminal;
+   end record;
+
+   package NT_Maps is new Ada.Containers.Ordered_Maps
+     (Unbounded_String, NT_Info);
+
+   package Enum is
+      type Element_Kinds is (AST, Alt_Rule, Alternative, Rule, Child);
+   end Enum;
+
+   Rule_Map   : Rule_Maps.Map;
+   Alt_Map    : Alt_Rule_Maps.Map;
+   References : NT_Maps.Map;
+
+   function Is_List (Item : Child) return Boolean is
+   begin
+      return Item.Modifier in Optional_List .. Not_Empty_List;
+   end Is_List;
+
+   procedure Read_XML is
+      Last_Rule : Rule;
+      Last_Alt  : Alt_Rule;
+
+      procedure Append_Reference (Item : Child) is
+         C : NT_Maps.Cursor := References.Find (Item.Name);
+      begin
+         if not NT_Maps.Has_Element (C) then
+            References.Insert
+              (Item.Name, (Is_List => Is_List (Item), others => <>));
+         elsif Is_List (Item) and then not NT_Maps.Element (C).Is_List then
+            References.Replace_Element
+              (C, (Is_List => True, others => <>));
+         end if;
+      end Append_Reference;
+
+      Stream   : aliased Text_Streams.File.File_Text_Stream;
+      Parser   : R.Reader (Stream'Access, R.Default_Buffer_Size);
+   begin
+      Text_Streams.File.Open (Stream, "asis_ast.xml");
+      R.Initialize (Parser);
+
+      while R.More_Pieces (Parser) loop
+         case R.Piece_Kind (Parser) is
+
+            when Start_Element =>
+               case Enum.Element_Kinds'Value (R.Name (Parser)) is
+
+                  when Enum.Rule =>
+                     Last_Rule.Name := +R.Attribute_Value
+                       (Parser, "name", Raise_Error => True);
+                     Last_Rule.Kind := +R.Attribute_Value
+                       (Parser, "kind", Raise_Error => True);
+                     Last_Rule.Sub_Kind := +R.Attribute_Value (Parser, "kind");
+                     Last_Rule.Length := 0;
+
+                  when Enum.Child =>
+                     declare
+                        Item : Child renames
+                          Last_Rule.Childs (Last_Rule.Length + 1);
+                     begin
+                        Item.Name := +R.Attribute_Value
+                          (Parser, "name", Raise_Error => True);
+                        Item.Get := +R.Attribute_Value
+                          (Parser, "get", Raise_Error => True);
+
+                        if R.Attribute_Value (Parser, "opt") = "y" then
+                           Item.Modifier := Optional;
+                        elsif R.Attribute_Value (Parser, "list") = "y" then
+                           Item.Modifier := Not_Empty_List;
+                        elsif R.Attribute_Value (Parser, "list") = "1" then
+                           Item.Modifier := Single_Item_List;
+                        elsif R.Attribute_Value (Parser, "list") = "opt" then
+                           Item.Modifier := Optional_List;
+                        else
+                           Item.Modifier := Required;
+                        end if;
+
+                        Append_Reference (Item);
+
+                        Last_Rule.Length := Last_Rule.Length + 1;
+                     end;
+
+                  when Enum.Alt_Rule =>
+                     Last_Alt.Name := +R.Attribute_Value
+                       (Parser, "name", Raise_Error => True);
+                     Last_Alt.Length := 0;
+
+                  when Enum.Alternative =>
+                     declare
+                        Item : Unbounded_String renames
+                          Last_Alt.Items (Last_Alt.Length + 1);
+                     begin
+                        Item := +R.Attribute_Value
+                          (Parser, "name", Raise_Error => True);
+
+                        Last_Alt.Length := Last_Alt.Length + 1;
+                     end;
+
+                  when Enum.AST =>
+                     null;
+               end case;
+
+            when End_Element =>
+               case Enum.Element_Kinds'Value (R.Name (Parser)) is
+                  when Enum.Rule =>
+                     Rule_Map.Insert (Last_Rule.Name, Last_Rule);
+
+                  when Enum.Alt_Rule =>
+                     Alt_Map.Insert (Last_Alt.Name, Last_Alt);
+
+                  when others =>
+                     null;
+               end case;
+
+            when others =>
+               null;
+         end case;
+
+         R.Next (Parser);
+      end loop;
+
+      Ada.Text_IO.Put_Line (Rule_Map.Length'Img);
+      Ada.Text_IO.Put_Line (Alt_Map.Length'Img);
+   end Read_XML;
+
+   AG : Attribute_Grammars.Attribute_Grammar :=
+     Attribute_Grammars.Construction.Create;
+
+   procedure Construct
+     (Name : Unbounded_String;
+      NT : Attribute_Grammars.Nonterminal)
+   is
+      use Attribute_Grammars;
+      use Attribute_Grammars.Construction;
+
+      procedure Add_Production (The_Rule : Rule) is
+         P : Production;
+         X : Part;
+      begin
+         Create (NT, To_String (The_Rule.Kind), P);
+
+         for J in 1 .. The_Rule.Length loop
+            Create (P, To_String (The_Rule.Childs (J).Get), X);
+
+            if Is_List (The_Rule.Childs (J)) then
+               Set_Reference
+                 (X, References.Element (The_Rule.Childs (J).Name).List_NT);
+            else
+               Set_Reference
+                 (X, References.Element (The_Rule.Childs (J).Name).NT);
+            end if;
+         end loop;
+      end Add_Production;
+
+      procedure Add (Name : Unbounded_String) is
+         Alt : Alt_Rule;
+      begin
+         if Alt_Map.Contains (Name) then
+            Alt := Alt_Map.Element (Name);
+
+            for J in 1 .. Alt.Length loop
+               Add (Alt.Items (J));
+            end loop;
+         else
+            Add_Production (Rule_Map.Element (Name));
+         end if;
+      end Add;
+   begin
+      Add (Name);
+   end Construct;
+
+   procedure Construct_List
+     (Name : Unbounded_String;
+      Item : NT_Info)
+   is
+      use Attribute_Grammars;
+      use Attribute_Grammars.Construction;
+
+      P : Production;
+      X : Part;
+   begin
+      Create (Item.List_NT, "List'First", P);
+
+      Create (P, "List (J)", X);
+      Set_Reference (X, Item.NT);
+
+      Create (Item.List_NT, "others", P);
+
+      Create (P, "?", X);
+      Set_Reference (X, Item.List_NT);
+
+      Create (P, "List (J)", X);
+      Set_Reference (X, Item.NT);
+   end Construct_List;
+
+   procedure Construct (C : NT_Maps.Cursor) is
+      Item : NT_Info := NT_Maps.Element (C);
+   begin
+      Construct (NT_Maps.Key (C), Item.NT);
+
+      if Item.Is_List then
+         Construct_List (NT_Maps.Key (C), Item);
+      end if;
+   end Construct;
+
+   procedure Create_NT (C : NT_Maps.Cursor) is
+      Item : NT_Info := NT_Maps.Element (C);
+      NT : Attribute_Grammars.Nonterminal;
+   begin
+      Attribute_Grammars.Construction.Create
+        (Object     => AG,
+         Name       => To_String (NT_Maps.Key (C)),
+         Type_Name  => "Asis.Element",
+         Expression => "",
+         Result     => Item.NT);
+
+      if Item.Is_List then
+         Attribute_Grammars.Construction.Create
+           (Object     => AG,
+            Name       => To_String (NT_Maps.Key (C) & "_list"),
+            Type_Name  => "Asis.Element",
+            Expression => "",
+            Result     => Item.List_NT);
+      end if;
+
+      References.Replace_Element (C, Item);
+   end Create_NT;
+
+begin
+   Read_XML;
+   References.Include (+"compilation_unit", (Is_List => False, others => <>));
+   References.Iterate (Create_NT'Access);
+   References.Iterate (Construct'Access);
+   Attribute_Grammars.Print (AG);
+end Read;

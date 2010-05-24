@@ -82,13 +82,13 @@ private
 
    type Attribute_Grammar_Node is record
       Last_Nonterminal : Natural := 0;
-      Nonterminals     : Nonterminal_List (1 .. 10);
+      Nonterminals     : Nonterminal_List (1 .. 150);
    end record;
 
    type Nonterminal_Node is record
       Index           : Positive;
       Last_Production : Natural := 0;
-      Productions     : Production_List (1 .. 10);
+      Productions     : Production_List (1 .. 50);
       Last_Attribute  : Natural := 0;
       Attributes      : Attribute_Declaration_List (1 .. 10);
       Name            : Ada.Strings.Unbounded.Unbounded_String;

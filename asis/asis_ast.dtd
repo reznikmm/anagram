@@ -1,0 +1,19 @@
+<!ELEMENT ast ( alt_rule | rule )* >
+
+<!ELEMENT alt_rule ( alternative )* >
+<!ATTLIST alt_rule name ID #REQUIRED >
+
+<!ELEMENT alternative EMPTY >
+<!ATTLIST alternative name NMTOKEN #REQUIRED >
+
+<!ELEMENT rule ( child )* >
+<!ATTLIST rule name ID #REQUIRED >
+<!ATTLIST rule kind CDATA #REQUIRED >
+<!ATTLIST rule subkind CDATA #IMPLIED >
+
+<!ELEMENT child EMPTY >
+<!ATTLIST child name NMTOKEN #REQUIRED >
+<!ATTLIST child get NMTOKEN #REQUIRED >
+<!ATTLIST child list ( 1 | opt | y ) #IMPLIED >
+<!ATTLIST child opt ( y ) #IMPLIED >
+
