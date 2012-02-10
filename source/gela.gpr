@@ -1,0 +1,13 @@
+with "league";
+
+project Gela is
+
+   for Source_Dirs use ("./**");
+   for Object_Dir use external ("GELA_LIB_DIR", "/tmp/gela/gela");
+
+   package Compiler is
+      for Default_Switches ("ada") use
+        ("-gnatwae", "-gnaty", "-gnatVa", "-gnat05", "-g");
+   end Compiler;
+
+end Gela;
