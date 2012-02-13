@@ -208,12 +208,18 @@ private
 
    end Nodes;
 
+   type Hook is access procedure
+     (Self : Constructor'Class;
+      Key  : Nodes.Declaration_Key;
+      Item : Nodes.Declaration_Access);
+
    type Constructor is abstract new Gela.Grammars.Constructors.Constructor
      with record
-        Declarations    : Nodes.Declaration_Maps.Map;
-        Rules           : Nodes.Rule_Maps.Map;
-        Attributes      : Nodes.Attribute_Maps.Map;
-        Decl_Map        : Nodes.Decl_Index_Maps.Map;
+        Declarations     : Nodes.Declaration_Maps.Map;
+        Rules            : Nodes.Rule_Maps.Map;
+        Attributes       : Nodes.Attribute_Maps.Map;
+        Decl_Map         : Nodes.Decl_Index_Maps.Map;
+        On_Extended_Attr : Hook;
    end record;
 
    procedure Copy_Declarations

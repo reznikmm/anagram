@@ -310,7 +310,8 @@ package body Gela.Grammars.Attributed is
          Self.Decl_Map.Insert (Key, Result (Index)'Unchecked_Access);
 
          if Key.Parent.Non_Terminal.Is_Empty then
-            null;
+            Self.On_Extended_Attr
+              (Self, Key, Result (Index)'Unchecked_Access);
          elsif Self.Terminals.Contains (Key.Parent.Non_Terminal) then
             declare
                Item : Terminal renames

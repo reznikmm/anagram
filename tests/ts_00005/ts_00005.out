@@ -16,6 +16,7 @@ Non Terminals:
   Attr: ANT2s inherited=FALSE
   Production: P2
     L1 List:
+  Attr: L1s inherited=FALSE
   Production: PL1
     t3 refs T3
 Rule: 

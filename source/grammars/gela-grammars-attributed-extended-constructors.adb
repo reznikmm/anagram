@@ -9,6 +9,11 @@
 
 package body Gela.Grammars.Attributed.Extended.Constructors is
 
+   procedure On_Extended_Attribute
+     (Self : Gela.Grammars.Attributed.Constructor'Class;
+      Key  : Nodes.Declaration_Key;
+      Item : Nodes.Declaration_Access);
+
    -----------------
    -- Create_List --
    -----------------
@@ -171,6 +176,8 @@ package body Gela.Grammars.Attributed.Extended.Constructors is
       Decls : constant Attribute_Declaration_Count :=
         Attribute_Declaration_Count (Parent.Declarations.Length);
    begin
+      Parent.On_Extended_Attr := On_Extended_Attribute'Access;
+
       return Result : Gela.Grammars.Attributed.Extended.Grammar
         (Last_Terminal     => Terminal_Count (Self.Terminals.Length),
          Last_Non_Terminal => Non_Terminal_Count (Self.Non_Terminals.Length),
@@ -197,5 +204,41 @@ package body Gela.Grammars.Attributed.Extended.Constructors is
          Fill_Ext (Result.Part);
       end return;
    end Complete;
+
+   ---------------------------
+   -- On_Extended_Attribute --
+   ---------------------------
+
+   procedure On_Extended_Attribute
+     (Self : Gela.Grammars.Attributed.Constructor'Class;
+      Key  : Nodes.Declaration_Key;
+      Item : Nodes.Declaration_Access)
+   is
+      function Find_List return Constructor_Nodes.Part_Access;
+
+      function Find_List return Constructor_Nodes.Part_Access is
+         use Constructor_Nodes;
+
+         X : Part_Maps.Cursor := Self.Parts.First;
+      begin
+         while Part_Maps.Has_Element (X) loop
+            if Part_Maps.Element (X).List_Extension = Key.Parent.Extension then
+               return Self.Part_Map.Element (Part_Maps.Key (X).Part_Index);
+            end if;
+
+            X := Part_Maps.Next (X);
+         end loop;
+
+         raise Constraint_Error;
+      end Find_List;
+
+      List : Part renames Part (Find_List.all);
+   begin
+      if List.Last_Attribute = 0 then
+         List.First_Attribute := Item.Index;
+      end if;
+
+      List.Last_Attribute := Item.Index;
+   end On_Extended_Attribute;
 
 end Gela.Grammars.Attributed.Extended.Constructors;
