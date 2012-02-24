@@ -14,6 +14,7 @@ project Gela is
       for Switches ("gela-grammars-parser_goto.ads") use ("-gnat05", "-g");
       for Switches ("ag_tokens.ads") use ("-gnat05", "-g");
       for Switches ("gela-grammars-scanners.adb") use ("-gnat05", "-g");
+      for Switches ("gela-grammars-scanner_types.ads") use ("-gnat05", "-g");
 
    end Compiler;
 
