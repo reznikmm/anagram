@@ -201,7 +201,7 @@ attribute_list : attribute
 
 attribute :
   regexp_list ':' identifier_list ';'
-  { $$ := (Attr_Def, ($1.Vector, $1.Vector)); }
+  { $$ := (Attr_Def, ($1.Vector, $3.Vector)); }
 ;
 
 rules : Rules_Token For_Token regexp_list ':'
