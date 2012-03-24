@@ -15,33 +15,9 @@
 %with League.String_Vectors;
 %with Ada.Containers.Vectors;
 %with Ada.Containers.Ordered_Maps;
-
+%with Gela.Grammars.Parser_Utils;
 {
-   type Attribute_Definitions is record
-      Names  : League.String_Vectors.Universal_String_Vector;
-      Values : League.String_Vectors.Universal_String_Vector;
-   end record;
-
-   package Attribute_Definitions_Vectors is new
-     Ada.Containers.Vectors (Positive, Attribute_Definitions);
-
-   type Production_Index is new Positive;
-
-   package Production_Index_Vectors is new
-     Ada.Containers.Vectors (Positive, Production_Index);
-
-   type Part_Kind is (Reference, List, Option);
-
-   type Part_Node (Kind : Part_Kind := List) is record
-      Name : League.Strings.Universal_String;
-
-      case Kind is
-         when Reference =>
-            Reference : League.Strings.Universal_String;
-         when List | Option =>
-            Nested : Production_Index_Vectors.Vector;
-      end case;
-   end record;
+   use Gela.Grammars.Parser_Utils;
 
    type Value_Kinds is
      (None, Image, Vector, Attr_Def, Attr_Def_List,
@@ -68,29 +44,6 @@
       end case;
    end record;
 
-   package Part_Vectors is new
-     Ada.Containers.Vectors (Positive, Part_Node);
-
-   type Production_Node is record
-      Name  : League.Strings.Universal_String;
-      Parts : Part_Vectors.Vector;
-   end record;
-
-   package Production_Vectors is new Ada.Containers.Vectors
-     (Production_Index, Production_Node);
-
-   package NT_Maps is new Ada.Containers.Ordered_Maps
-     (League.Strings.Universal_String,
-      Production_Index_Vectors.Vector,
-      League.Strings."<",
-      Production_Index_Vectors."=");
-
-   type Rule_Node is record
-      Regexps : League.String_Vectors.Universal_String_Vector;
-      Image   : League.Strings.Universal_String;
-   end record;
-
-   package Rule_Vectors is new Ada.Containers.Vectors (Positive, Rule_Node);
 }
 
 %%
@@ -109,15 +62,12 @@ item :
 ;
 
 token_rule: Token_Token identifier
-  { Tokens.Append ($2.Image); }
+  { Context.Tokens.Append ($2.Image); }
 ;
 
 syntax_rule : identifier Equal_Token production_list ';'
 {
-  if Start.Is_Empty then
-     Start := $1.Image;
-  end if;
-  NT.Insert ($1.Image, $3.Production_List);
+  Context.Add_NT ($1.Image, $3.Production_List);
 }
 ;
 
@@ -145,14 +95,20 @@ named_production_list : named_production
 ;
 
 named_production : '(' identifier ')' production
-{ $$ := $4; Set_Name ($4.Production, $2.Image); }
+{
+  $$ := $4;
+  Context.Set_Name ($4.Production, $2.Image);
+}
 ;
 
 production : named_part
-{ $$ := (Production, New_Production ($1.Part)); }
+{
+  $$ := (Production, Production => <>);
+  Context.New_Production ($1.Part, $$.Production);
+}
 
 | production named_part
-{ $$ := $1; Add_Part ($$.Production, $2.Part);}
+{ $$ := $1; Context.Add_Part ($$.Production, $2.Part);}
 ;
 
 named_part : part
@@ -175,7 +131,7 @@ part : identifier
 inherited_attributes :
  Inherited_Token Attributes_Token attribute_list
  {
-   Inherited.Append ($3.Attr_Def_List);
+   Context.Inherited.Append ($3.Attr_Def_List);
    $$ := (Kind => None);
  }
 ;
@@ -183,7 +139,7 @@ inherited_attributes :
 synthesized_attributes :
  Synthesized_Token Attributes_Token attribute_list
  {
-   Synthesized.Append ($3.Attr_Def_List);
+   Context.Synthesized.Append ($3.Attr_Def_List);
    $$ := (Kind => None);
  }
 ;
@@ -208,7 +164,7 @@ rules : Rules_Token For_Token regexp_list ':'
  Open_Rule_Token rule_body Close_Rule_Token
 
 {
-    Rules.Append (($3.Vector, $6.Image));
+   Context.Rules.Append (($3.Vector, $6.Image));
    $$ := (Kind => None);
 }
 ;
@@ -284,6 +240,7 @@ with String_Sources;
 with Gela.Grammars.Scanners;
 with Gela.Grammars.Scanner_Handler;
 with League.String_Vectors;
+with Gela.Grammars.Parser_Utils; use Gela.Grammars.Parser_Utils;
 -- 3
 ##
    function Grammar
@@ -312,42 +269,7 @@ with League.String_Vectors;
 
       Scanner     : aliased Gela.Grammars.Scanners.Scanner;
       Handler     : aliased Gela.Grammars.Scanner_Handler.Handler;
-      Prod_List   : Production_Vectors.Vector;
-      Tokens      : League.String_Vectors.Universal_String_Vector;
-      NT          : NT_Maps.Map;
-      Start       : League.Strings.Universal_String;
-      Inherited   : Attribute_Definitions_Vectors.Vector;
-      Synthesized : Attribute_Definitions_Vectors.Vector;
-      Rules       : Rule_Vectors.Vector;
-
-      procedure Add_Part (Index : Production_Index; Item : Part_Node) is
-         procedure Add (Old : in out Production_Node) is
-         begin
-            Old.Parts.Append (Item);
-         end Add;
-      begin
-         Prod_List.Update_Element (Index, Add'Access);
-      end Add_Part;
-
-      procedure Set_Name
-        (Index : Production_Index;
-         Name  : League.Strings.Universal_String)
-      is
-         procedure Set (Old : in out Production_Node) is
-         begin
-            Old.Name := Name;
-         end Set;
-      begin
-         Prod_List.Update_Element (Index, Set'Access);
-      end Set_Name;
-
-      function New_Production (Item : Part_Node) return Production_Index is
-      begin
-        Prod_List.Append
-        ((Name => <>, Parts => Part_Vectors.To_Vector (Item, 1)));
-
-        return Prod_List.Last_Index;
-      end New_Production;
+      Context     : Context_Node;
 
       procedure yyerror (X : Wide_Wide_String) is
       begin
@@ -373,11 +295,11 @@ with League.String_Vectors;
 
       Complete
        (Self,
-        Prod_List,
-        Tokens,
-        NT,
-        Start,
-        Inherited,
-        Synthesized,
-        Rules);
+        Context.Prod_List,
+        Context.Tokens,
+        Context.NT,
+        Context.Start,
+        Context.Inherited,
+        Context.Synthesized,
+        Context.Rules);
    end Read;
