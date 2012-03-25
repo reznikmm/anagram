@@ -16,6 +16,16 @@ is
    use type League.Strings.Universal_String;
    use type League.String_Vectors.Universal_String_Vector;
 
+   package Attribute_Maps is new Ada.Containers.Ordered_Maps
+     (League.Strings.Universal_String,  --  NT + attr name
+      Boolean,                          --  inherited
+      League.Strings."<");
+
+   package Production_Maps is new Ada.Containers.Ordered_Maps
+     (League.Strings.Universal_String,  --  NT + prod name
+      Production_Index,                 --  prod index
+      League.Strings."<");
+
    procedure Add_Prod_List
      (Prod_List : Production_Index_Vectors.Vector;
       Parent    : League.Strings.Universal_String;
@@ -33,16 +43,18 @@ is
      (Name      : League.Strings.Universal_String;
       Values    : League.String_Vectors.Universal_String_Vector;
       Inherited : Boolean);
-   
+
    procedure Add_Rules;
+
    procedure Add_Rule
      (Template : Gela.Grammars.Rule_Templates.Rule_Template;
       Regexp   : League.Regexps.Regexp_Pattern);
+
    procedure Create_Rule
      (NT       : League.Strings.Universal_String;
-      Parts    : League.String_Vectors.Universal_String_Vector;
+      Prod     : Production_Node;
       Template : Gela.Grammars.Rule_Templates.Rule_Template);
-   
+
    procedure Add_Rules is
    begin
       for J in Rules.First_Index .. Rules.Last_Index loop
@@ -53,66 +65,120 @@ is
               Gela.Grammars.Rule_Templates.Create (Item.Image);
          begin
             for K in 1 .. Item.Regexps.Length loop
-               Regexp := League.Regexps.Compile (Item.Regexps.Element (K));
+               Regexp := League.Regexps.Compile
+                 ("^" & Item.Regexps.Element (K) & "$");
+               Add_Rule (Template, Regexp);
             end loop;
          end;
       end loop;
    end Add_Rules;
-   
+
    Added_T    : String_Maps.Map;  --  Map term to attr names
    Added_NT   : String_Maps.Map;  --  Map NT to attr names
-   Added_Prod : String_Maps.Map;
+   Added_Prod : Production_Maps.Map;
+   Added_Attr : Attribute_Maps.Map;   --  Map attr to inherited
 
    procedure Create_Rule
      (NT       : League.Strings.Universal_String;
-      Parts    : League.String_Vectors.Universal_String_Vector;
+      Prod     : Production_Node;
       Template : Gela.Grammars.Rule_Templates.Rule_Template)
    is
-      Index    : Natural;
-      Found    : Natural := 0;
-      NT_Attrs : League.String_Vectors.Universal_String_Vector :=
-        Added_NT.Element (NT);
+      function Is_Result (Index : Positive) return Boolean;
+
+      Found    : Boolean := True;
+
+      function Is_Result (Index : Positive) return Boolean is
+         Name : League.Strings.Universal_String;
+         Inherited : Boolean;
+      begin
+         if Template.Part_Name (Index) = NT then
+            Name := NT;
+         elsif not Prod.Refs.Contains (Template.Part_Name (Index)) then
+            Found := False;
+            return False;
+         else
+            Name := Prod.Refs.Element (Template.Part_Name (Index));
+         end if;
+
+         Inherited := Added_Attr
+           (Name & "." & Template.Attribute_Name (Index));
+
+         return Template.Part_Name (Index) = NT xor Inherited;
+      end Is_Result;
+
+      Index    : Natural := 0;
    begin
       for J in 1 .. Template.Count loop
-         --  Here we should find result of rule:
-         --  Synthesized attr of NT or Inherited attr of some part
-         if Template.Part_Name (J) = NT then
-            Index := NT_Attrs.Index (Template.Attribute_Name (J));
+         if Is_Result (J) then
+            if Index /= 0 then
+               Ada.Wide_Wide_Text_IO.Put_Line
+                 ("Too many result in rule");
+               return;
+            else
+               Index := J;
+            end if;
+         end if;
+      end loop;
+
+      if not Found then
+         return;
+      elsif Index = 0 then
+         Ada.Wide_Wide_Text_IO.Put_Line
+           ("No result in rule");
+         return;
+      elsif Template.Part_Name (Index) = NT then
+         Self.Constructor.Create_Rule
+           (Template.Attribute_Name (Index));
+      else
+         Self.Constructor.Create_Rule
+           (Template.Part_Name (Index),
+            Template.Attribute_Name (Index));
+      end if;
+
+      for J in 1 .. Template.Count loop
+         if J /= Index then
+            if Template.Part_Name (J) = NT then
+               Self.Constructor.Create_Argument
+                 (Template.Attribute_Name (J));
+            else
+               Self.Constructor.Create_Argument
+                 (Part => Template.Part_Name (J),
+                  Name => Template.Attribute_Name (J));
+            end if;
          end if;
       end loop;
    end Create_Rule;
-   
+
    procedure Add_Rule
      (Template : Gela.Grammars.Rule_Templates.Rule_Template;
       Regexp   : League.Regexps.Regexp_Pattern)
    is
-      use String_Maps;
+      use Production_Maps;
       NT   : League.Strings.Universal_String;
       Name : League.Strings.Universal_String;
       Pos  : Cursor := Added_Prod.First;
    begin
       while Has_Element (Pos) loop
          Name := Key (Pos);
-         
+
          if Regexp.Find_Match (Name).Is_Matched then
             declare
-               Parts : League.String_Vectors.Universal_String_Vector :=
-                 Element (Pos);
+               Index : Production_Index := Element (Pos);
                List : League.String_Vectors.Universal_String_Vector :=
                  Name.Split ('-');
             begin
                NT := List.Element (1);
                Self.Constructor.Set_Current_Non_Terminal (NT);
-               Self.Constructor.Set_Production (List.Element (List.Length));
-               
-               Create_Rule (NT, Parts, Template);
+               Self.Constructor.Set_Production (Name);
+
+               Create_Rule (NT, Prod_List.Element (Index), Template);
             end;
          end if;
-         
+
          Pos := Next (Pos);
       end loop;
    end Add_Rule;
-   
+
    procedure Add_Attributes
      (List      : Attribute_Definitions_Vectors.Vector;
       Inherited : Boolean) is
@@ -156,6 +222,10 @@ is
 
             for J in 1 .. Values.Length loop
                Added_NT.Update_Element (Cursor, Append'Access);
+
+               Added_Attr.Insert
+                 (Item & "." & Values.Element (J), Inherited);
+
                Self.Constructor.Set_Current_Non_Terminal (Item);
 
                Self.Constructor.Create_Attribute_Declaration
@@ -165,13 +235,13 @@ is
 
          Cursor := String_Maps.Next (Cursor);
       end loop;
-      
+
       if Inherited then
          return;
       end if;
-      
+
       Cursor := Added_T.First;
-      
+
       while String_Maps.Has_Element (Cursor) loop
          Item := String_Maps.Key (Cursor);
 
@@ -179,10 +249,13 @@ is
 
             for J in 1 .. Values.Length loop
                Added_T.Update_Element (Cursor, Append'Access);
-               Self.Constructor.Set_Current_Non_Terminal (Item);
+
+               Added_Attr.Insert
+                 (Item & "." & Values.Element (J), False);
 
                Self.Constructor.Create_Attribute_Declaration
-                 (Values.Element (J), Inherited);
+                 (Values.Element (J),
+                  Terminal => Item);
             end loop;
          end if;
 
@@ -237,14 +310,15 @@ is
             Add_Prod_List (Part.Nested, Parent, To_Add);
             Self.Constructor.End_List;
       end case;
-      
+
       Parts.Append (Part.Name);
    end Add_Part;
 
    procedure Add_Prod
      (Prod   : Production_Node;
       Parent : League.Strings.Universal_String;
-      To_Add : in out League.String_Vectors.Universal_String_Vector)
+      To_Add : in out League.String_Vectors.Universal_String_Vector;
+      Index  : Production_Index)
    is
       Parts     : League.String_Vectors.Universal_String_Vector;
       Prod_Name : constant League.Strings.Universal_String :=
@@ -255,8 +329,8 @@ is
       for J in Prod.Parts.First_Index .. Prod.Parts.Last_Index loop
          Add_Part (Prod.Parts.Element (J), Prod_Name, To_Add, Parts);
       end loop;
-      
-      Added_Prod.Insert (Prod_Name, Parts);
+
+      Added_Prod.Insert (Prod_Name, Index);
    end Add_Prod;
 
    procedure Add_Prod
@@ -264,7 +338,7 @@ is
       Parent : League.Strings.Universal_String;
       To_Add : in out League.String_Vectors.Universal_String_Vector) is
    begin
-      Add_Prod (Prod_List.Element (Prod), Parent, To_Add);
+      Add_Prod (Prod_List.Element (Prod), Parent, To_Add, Prod);
    end Add_Prod;
 
    procedure Add_Prod_List

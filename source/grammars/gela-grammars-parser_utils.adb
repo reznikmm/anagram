@@ -124,9 +124,10 @@ package body Gela.Grammars.Parser_Utils is
       Self.Prod_List.Append
         ((Name  => <>,
           Refs  => <>,
-          Parts => Part_Vectors.To_Vector (Item, 1)));
+          Parts => <>));
 
       Result := Self.Prod_List.Last_Index;
+      Self.Add_Part (Result, Item);
    end New_Production;
 
 end Gela.Grammars.Parser_Utils;

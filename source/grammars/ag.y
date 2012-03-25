@@ -54,14 +54,14 @@ item_list : item |
 ;
 
 item : 
- token_rule
+ token_rule |
  syntax_rule |
  inherited_attributes |
  synthesized_attributes |
  rules
 ;
 
-token_rule: Token_Token identifier
+token_rule: Token_Token identifier ';'
   { Context.Tokens.Append ($2.Image); }
 ;
 
@@ -119,7 +119,7 @@ named_part : part
 ;
 
 part : identifier
-{ $$ := (Part, (Reference, Name => <>, Reference => $1.Image)); }
+{ $$ := (Part, (Reference, Name => $1.Image, Reference => $1.Image)); }
 
  | '{' production_list '}'
 { $$ := (Part, (List, Name => <>, Nested => $2.Production_List)); }
@@ -148,10 +148,6 @@ attribute_list : attribute
 {
  $$ := (Attr_Def_List,
         Attribute_Definitions_Vectors.To_Vector ($1.Attr_Def, 1));
-}
- | attribute_list attribute
-{
- $$ := (Attr_Def_List, $1.Attr_Def_List & $2.Attr_Def);
 }
 ;
 
