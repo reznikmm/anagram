@@ -202,6 +202,8 @@ package body Gela.Grammars.Attributed.Extended.Constructors is
          Parent.Copy_Attributes (Result.Attribute);
 
          Fill_Ext (Result.Part);
+
+         Result.Root := Self.Non_Terminals.Element (Self.Root).Index;
       end return;
    end Complete;
 

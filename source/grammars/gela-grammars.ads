@@ -186,6 +186,7 @@ private
       type Constructor_Node is abstract tagged limited record
          Self            : access Constructor_Node'Class :=
            Constructor_Node'Unchecked_Access;
+         Root            : S.Universal_String;
          Terminals       : Terminal_Maps.Map;
          Non_Terminals   : Non_Terminal_Maps.Map;
          Productions     : Production_Maps.Map;

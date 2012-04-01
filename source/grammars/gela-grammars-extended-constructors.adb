@@ -168,6 +168,8 @@ package body Gela.Grammars.Extended.Constructors is
             Result.Part);
 
          Fill_Ext (Result.Part);
+
+         Result.Root := Self.Non_Terminals.Element (Self.Root).Index;
       end return;
    end Complete;
 

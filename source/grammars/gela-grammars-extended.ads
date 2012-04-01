@@ -24,6 +24,7 @@ package Gela.Grammars.Extended is
       Last_Production   : Production_Count;
       Last_Part         : Part_Count) is
    tagged limited record
+      Root         : Non_Terminal_Index;
       Terminal     : Terminal_Array     (1 .. Last_Terminal);
       Non_Terminal : Non_Terminal_Array (1 .. Last_Non_Terminal);
       Production   : Production_Array   (1 .. Last_Production);

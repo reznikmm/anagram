@@ -208,6 +208,8 @@ package body Gela.Grammars.Attributed.Constructors is
          Self.Copy_Rules (Result.Rule);
 
          Self.Copy_Attributes (Result.Attribute);
+
+         Result.Root := Self.Non_Terminals.Element (Self.Root).Index;
       end return;
    end Complete;
 

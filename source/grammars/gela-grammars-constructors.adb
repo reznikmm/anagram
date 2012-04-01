@@ -31,6 +31,10 @@ package body Gela.Grammars.Constructors is
      (Self : in out Constructor;
       Name : S.Universal_String) is
    begin
+      if Self.Root.Is_Empty then
+         Self.Root := Name;
+      end if;
+
       Self.Non_Terminals.Insert (Name, null);
       Self.Last_Production := ((Name, 0), 1);
    end Create_Non_Terminal;
@@ -105,6 +109,8 @@ package body Gela.Grammars.Constructors is
          Copy_Base_Parts
            (Self.Self.all,
             Result.Part);
+
+         Result.Root := Self.Non_Terminals.Element (Self.Root).Index;
       end return;
    end Complete;
 

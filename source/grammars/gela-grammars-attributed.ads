@@ -97,6 +97,7 @@ package Gela.Grammars.Attributed is
       Last_Attribute    : Attribute_Count;
       Last_Rule         : Rule_Count) is
    tagged limited record
+      Root         : Non_Terminal_Index;
       Terminal     : Terminal_Array     (1 .. Last_Terminal);
       Non_Terminal : Non_Terminal_Array (1 .. Last_Non_Terminal);
       Production   : Production_Array   (1 .. Last_Production);

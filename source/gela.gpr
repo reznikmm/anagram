@@ -7,7 +7,8 @@ project Gela is
 
    package Compiler is
       for Default_Switches ("ada") use
-        ("-gnatwae", "-gnaty", "-gnatVa", "-gnat05", "-g");
+        ("-gnatwae", "-gnatW8", "-gnatiw", "-gnaty",
+         "-gnatVa", "-gnat05", "-g");
       for Switches ("ag-goto_table.ads") use ("-gnat05", "-g");
       for Switches ("ag-shift_reduce.ads") use ("-gnat05", "-g");
       for Switches ("ag.adb") use ("-gnat05", "-g");
