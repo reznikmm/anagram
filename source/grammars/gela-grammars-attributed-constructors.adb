@@ -101,11 +101,12 @@ package body Gela.Grammars.Attributed.Constructors is
 
    procedure Create_Rule
      (Self   : in out Constructor;
-      Result : S.Universal_String) is
+      Result : S.Universal_String;
+      Text   : S.Universal_String) is
    begin
       Self.Last_Rule :=
         (Self.Last_Production, Integer (Self.Rules.Length) + 1);
-      Self.Rules.Insert (Self.Last_Rule, null);
+      Self.Rules.Insert (Self.Last_Rule, (null, Text));
       Self.Attributes.Insert
         ((Self.Last_Rule, 0), (Origin => (Parent => <>, Part_Index => 0),
                     Attr_Name => Result));
@@ -118,15 +119,17 @@ package body Gela.Grammars.Attributed.Constructors is
    procedure Create_Rule
      (Self   : in out Constructor;
       Part   : S.Universal_String;
-      Result : S.Universal_String) is
+      Result : S.Universal_String;
+      Text   : S.Universal_String) is
    begin
       Self.Last_Rule :=
         (Self.Last_Production, Integer (Self.Rules.Length) + 1);
-      Self.Rules.Insert (Self.Last_Rule, null);
+      Self.Rules.Insert (Self.Last_Rule,  (null, Text));
       Self.Attributes.Insert
-        ((Self.Last_Rule, 0), (Origin => (Parent => Self.Last_Production,
-                               Part_Index => Self.Find_Part (Part).Part_Index),
-                    Attr_Name => Result));
+        ((Self.Last_Rule, 0),
+         (Origin => (Parent => Self.Last_Production,
+                     Part_Index => Self.Find_Part (Part).Part_Index),
+          Attr_Name => Result));
    end Create_Rule;
 
    ---------------------

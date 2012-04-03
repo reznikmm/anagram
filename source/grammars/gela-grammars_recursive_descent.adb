@@ -8,7 +8,9 @@
 ------------------------------------------------------------------------------
 
 with League.Strings;
+with League.String_Vectors;
 with Ada.Wide_Wide_Text_IO;
+with Gela.Grammars.Rule_Templates;
 
 package body Gela.Grammars_Recursive_Descent is
 
@@ -90,6 +92,10 @@ package body Gela.Grammars_Recursive_Descent is
       function In_Out
         (Decl : Attribute_Declaration_Index)
         return Wide_Wide_String;
+
+      function Make_Args
+        (Self : Rule_Templates.Rule_Template)
+        return League.String_Vectors.Universal_String_Vector;
 
       Output : Ada.Wide_Wide_Text_IO.File_Type;
 
@@ -223,7 +229,7 @@ package body Gela.Grammars_Recursive_Descent is
 
          for J in From .. To loop
             Args.Append (Name);
-            Args.Append ("_Vars.");
+            Args.Append (".");
             Args.Append (Self.Declaration (J).Name);
 
             if J /= To then
@@ -304,7 +310,7 @@ package body Gela.Grammars_Recursive_Descent is
 
          for J in From .. To loop
             if Self.Part (J).Is_Terminal_Reference then
-               P (Prefix & "   Self.Match (" &
+               P (Prefix & "   Self.Match (Tokens." &
                     Self.Terminal (Self.Part (J).Denote).Image.
                       To_Wide_Wide_String &
                     ");");
@@ -395,22 +401,12 @@ package body Gela.Grammars_Recursive_Descent is
          Part     : Part_Count;
          From, To : Rule_Count)
       is
-         Index : Attribute_Declaration_Index;
+--         Index : Attribute_Declaration_Index;
       begin
          for J in From .. To loop
             if Self.Attribute (Self.Rule (J).Result).Origin = Part then
-               Index := Self.Attribute (Self.Rule (J).Result).Declaration;
-
-               if Part = 0 then
-                  P (Prefix &
-                       Self.Declaration (Index).Name.To_Wide_Wide_String &
-                       " := 0;");
-               else
-                  P (Prefix & Self.Part (Part).Name.To_Wide_Wide_String &
-                       "_Vars." &
-                       Self.Declaration (Index).Name.To_Wide_Wide_String &
-                       " := 0;");
-               end if;
+               P (Prefix & Self.Rule (J).Template.Substitute
+                    (Make_Args (Self.Rule (J).Template)).To_Wide_Wide_String);
             end if;
          end loop;
       end Generate_Rules;
@@ -523,14 +519,14 @@ package body Gela.Grammars_Recursive_Descent is
             return;
          end if;
 
-         P (Prefix & "package " & Name & "_Vars is");
+         P (Prefix & "package " & Name & " is");
 
          for J in From .. To loop
             P (Prefix & "   " & Self.Declaration (J).Name.To_Wide_Wide_String &
                  " : Integer;");
          end loop;
 
-         P (Prefix & "end " & Name & "_Vars;");
+         P (Prefix & "end " & Name & ";");
          P ("");
       end Generate_Vars;
 
@@ -737,6 +733,25 @@ package body Gela.Grammars_Recursive_Descent is
             return "in out ";
          end if;
       end In_Out;
+
+      ---------------
+      -- Make_Args --
+      ---------------
+
+      function Make_Args
+        (Self : Rule_Templates.Rule_Template)
+        return League.String_Vectors.Universal_String_Vector
+      is
+         Item   : League.Strings.Universal_String;
+         Result : League.String_Vectors.Universal_String_Vector;
+      begin
+         for J in 1 .. Self.Count loop
+            Item := Self.Part_Name (J) & "." & Self.Attribute_Name (J);
+            Result.Append (Item);
+         end loop;
+
+         return Result;
+      end Make_Args;
 
       -------
       -- P --

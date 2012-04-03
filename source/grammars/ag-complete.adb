@@ -128,11 +128,13 @@ is
          return;
       elsif Template.Part_Name (Index) = NT then
          Self.Constructor.Create_Rule
-           (Template.Attribute_Name (Index));
+           (Template.Attribute_Name (Index),
+            Template.Text);
       else
          Self.Constructor.Create_Rule
            (Template.Part_Name (Index),
-            Template.Attribute_Name (Index));
+            Template.Attribute_Name (Index),
+            Template.Text);
       end if;
 
       for J in 1 .. Template.Count loop

@@ -246,7 +246,7 @@ package body Gela.Grammars.Attributed is
       procedure Each (Cursor : Attribute_Maps.Cursor) is
          Key  : constant Attribute_Key := Attribute_Maps.Key (Cursor);
          Node : constant Attribute_Node := Attribute_Maps.Element (Cursor);
-         Item : Rule renames Self.Rules.Element (Key.Parent).all;
+         Item : Rule renames Self.Rules.Element (Key.Parent).Target.all;
          Decl : Declaration_Key;
       begin
          Result (Index).Index := Index;
@@ -361,11 +361,13 @@ package body Gela.Grammars.Attributed is
 
       procedure Each (Cursor : Rule_Maps.Cursor) is
          Key  : constant Rule_Key := Rule_Maps.Key (Cursor);
+         Item : constant Rule_Node := Rule_Maps.Element (Cursor);
          Prod : Production'Class renames Production'Class
            (Self.Prod_Map.Element (Key.Parent.Production_Index).all);
       begin
          Result (Index).Index := Index;
          Result (Index).Parent := Prod.Index;
+         Result (Index).Template := Rule_Templates.Create (Item.Template);
 
          if Prod.Last_Rule = 0 then
             Prod.First_Rule := Index;
@@ -376,7 +378,10 @@ package body Gela.Grammars.Attributed is
          declare
             My : Constructor renames Constructor (Self.Self.all);
          begin
-            My.Rules.Replace_Element (Cursor, Result (Index)'Unchecked_Access);
+            My.Rules.Replace_Element
+              (Cursor,
+               (Target   => Result (Index)'Unchecked_Access,
+                Template => Item.Template));
 
             Index := Index + 1;
          end;
@@ -384,5 +389,16 @@ package body Gela.Grammars.Attributed is
    begin
       Self.Rules.Iterate (Each'Access);
    end Copy_Rules;
+
+   --------------
+   -- Template --
+   --------------
+
+   function Template
+     (Self : access Rule)
+     return Rule_Templates.Rule_Template is
+   begin
+      return Self.Template;
+   end Template;
 
 end Gela.Grammars.Attributed;

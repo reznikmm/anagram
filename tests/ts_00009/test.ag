@@ -15,7 +15,7 @@ Synthesized attributes
 .* : ast;
 
 Rules for E. :
-(. ${E.ast} := F (${T.ast}, ${E1.ast}); .)
+(. ${E.ast} := ${T.ast} + ${E1.ast}; .)
 
 Rules for E. :
 (. ${T.env} := ${E.env}; .)

@@ -8,6 +8,7 @@
 ------------------------------------------------------------------------------
 
 with Gela.Grammars.Constructors;
+with Gela.Grammars.Rule_Templates;
 
 package Gela.Grammars.Attributed is
 
@@ -54,6 +55,10 @@ package Gela.Grammars.Attributed is
    function Argument_First (Self : access Rule) return Attribute_Index;
    function Argument_Last  (Self : access Rule) return Attribute_Count;
    function Parent         (Self : access Rule) return Production_Index;
+
+   function Template
+     (Self : access Rule)
+     return Rule_Templates.Rule_Template;
 
    type Terminal is new Gela.Grammars.Terminal with private;
 
@@ -130,6 +135,7 @@ private
       Argument_First : Attribute_Index;
       Argument_Last  : Attribute_Count;
       Parent         : Production_Index;
+      Template       : Rule_Templates.Rule_Template;
    end record;
 
    type Terminal is new Gela.Grammars.Terminal with record
@@ -185,8 +191,13 @@ private
 
       type Rule_Access is access all Rule;
 
+      type Rule_Node is record
+         Target   : Rule_Access;
+         Template : S.Universal_String;
+      end record;
+
       package Rule_Maps is new Ada.Containers.Ordered_Maps
-        (Rule_Key, Rule_Access);
+        (Rule_Key, Rule_Node);
 
       package Attribute_Maps is new Ada.Containers.Ordered_Maps
         (Attribute_Key, Attribute_Node);

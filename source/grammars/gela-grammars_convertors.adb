@@ -256,13 +256,15 @@ package body Gela.Grammars_Convertors is
             if Input.Attribute (X).Is_Left_Hand_Side then
                Output.Create_Rule
                  (Input.Declaration
-                    (Input.Attribute (X).Declaration).Name);
+                    (Input.Attribute (X).Declaration).Name,
+                  Input.Rule (R).Template.Text);
             else
                Output.Create_Rule
                  (Result => Input.Declaration
                     (Input.Attribute (X).Declaration).Name,
                   Part => Input.Part
-                    (Input.Attribute (X).Origin).Name);
+                    (Input.Attribute (X).Origin).Name,
+                  Text => Input.Rule (R).Template.Text);
             end if;
 
             Copy_Attr (Input.Rule (R).Argument_First,

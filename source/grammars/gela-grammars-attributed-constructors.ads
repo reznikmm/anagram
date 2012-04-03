@@ -32,13 +32,15 @@ package Gela.Grammars.Attributed.Constructors is
 
    procedure Create_Rule
      (Self   : in out Constructor;
-      Result : S.Universal_String);
+      Result : S.Universal_String;
+      Text   : S.Universal_String);
    --  Create rule for calculate LHS attribute
 
    procedure Create_Rule
      (Self   : in out Constructor;
       Part   : S.Universal_String;
-      Result : S.Universal_String);
+      Result : S.Universal_String;
+      Text   : S.Universal_String);
    --  Create rule to calculate RHS attribute in part named Part
 
    procedure Create_Argument
