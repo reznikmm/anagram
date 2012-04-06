@@ -305,6 +305,7 @@ package body Gela.Grammars.Attributed is
            Declaration_Maps.Element (Cursor);
       begin
          Result (Index).Name := Key.Name;
+         Result (Index).Type_Name := Node.Type_Name;
          Result (Index).Index := Index;
          Result (Index).Is_Inherited := Node.Inherited;
          Self.Decl_Map.Insert (Key, Result (Index)'Unchecked_Access);
@@ -400,5 +401,16 @@ package body Gela.Grammars.Attributed is
    begin
       return Self.Template;
    end Template;
+
+   ---------------
+   -- Type_Name --
+   ---------------
+
+   function Type_Name
+     (Self : access Attribute_Declaration)
+     return S.Universal_String is
+   begin
+      return Self.Type_Name;
+   end Type_Name;
 
 end Gela.Grammars.Attributed;

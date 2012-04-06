@@ -17,6 +17,7 @@ package Gela.Grammars.Parser_Utils is
    type Attribute_Definitions is record
       Names  : League.String_Vectors.Universal_String_Vector;
       Values : League.String_Vectors.Universal_String_Vector;
+      Tipe   : League.Strings.Universal_String;
    end record;
 
    package Attribute_Definitions_Vectors is new

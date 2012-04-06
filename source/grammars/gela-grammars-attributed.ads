@@ -34,6 +34,10 @@ package Gela.Grammars.Attributed is
      (Self : access Attribute_Declaration)
      return S.Universal_String;
 
+   function Type_Name
+     (Self : access Attribute_Declaration)
+     return S.Universal_String;
+
    function Index
      (Self : access Attribute_Declaration)
      return Attribute_Declaration_Index;
@@ -118,8 +122,9 @@ package Gela.Grammars.Attributed is
 private
 
    type Attribute_Declaration is tagged limited record
-      Name  : S.Universal_String;
-      Index : Attribute_Declaration_Index;
+      Name         : S.Universal_String;
+      Type_Name    : S.Universal_String;
+      Index        : Attribute_Declaration_Index;
       Is_Inherited : Boolean;
    end record;
 
@@ -157,14 +162,15 @@ private
       use Constructor_Nodes;
 
       type Declaration_Key is record
-         Parent  : Alternative_Key;
-         Name    : S.Universal_String;
+         Parent : Alternative_Key;
+         Name   : S.Universal_String;
       end record;
 
       function "<" (Left, Right : Declaration_Key) return Boolean;
 
       type Declaration_Node is record
          Inherited : Boolean;
+         Type_Name : S.Universal_String;
       end record;
 
       type Rule_Key is record

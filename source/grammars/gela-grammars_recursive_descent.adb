@@ -469,10 +469,14 @@ package body Gela.Grammars_Recursive_Descent is
          for J in From .. To loop
             if J = To then
                P ("      " & Self.Declaration (J).Name.To_Wide_Wide_String &
-                    " : " & In_Out (J) & "Integer)" & Suffix);
+                    " : " & In_Out (J) &
+                    Self.Declaration (J).Type_Name.To_Wide_Wide_String &
+                    ")" & Suffix);
             else
                P ("      " & Self.Declaration (J).Name.To_Wide_Wide_String &
-                    " : " & In_Out (J) & "Integer;");
+                    " : " & In_Out (J) &
+                    Self.Declaration (J).Type_Name.To_Wide_Wide_String &
+                    ";");
             end if;
          end loop;
       end Generate_Spec;
@@ -523,7 +527,9 @@ package body Gela.Grammars_Recursive_Descent is
 
          for J in From .. To loop
             P (Prefix & "   " & Self.Declaration (J).Name.To_Wide_Wide_String &
-                 " : Integer;");
+                 " : " &
+                 Self.Declaration (J).Type_Name.To_Wide_Wide_String &
+                 ";");
          end loop;
 
          P (Prefix & "end " & Name & ";");

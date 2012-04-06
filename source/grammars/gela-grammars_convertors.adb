@@ -68,6 +68,7 @@ package body Gela.Grammars_Convertors is
          for Attr in First .. Last loop
             Output.Create_Attribute_Declaration
               (Name      => Input.Declaration (Attr).Name,
+               Type_Name => Input.Declaration (Attr).Type_Name,
                Inherited => Input.Declaration (Attr).Is_Inherited);
          end loop;
       end Create_Declarations;
@@ -354,8 +355,9 @@ package body Gela.Grammars_Convertors is
 
          for Attr in Input.Terminal (J).First .. Input.Terminal (J).Last loop
             Output.Create_Attribute_Declaration
-              (Name     => Input.Declaration (Attr).Name,
-               Terminal => Input.Terminal (J).Image);
+              (Name      => Input.Declaration (Attr).Name,
+               Type_Name => Input.Declaration (Attr).Type_Name,
+               Terminal  => Input.Terminal (J).Image);
          end loop;
       end loop;
 

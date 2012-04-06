@@ -16,12 +16,14 @@ package body Gela.Grammars.Attributed.Constructors is
    procedure Create_Attribute_Declaration
      (Self      : in out Constructor;
       Name      : S.Universal_String;
+      Type_Name : S.Universal_String;
       Terminal  : S.Universal_String)
    is
       Key : Nodes.Declaration_Key;
    begin
       Key := ((Terminal, 0), Name);
-      Self.Declarations.Insert (Key, (Inherited => False));
+      Self.Declarations.Insert
+        (Key, (Inherited => False, Type_Name => Type_Name));
    end Create_Attribute_Declaration;
 
    ------------------------------
@@ -43,12 +45,14 @@ package body Gela.Grammars.Attributed.Constructors is
    procedure Create_Attribute_Declaration
      (Self      : in out Constructor;
       Name      : S.Universal_String;
+      Type_Name : S.Universal_String;
       Inherited : Boolean)
    is
       Key : Nodes.Declaration_Key;
    begin
       Key := (Self.Last_Production.Parent, Name);
-      Self.Declarations.Insert (Key, (Inherited => Inherited));
+      Self.Declarations.Insert
+        (Key, (Inherited => Inherited, Type_Name => Type_Name));
    end Create_Attribute_Declaration;
 
    --------------------

@@ -152,9 +152,11 @@ attribute_list : attribute
 ;
 
 attribute :
-  regexp_list ':' identifier_list ';'
-  { $$ := (Attr_Def, ($1.Vector, $3.Vector)); }
+  regexp_list ':' attr_type ':' identifier_list ';'
+  { $$ := (Attr_Def, ($1.Vector, $5.Vector, $3.Image)); }
 ;
+
+attr_type : identifier;
 
 rules : Rules_Token For_Token regexp_list ':'
  Open_Rule_Token rule_body Close_Rule_Token

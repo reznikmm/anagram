@@ -42,6 +42,7 @@ is
    procedure Add_Attributes
      (Name      : League.Strings.Universal_String;
       Values    : League.String_Vectors.Universal_String_Vector;
+      Tipe      : League.Strings.Universal_String;
       Inherited : Boolean);
 
    procedure Add_Rules;
@@ -193,6 +194,7 @@ is
                Add_Attributes
                  (Item.Names.Element (K),
                   Item.Values,
+                  Item.Tipe,
                   Inherited);
             end loop;
          end;
@@ -202,6 +204,7 @@ is
    procedure Add_Attributes
      (Name      : League.Strings.Universal_String;
       Values    : League.String_Vectors.Universal_String_Vector;
+      Tipe      : League.Strings.Universal_String;
       Inherited : Boolean)
    is
       procedure Append
@@ -226,12 +229,13 @@ is
                Added_NT.Update_Element (Cursor, Append'Access);
 
                Added_Attr.Insert
-                 (Item & "." & Values.Element (J), Inherited);
+                 (Item & "." & Values.Element (J),
+                  Inherited);
 
                Self.Constructor.Set_Current_Non_Terminal (Item);
 
                Self.Constructor.Create_Attribute_Declaration
-                 (Values.Element (J), Inherited);
+                 (Values.Element (J), Tipe, Inherited);
             end loop;
          end if;
 
@@ -257,7 +261,8 @@ is
 
                Self.Constructor.Create_Attribute_Declaration
                  (Values.Element (J),
-                  Terminal => Item);
+                  Type_Name => Tipe,
+                  Terminal  => Item);
             end loop;
          end if;
 

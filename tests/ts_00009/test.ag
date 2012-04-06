@@ -9,10 +9,10 @@ T1 ::= [ Star F T1 ] ;
 F  ::= Id;
 
 Inherited attributes
-.* : env;
+.* : Aaa : env;
 
 Synthesized attributes
-.* : ast;
+.* : Bbb : ast;
 
 Rules for E. :
 (. ${E.ast} := ${T.ast} + ${E1.ast}; .)

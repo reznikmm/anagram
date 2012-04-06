@@ -14,6 +14,7 @@ package Gela.Grammars.Attributed.Constructors is
    procedure Create_Attribute_Declaration
      (Self      : in out Constructor;
       Name      : S.Universal_String;
+      Type_Name : S.Universal_String;
       Terminal  : S.Universal_String);
    --  Create new (synt) attribute for terminal
 
@@ -24,6 +25,7 @@ package Gela.Grammars.Attributed.Constructors is
    procedure Create_Attribute_Declaration
      (Self      : in out Constructor;
       Name      : S.Universal_String;
+      Type_Name : S.Universal_String;
       Inherited : Boolean);
 
    procedure Set_Production
