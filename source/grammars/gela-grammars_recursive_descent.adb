@@ -11,6 +11,7 @@ with League.Strings;
 with League.String_Vectors;
 with Ada.Wide_Wide_Text_IO;
 with Gela.Grammars.Rule_Templates;
+with Gela.Grammars_Checks;
 
 package body Gela.Grammars_Recursive_Descent is
 
@@ -814,10 +815,18 @@ package body Gela.Grammars_Recursive_Descent is
       First  : Terminal_Set_Per_NT;
       Follow : Terminal_Set_Per_NT;
    begin
+      if not Gela.Grammars_Checks.Is_Well_Formed (Self, Verbose => True) then
+         Ok := False;
+         return;
+      elsif not Gela.Grammars_Checks.Is_L_Attributed (Self) then
+         Ok := False;
+         return;
+      end if;
+
       Get_First (Value);
       To_NT_First (Value, First);
       Get_Follow (First, Follow);
-      Check_LL_1 (Value, Follow, True, Ok);
+      Check_LL_1 (Value, Follow, Verbose => True, Ok => Ok);
 
       if Ok then
          Ada.Wide_Wide_Text_IO.Create (Output, Name => "aaa");

@@ -2,7 +2,7 @@ Token Id;
 Token Plus;
 Token Star;
 
-E  ::=  T E1;
+E  ::= T E1;
 E1 ::= [ Plus T E1 ] ;
 T  ::= F T1;
 T1 ::= [ Star F T1 ] ;
@@ -22,3 +22,6 @@ Rules for E. :
 
 Rules for E. :
 (. ${E1.env} := ${E.env}; .)
+
+Rules for F. :
+(. ${F.ast} := 0; .)
