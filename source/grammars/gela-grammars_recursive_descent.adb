@@ -18,8 +18,9 @@ package body Gela.Grammars_Recursive_Descent is
    use Gela.Grammars;
    use Gela.Grammars.Attributed;
 
-   procedure Bbb
+   procedure Generate
      (Self : access Attributed.Grammar;
+      File : String;
       Ok   : out Boolean)
    is
 
@@ -98,7 +99,24 @@ package body Gela.Grammars_Recursive_Descent is
         (Self : Rule_Templates.Rule_Template)
         return League.String_Vectors.Universal_String_Vector;
 
-      Output : Ada.Wide_Wide_Text_IO.File_Type;
+      function Open_File return Ada.Wide_Wide_Text_IO.File_Type;
+
+      ---------------
+      -- Open_File --
+      ---------------
+
+      function Open_File return Ada.Wide_Wide_Text_IO.File_Type is
+      begin
+         if File = "-" then
+            return Ada.Wide_Wide_Text_IO.Standard_Output;
+         else
+            return Result : Ada.Wide_Wide_Text_IO.File_Type do
+               Ada.Wide_Wide_Text_IO.Create (Result, Name => File);
+            end return;
+         end if;
+      end Open_File;
+
+      Output : constant Ada.Wide_Wide_Text_IO.File_Type := Open_File;
 
       ----------------
       -- Check_LL_1 --
@@ -829,12 +847,10 @@ package body Gela.Grammars_Recursive_Descent is
       Check_LL_1 (Value, Follow, Verbose => True, Ok => Ok);
 
       if Ok then
-         Ada.Wide_Wide_Text_IO.Create (Output, Name => "aaa");
          Generate_Tokens;
          Generate_Specs;
          Generate_Body (Value);
-         Ada.Wide_Wide_Text_IO.Close (Output);
       end if;
-   end Bbb;
+   end Generate;
 
 end Gela.Grammars_Recursive_Descent;

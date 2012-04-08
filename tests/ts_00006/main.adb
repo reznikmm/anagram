@@ -52,10 +52,12 @@ begin
    
    C.Create_Attribute_Declaration
      (League.Strings.To_Universal_String ("AT2"),
+      League.Strings.To_Universal_String ("Integer"),
       League.Strings.To_Universal_String ("T2"));
 
    C.Create_Attribute_Declaration
      (League.Strings.To_Universal_String ("AT3"),
+      League.Strings.To_Universal_String ("Integer"),
       League.Strings.To_Universal_String ("T3"));
 
 --  NT2 := /P2/ { /PL1/ T3 }
@@ -68,10 +70,13 @@ begin
    
    C.Create_Attribute_Declaration
      (League.Strings.To_Universal_String ("L1s"),
+      League.Strings.To_Universal_String ("Integer"),
       False);
    
    C.Set_Production (League.Strings.To_Universal_String ("PL1"));
-   C.Create_Rule (League.Strings.To_Universal_String ("L1s"));
+   C.Create_Rule
+     (League.Strings.To_Universal_String ("L1s"),
+      League.Strings.To_Universal_String ("null;"));
    C.Create_Argument
      (League.Strings.To_Universal_String ("AT3"),
       League.Strings.To_Universal_String ("t3"));
@@ -81,12 +86,14 @@ begin
    C.Set_Current_Non_Terminal (League.Strings.To_Universal_String ("NT2"));
    C.Create_Attribute_Declaration
      (League.Strings.To_Universal_String ("ANT2s"),
+      League.Strings.To_Universal_String ("Integer"),
       False);
    C.Set_Production
      (League.Strings.To_Universal_String ("P2"));
 
    C.Create_Rule
-     (League.Strings.To_Universal_String ("ANT2s"));
+     (League.Strings.To_Universal_String ("ANT2s"),
+      League.Strings.To_Universal_String ("null;"));
    C.Create_Argument
      (League.Strings.To_Universal_String ("L1s"),
       League.Strings.To_Universal_String ("L1"));

@@ -19,8 +19,14 @@ package body Gela.Grammars.Constructors is
      (Self  : in out Constructor;
       Image : S.Universal_String)
    is
+      Ignore : Constructor_Nodes.Terminal_Maps.Cursor;
+      Ok     : Boolean;
    begin
-      Self.Terminals.Insert (Image, null);
+      Self.Terminals.Insert (Image, null, Ignore, Ok);
+
+      if not Ok then
+         raise Constraint_Error with "Duplicate terminal";
+      end if;
    end Create_Terminal;
 
    -------------------------

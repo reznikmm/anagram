@@ -54,11 +54,6 @@ package Gela.Grammars.Parser_Utils is
       Right : Reference_Maps.Map);
    --  No conflict allowed
 
-   procedure Join
-     (Left  : in out Reference_Maps.Map;
-      Right : Reference_Maps.Map);
-   --  If both (Name, Reference) in Left, it's ok
-
    type Production_Node is record
       Name  : League.Strings.Universal_String;
       Refs  : Reference_Maps.Map;
@@ -82,6 +77,7 @@ package Gela.Grammars.Parser_Utils is
    package Rule_Vectors is new Ada.Containers.Vectors (Positive, Rule_Node);
 
    type Context_Node is tagged record
+      Errors      : Boolean := False;
       Prod_List   : Production_Vectors.Vector;
       Tokens      : League.String_Vectors.Universal_String_Vector;
       NT          : NT_Maps.Map;
@@ -90,6 +86,19 @@ package Gela.Grammars.Parser_Utils is
       Synthesized : Attribute_Definitions_Vectors.Vector;
       Rules       : Rule_Vectors.Vector;
    end record;
+
+   procedure Error
+     (Self  : in out Context_Node;
+      Text  : Wide_Wide_String);
+
+   procedure Add_Token
+     (Self  : in out Context_Node;
+      Image : League.Strings.Universal_String);
+
+   procedure Add_Production
+     (Self  : in out Context_Node;
+      List  : in out Production_Index_Vectors.Vector;
+      Item  : Production_Index);
 
    procedure Add_NT
      (Self  : in out Context_Node;
@@ -110,5 +119,11 @@ package Gela.Grammars.Parser_Utils is
      (Self   : in out Context_Node;
       Item   : Part_Node;
       Result : out  Production_Index);
+
+   procedure Join
+     (Self  : in out Context_Node;
+      Left  : in out Reference_Maps.Map;
+      Right : Reference_Maps.Map);
+   --  If both (Name, Reference) in Left, it's ok
 
 end Gela.Grammars.Parser_Utils;

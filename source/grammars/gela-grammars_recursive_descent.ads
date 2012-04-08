@@ -11,8 +11,9 @@ with Gela.Grammars.Attributed;
 
 package Gela.Grammars_Recursive_Descent is
 
-   procedure Bbb
+   procedure Generate
      (Self : access Gela.Grammars.Attributed.Grammar;
+      File : String;
       Ok   : out Boolean);
 
 end Gela.Grammars_Recursive_Descent;

@@ -18,6 +18,6 @@ procedure Main is
    Ok : Boolean;
 begin
    Gela.Grammars_Debug.Print (G'Access);
-   Gela.Grammars_Recursive_Descent.Bbb (Plain'Access, Ok);
+   Gela.Grammars_Recursive_Descent.Generate (Plain'Access, "-", Ok);
    Ada.Text_IO.Put_Line (Boolean'Image (Ok));
 end Main;

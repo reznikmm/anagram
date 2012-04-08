@@ -62,7 +62,7 @@ item :
 ;
 
 token_rule: Token_Token identifier ';'
-  { Context.Tokens.Append ($2.Image); }
+  { Context.Add_Token ($2.Image); }
 ;
 
 syntax_rule : identifier Equal_Token production_list ';'
@@ -90,7 +90,7 @@ named_production_list : named_production
 | named_production_list '|' named_production
 {
   $$ := $1;
-  $$.Production_List.Append ($3.Production);
+  Context.Add_Production ($$.Production_List, $3.Production);
 }
 ;
 
