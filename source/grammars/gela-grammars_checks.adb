@@ -83,7 +83,7 @@ package body Gela.Grammars_Checks is
       function Check_NT
         (NT   : Non_Terminal_Index;
          From : Production_Index;
-         To   : Production_Index)
+         To   : Production_Count)
         return Boolean;
 
       type Count_Array is array (Attribute_Declaration_Index range <>)
@@ -255,7 +255,7 @@ package body Gela.Grammars_Checks is
       function Check_NT
         (NT   : Non_Terminal_Index;
          From : Production_Index;
-         To   : Production_Index)
+         To   : Production_Count)
         return Boolean
       is
          Result : Boolean := True;

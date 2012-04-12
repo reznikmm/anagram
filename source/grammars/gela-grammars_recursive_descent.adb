@@ -64,7 +64,8 @@ package body Gela.Grammars_Recursive_Descent is
       procedure Generate_Cases (Set : Terminal_Set);
       procedure Generate_Productions
         (First : Terminal_Set_Per_Production;
-         From, To : Production_Index);
+         From  : Production_Index;
+         To    : Production_Count);
       procedure Generate_Production
         (Prefix   : Wide_Wide_String;
          Prod     : Production_Index;
@@ -367,7 +368,8 @@ package body Gela.Grammars_Recursive_Descent is
 
       procedure Generate_Productions
         (First : Terminal_Set_Per_Production;
-         From, To : Production_Index)
+         From  : Production_Index;
+         To    : Production_Count)
       is
          Others_Index : Production_Count := 0;
       begin
