@@ -9,7 +9,7 @@ attributes              {Attributes_Token}
 Rules                   {Rules_Token}
 Token                   {Token_Token}
 for                     {For_Token}
-[A-Za-z0-9]+            {Identifier_Token}
+[A-Za-z0-9_]+           {Identifier_Token}
 "(."                    {Open_Rule_Token}
 <In_Rule>([^.]|\.[^)])+ {Rule_Body_Token}
 ".)"                    {Close_Rule_Token}
@@ -24,7 +24,7 @@ for                     {For_Token}
 "]"                     {Close_Option_Token}
 ":"                     {Colon_Token}
 "|"                     {Or_Token}
-<With_Regexp>[A-Za-z0-9.+*?()^\[\]]+  {Regexp_Token}
+<With_Regexp>[A-Za-z0-9_.+*?()^\[\]]+  {Regexp_Token}
 [ \t]+                  {Spaces}
 "--"[^\n]*              {Comment}
 [\n]+                   {New_Line}
