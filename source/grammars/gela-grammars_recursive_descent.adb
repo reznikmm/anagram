@@ -55,6 +55,11 @@ package body Gela.Grammars_Recursive_Descent is
          Verbose : Boolean;
          Ok      : out Boolean);
 
+      procedure Check_Left_Recursion
+        (First   : Terminal_Set_Per_NT;
+         Verbose : Boolean;
+         Ok      : out Boolean);
+
       procedure P (Text : Wide_Wide_String);
       procedure Print_Conflict (Conflict : Terminal_Set);
 
@@ -118,6 +123,130 @@ package body Gela.Grammars_Recursive_Descent is
       end Open_File;
 
       Output : constant Ada.Wide_Wide_Text_IO.File_Type := Open_File;
+
+      --------------------------
+      -- Check_Left_Recursion --
+      --------------------------
+
+      procedure Check_Left_Recursion
+        (First   : Terminal_Set_Per_NT;
+         Verbose : Boolean;
+         Ok      : out Boolean)
+      is
+         procedure Check
+           (NT   : Non_Terminal_Index;
+            From : Part_Index;
+            To   : Part_Count);
+
+         procedure Add
+           (Target : Non_Terminal_Index;
+            Item   : Non_Terminal_Index);
+
+         type Non_Terminal_Set is array (1 .. Self.Last_Non_Terminal)
+           of Boolean;
+         pragma Pack (Non_Terminal_Set);
+
+         procedure Add
+           (Target : Non_Terminal_Index;
+            Items  : Non_Terminal_Set);
+
+         Empty : constant Non_Terminal_Set := (others => False);
+
+         type Non_Terminal_Set_Per_NT is
+           array (1 .. Self.Last_Non_Terminal) of Non_Terminal_Set;
+
+         Again : Boolean := True;
+         Start : Non_Terminal_Set_Per_NT := (others => Empty);
+
+         ---------
+         -- Add --
+         ---------
+
+         procedure Add
+           (Target : Non_Terminal_Index;
+            Item   : Non_Terminal_Index) is
+         begin
+            if not Start (Target) (Item) then
+               Start (Target) (Item) := True;
+               Again := True;
+            end if;
+         end Add;
+
+         ---------
+         -- Add --
+         ---------
+
+         procedure Add
+           (Target : Non_Terminal_Index;
+            Items  : Non_Terminal_Set)
+         is
+            Old : constant Non_Terminal_Set := Start (Target);
+         begin
+            Start (Target) := Start (Target) or Items;
+
+            if Start (Target) /= Old then
+               Again := True;
+            end if;
+         end Add;
+
+         -----------
+         -- Check --
+         -----------
+
+         procedure Check
+           (NT   : Non_Terminal_Index;
+            From : Part_Index;
+            To   : Part_Count) is
+         begin
+            for J in From .. To loop
+               if Self.Part (J).Is_Terminal_Reference then
+                  return;
+               end if;
+
+               declare
+                  Ref : constant Non_Terminal_Index := Self.Part (J).Denote;
+               begin
+                  Add (NT, Ref);
+                  Add (NT, Start (Ref));
+
+                  if not First (Ref) (ε) then
+                     return;
+                  end if;
+               end;
+            end loop;
+         end Check;
+
+         From  : Production_Index;
+      begin
+         while Again loop
+            Again := False;  --  Check will trigger Again if Start changed
+
+            for NT in Start'Range loop
+               From := Self.Non_Terminal (NT).First;
+
+               for P in From .. Self.Non_Terminal (NT).Last loop
+                  Check
+                    (NT,
+                     Self.Production (P).First,
+                     Self.Production (P).Last);
+               end loop;
+            end loop;
+         end loop;
+
+         Ok := True;
+
+         for J in Start'Range loop
+            if Start (J) (J) then
+               Ok := False;
+
+               if Verbose then
+                  Ada.Wide_Wide_Text_IO.Put_Line
+                    ("Left recursion on non-terminal " &
+                       Self.Non_Terminal (J).Name.To_Wide_Wide_String);
+               end if;
+            end if;
+         end loop;
+      end Check_Left_Recursion;
 
       ----------------
       -- Check_LL_1 --
@@ -846,12 +975,17 @@ package body Gela.Grammars_Recursive_Descent is
       Get_First (Value);
       To_NT_First (Value, First);
       Get_Follow (First, Follow);
-      Check_LL_1 (Value, Follow, Verbose => True, Ok => Ok);
+
+      Check_Left_Recursion (First, Verbose => True, Ok => Ok);
 
       if Ok then
-         Generate_Tokens;
-         Generate_Specs;
-         Generate_Body (Value);
+         Check_LL_1 (Value, Follow, Verbose => True, Ok => Ok);
+
+         if Ok then
+            Generate_Tokens;
+            Generate_Specs;
+            Generate_Body (Value);
+         end if;
       end if;
    end Generate;
 
