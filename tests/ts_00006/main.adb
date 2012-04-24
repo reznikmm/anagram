@@ -102,7 +102,7 @@ begin
       Extended : aliased Gela.Grammars.Attributed.Extended.Grammar :=
         C.Complete;
       Plain    : aliased Gela.Grammars.Attributed.Grammar :=
-        Gela.Grammars_Convertors.Convert (Extended'Access);
+        Gela.Grammars_Convertors.Convert (Extended'Access, Left => False);
    begin
       Gela.Grammars_Debug.Print (Plain'Access);
    end;

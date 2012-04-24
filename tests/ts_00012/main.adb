@@ -12,7 +12,7 @@ procedure Main is
      Gela.Grammars.Reader.Read ("test.ag");
 
    Plain : aliased Gela.Grammars.Attributed.Grammar :=
-     Gela.Grammars_Convertors.Convert (G'Access);
+     Gela.Grammars_Convertors.Convert (G'Access, Left => False);
 
    Ok : Boolean;
 begin

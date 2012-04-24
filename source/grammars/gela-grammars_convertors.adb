@@ -38,7 +38,8 @@ package body Gela.Grammars_Convertors is
    -------------
 
    function Convert
-     (Input : access Gela.Grammars.Attributed.Extended.Grammar)
+     (Input : access Gela.Grammars.Attributed.Extended.Grammar;
+      Left  : Boolean)
      return Gela.Grammars.Attributed.Grammar
    is
       use Gela.Grammars;
@@ -315,13 +316,20 @@ package body Gela.Grammars_Convertors is
          Create_Recursive (P, Name, Processed);
          Output.Create_Production (Name);
 
-         if not List_NT.Is_Empty then
+         if not List_NT.Is_Empty and not Left then
             Output.Create_Non_Terminal_Reference
               (Denote => List_NT,
                Name   => List_NT);
          end if;
 
          Copy_Recursive (P, Processed);
+
+         if not List_NT.Is_Empty and Left then
+            Output.Create_Non_Terminal_Reference
+              (Denote => List_NT,
+               Name   => List_NT);
+         end if;
+
          Copy_Rules (Input.Production (P).First, Input.Production (P).Last);
       end Create_Production;
 

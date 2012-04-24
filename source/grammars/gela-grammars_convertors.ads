@@ -13,7 +13,10 @@ with Gela.Grammars.Attributed.Extended;
 package Gela.Grammars_Convertors is
 
    function Convert
-     (Input : access Gela.Grammars.Attributed.Extended.Grammar)
-      return Gela.Grammars.Attributed.Grammar;
+     (Input : access Gela.Grammars.Attributed.Extended.Grammar;
+      Left  : Boolean)
+     return Gela.Grammars.Attributed.Grammar;
+   --  If Left = True convert list as LIST := ITEM LIST | ITEM
+   --  otherwise LIST := LIST ITEM | ITEM
 
 end Gela.Grammars_Convertors;
