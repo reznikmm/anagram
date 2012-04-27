@@ -733,6 +733,7 @@ package body Gela.Grammars_Recursive_Descent is
          ---------
 
          procedure Set (NT : Non_Terminal_Index; Target : Production_Index) is
+            Old  : constant Terminal_Set := Value (Target);
             From : constant Production_Index := Self.Non_Terminal (NT).First;
          begin
             for Production in From .. Self.Non_Terminal (NT).Last loop
@@ -741,6 +742,10 @@ package body Gela.Grammars_Recursive_Descent is
                  or
                  Value (Production) (1 .. Self.Last_Terminal);
             end loop;
+
+            if Value (Target) /= Old then
+               Again := True;
+            end if;
          end Set;
 
       begin
