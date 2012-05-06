@@ -81,6 +81,7 @@ package body Gela.Grammars_Convertors is
       procedure Create_Lists (First, Last : Production_Index) is
          procedure Create_Lists (First, Last : Part_Index);
          procedure Create_Lists (First, Last : Part_Index) is
+            use type S.Universal_String;
          begin
             for J in First .. Last loop
                if Input.Part (J).Is_Option then
@@ -92,9 +93,8 @@ package body Gela.Grammars_Convertors is
                   Create_Declarations
                     (Input.Part (J).First, Input.Part (J).Last);
 
-                  Copy_Productions
-                    (Input.Part (J).First,
-                     Input.Part (J).Last);
+                  Output.Create_Production
+                    (Input.Part (J).Name & ".Empty");
 
                   Copy_Productions
                     (Input.Part (J).First,
@@ -189,13 +189,11 @@ package body Gela.Grammars_Convertors is
                      Copy_Recursive (Processed.Element (J), Processed);
                   end if;
                elsif Input.Part (J).Is_List then
-                  if Processed.Element (J) /= 0 then
-                     Output.Create_Non_Terminal_Reference
-                       (Denote => Input.Part (J).Name,
-                        Name   => Input.Part (J).Name);
+                  Output.Create_Non_Terminal_Reference
+                    (Denote => Input.Part (J).Name,
+                     Name   => Input.Part (J).Name);
 
-                     Part_Names.Insert (Input.Part (J).Name);
-                  end if;
+                  Part_Names.Insert (Input.Part (J).Name);
                end if;
             end loop;
          end Copy_Recursive;
@@ -300,13 +298,6 @@ package body Gela.Grammars_Convertors is
                            Create_Recursive (K, Nested_Name, Next);
                         end;
                      end loop;
-                  end if;
-               elsif Input.Part (J).Is_List then
-                  if Processed.Element (J) = 0 then
-                     Next := Processed;
-                     Next.Replace_Element (J, 1);
-                     Create_Production
-                       (P, Name & "." & Input.Part (J).Name, Next);
                   end if;
                end if;
             end loop;

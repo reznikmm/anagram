@@ -201,6 +201,13 @@ package body Gela.Grammars_Checks is
                   First (J) := Self.Non_Terminal (T).First;
                   Total := Total + Self.Non_Terminal (T).Last - First (J) + 1;
                end;
+            else
+               declare
+                  T : constant Terminal_Index := Self.Part (J).Denote;
+               begin
+                  First (J) := Self.Terminal (T).First;
+                  Total := Total + Self.Terminal (T).Last - First (J) + 1;
+               end;
             end if;
          end loop;
 

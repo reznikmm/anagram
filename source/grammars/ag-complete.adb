@@ -257,7 +257,9 @@ is
                Added_T.Update_Element (Cursor, Append'Access);
 
                Added_Attr.Insert
-                 (Item & "." & Values.Element (J), False);
+                 (Item & "." & Values.Element (J), True);
+               --  Work with attr of terminal is a special way.
+               --  We will calculate such attrs as inherited.
 
                Self.Constructor.Create_Attribute_Declaration
                  (Values.Element (J),
@@ -301,8 +303,6 @@ is
                   Added_T.Insert
                     (Part.Reference,
                      League.String_Vectors.Empty_Universal_String_Vector);
-
-                  Self.Constructor.Create_Terminal (Part.Reference);
                end if;
             else
                Ada.Wide_Wide_Text_IO.Put_Line
@@ -378,6 +378,10 @@ is
       end loop;
    end Add_NT_Recursive;
 begin
+   for J in 1 .. Tokens.Length loop
+      Self.Constructor.Create_Terminal (Tokens.Element (J));
+   end loop;
+
    Add_NT_Recursive (Start);
    Add_Attributes (Inherited, Inherited => True);
    Add_Attributes (Synthesized, Inherited => False);

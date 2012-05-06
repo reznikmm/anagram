@@ -322,6 +322,7 @@ package body Gela.Grammars_Recursive_Descent is
 
       procedure Generate_Body (First : Terminal_Set_Per_Production) is
       begin
+         P ("with Tokens; use Tokens;");
          P ("package body Aaa is");
 
          for NT in 1 .. Self.Last_Non_Terminal loop
@@ -338,22 +339,6 @@ package body Gela.Grammars_Recursive_Descent is
             P ("");
          end loop;
 
-         P ("");
-         P ("   procedure Next (Self : in out Parser) is");
-         P ("   begin");
-         P ("      Self.Next_Token (Self.The_Token);");
-         P ("   end Next;");
-         P ("");
-         P ("   procedure Match");
-         P ("     (Self  : in out Parser;");
-         P ("      Value : Token) is");
-         P ("   begin");
-         P ("      if Self.The_Token = Value then");
-         P ("         Self.Next_Token (Self.The_Token);");
-         P ("      else");
-         P ("         Self.Syntax_Error (Self.The_Token);");
-         P ("      end if;");
-         P ("   end Match;");
          P ("");
          P ("end Aaa;");
       end Generate_Body;
@@ -459,6 +444,12 @@ package body Gela.Grammars_Recursive_Descent is
 
          for J in From .. To loop
             if Self.Part (J).Is_Terminal_Reference then
+               Generate_Rules
+                 (Prefix & "   ",
+                  J,
+                  Self.Production (Prod).First,
+                  Self.Production (Prod).Last);
+
                P (Prefix & "   Self.Match (Tokens." &
                     Self.Terminal (Self.Part (J).Denote).Image.
                       To_Wide_Wide_String &
@@ -567,11 +558,10 @@ package body Gela.Grammars_Recursive_Descent is
 
       procedure Generate_Specs is
       begin
-         P ("with Tokens; use Tokens;");
          P ("with Tokenizers;");
          P ("package Aaa is");
          P ("");
-         P ("   type Parser is new Tokenizers.Tokenizer with private;");
+         P ("   type Parser is new Tokenizers.Tokenizer with null record;");
          P ("");
 
          for J in 1 .. Self.Last_Non_Terminal loop
@@ -579,18 +569,6 @@ package body Gela.Grammars_Recursive_Descent is
             P ("");
          end loop;
 
-         P ("private");
-         P ("");
-         P ("   type Parser is new Tokenizers.Tokenizer with record");
-         P ("      The_Token : Token;");
-         P ("   end record;");
-         P ("");
-         P ("   procedure Next (Self : in out Parser);");
-         P ("");
-         P ("   procedure Match");
-         P ("     (Self  : in out Parser;");
-         P ("      Value : Token);");
-         P ("");
          P ("end Aaa;");
       end Generate_Specs;
 
