@@ -376,6 +376,8 @@ package body Gela.Grammars_Convertors is
             Input.Non_Terminal (J).Last);
       end loop;
 
+      Output.Set_With_List (Input.With_List);
+
       return Output.Complete;
    end Convert;
 

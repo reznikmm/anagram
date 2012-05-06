@@ -11,14 +11,17 @@ procedure Complete
    Start       : League.Strings.Universal_String;
    Inherited   : Attribute_Definitions_Vectors.Vector;
    Synthesized : Attribute_Definitions_Vectors.Vector;
-   Rules       : Rule_Vectors.Vector)
+   Rules       : Rule_Vectors.Vector;
+   With_List   : League.String_Vectors.Universal_String_Vector)
 is
    use type League.Strings.Universal_String;
    use type League.String_Vectors.Universal_String_Vector;
 
+   type Attribute_Kind is (Synthesized_Attr, Inherited_Attr, Token_Attr);
+
    package Attribute_Maps is new Ada.Containers.Ordered_Maps
      (League.Strings.Universal_String,  --  NT + attr name
-      Boolean,                          --  inherited
+      Attribute_Kind,                   --  inherited
       League.Strings."<");
 
    package Production_Maps is new Ada.Containers.Ordered_Maps
@@ -90,7 +93,7 @@ is
 
       function Is_Result (Index : Positive) return Boolean is
          Name : League.Strings.Universal_String;
-         Inherited : Boolean;
+         Kind : Attribute_Kind;
       begin
          if Template.Part_Name (Index) = NT then
             Name := NT;
@@ -101,10 +104,14 @@ is
             Name := Prod.Refs.Element (Template.Part_Name (Index));
          end if;
 
-         Inherited := Added_Attr
+         Kind := Added_Attr
            (Name & "." & Template.Attribute_Name (Index));
 
-         return Template.Part_Name (Index) = NT xor Inherited;
+         if Kind = Token_Attr then
+            return Template.Count = 1;
+         end if;
+
+         return Template.Part_Name (Index) = NT xor Kind = Inherited_Attr;
       end Is_Result;
 
       Index    : Natural := 0;
@@ -230,7 +237,7 @@ is
 
                Added_Attr.Insert
                  (Item & "." & Values.Element (J),
-                  Inherited);
+                  Attribute_Kind'Val (Boolean'Pos (Inherited)));
 
                Self.Constructor.Set_Current_Non_Terminal (Item);
 
@@ -257,7 +264,7 @@ is
                Added_T.Update_Element (Cursor, Append'Access);
 
                Added_Attr.Insert
-                 (Item & "." & Values.Element (J), True);
+                 (Item & "." & Values.Element (J), Token_Attr);
                --  Work with attr of terminal is a special way.
                --  We will calculate such attrs as inherited.
 
@@ -386,4 +393,5 @@ begin
    Add_Attributes (Inherited, Inherited => True);
    Add_Attributes (Synthesized, Inherited => False);
    Add_Rules;
+   Self.Constructor.Set_With_List (With_List.Join (','));
 end Complete;

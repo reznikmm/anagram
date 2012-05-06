@@ -54,6 +54,10 @@ package Gela.Grammars.Attributed.Constructors is
       Name      : S.Universal_String;
       Part      : S.Universal_String);
 
+   procedure Set_With_List
+     (Self      : in out Constructor;
+      Value     : S.Universal_String);
+
    function Complete
      (Self : Constructor)
       return Gela.Grammars.Attributed.Grammar;

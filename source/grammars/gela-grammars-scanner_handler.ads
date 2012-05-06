@@ -57,6 +57,12 @@ package Gela.Grammars.Scanner_Handler is
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean);
 
+   procedure With_Token
+     (Self    : not null access Handler;
+      Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Token   : out Ag_Tokens.Token;
+      Skip    : in out Boolean);
+
    procedure Open_Rule_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;

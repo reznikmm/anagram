@@ -38,6 +38,7 @@ package Gela.Grammars.Attributed.Extended is
       Declaration  : Declaration_Array  (1 .. Last_Declaration);
       Attribute    : Attribute_Array    (1 .. Last_Attribute);
       Rule         : Rule_Array         (1 .. Last_Rule);
+      With_List    : S.Universal_String;
    end record;
 
 private

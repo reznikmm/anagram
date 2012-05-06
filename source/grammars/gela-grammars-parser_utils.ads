@@ -80,6 +80,7 @@ package Gela.Grammars.Parser_Utils is
       Errors      : Boolean := False;
       Prod_List   : Production_Vectors.Vector;
       Tokens      : League.String_Vectors.Universal_String_Vector;
+      With_List   : League.String_Vectors.Universal_String_Vector;
       NT          : NT_Maps.Map;
       Start       : League.Strings.Universal_String;
       Inherited   : Attribute_Definitions_Vectors.Vector;
@@ -92,6 +93,10 @@ package Gela.Grammars.Parser_Utils is
       Text  : Wide_Wide_String);
 
    procedure Add_Token
+     (Self  : in out Context_Node;
+      Image : League.Strings.Universal_String);
+
+   procedure Add_With
      (Self  : in out Context_Node;
       Image : League.Strings.Universal_String);
 

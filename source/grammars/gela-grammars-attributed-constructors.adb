@@ -217,7 +217,19 @@ package body Gela.Grammars.Attributed.Constructors is
          Self.Copy_Attributes (Result.Attribute);
 
          Result.Root := Self.Non_Terminals.Element (Self.Root).Index;
+         Result.With_List := Self.With_List;
       end return;
    end Complete;
+
+   -------------------
+   -- Set_With_List --
+   -------------------
+
+   procedure Set_With_List
+     (Self      : in out Constructor;
+      Value     : S.Universal_String) is
+   begin
+      Self.With_List := Value;
+   end Set_With_List;
 
 end Gela.Grammars.Attributed.Constructors;

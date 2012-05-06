@@ -9,6 +9,7 @@
 %token Rule_Body_Token
 %token Close_Rule_Token
 %token For_Token
+%token With_Token
 %token Regexp_Token
 
 %with League.Strings;
@@ -53,8 +54,9 @@ item_list : item |
   item_list item
 ;
 
-item : 
+item :
  token_rule |
+ with_rule |
  syntax_rule |
  inherited_attributes |
  synthesized_attributes |
@@ -63,6 +65,10 @@ item :
 
 token_rule: Token_Token identifier ';'
   { Context.Add_Token ($2.Image); }
+;
+
+with_rule : With_Token identifier ';'
+  { Context.Add_With ($2.Image); }
 ;
 
 syntax_rule : identifier Equal_Token production_list ';'
@@ -171,7 +177,7 @@ rule_body : Rule_Body_Token
   { $$ := (Image, Scanner.Get_Text); }
 ;
 
-regexp_list : regexp 
+regexp_list : regexp
 {
    $$ := (Vector, League.String_Vectors.Empty_Universal_String_Vector);
    $$.Vector.Append ($1.Image);
@@ -257,7 +263,8 @@ with Gela.Grammars.Parser_Utils; use Gela.Grammars.Parser_Utils;
       Start       : League.Strings.Universal_String;
       Inherited   : Attribute_Definitions_Vectors.Vector;
       Synthesized : Attribute_Definitions_Vectors.Vector;
-      Rules       : Rule_Vectors.Vector) is separate;
+      Rules       : Rule_Vectors.Vector;
+      With_List   : League.String_Vectors.Universal_String_Vector) is separate;
 
    procedure Read
      (Self : in out Parser;
@@ -299,5 +306,6 @@ with Gela.Grammars.Parser_Utils; use Gela.Grammars.Parser_Utils;
         Context.Start,
         Context.Inherited,
         Context.Synthesized,
-        Context.Rules);
+        Context.Rules,
+        Context.With_List);
    end Read;

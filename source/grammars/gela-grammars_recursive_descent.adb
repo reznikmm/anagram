@@ -559,6 +559,11 @@ package body Gela.Grammars_Recursive_Descent is
       procedure Generate_Specs is
       begin
          P ("with Tokenizers;");
+
+         if not Self.With_List.Is_Empty then
+            P ("with " & Self.With_List.To_Wide_Wide_String & ";");
+         end if;
+
          P ("package Aaa is");
          P ("");
          P ("   type Parser is new Tokenizers.Tokenizer with null record;");

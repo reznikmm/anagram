@@ -124,6 +124,17 @@ package body Gela.Grammars.Parser_Utils is
       Self.Tokens.Append (Image);
    end Add_Token;
 
+   --------------
+   -- Add_With --
+   --------------
+
+   procedure Add_With
+     (Self  : in out Context_Node;
+      Image : League.Strings.Universal_String) is
+   begin
+      Self.With_List.Append (Image);
+   end Add_With;
+
    procedure Append
      (Left  : in out Reference_Maps.Map;
       Right : Reference_Maps.Map)

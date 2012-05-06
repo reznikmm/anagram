@@ -204,6 +204,7 @@ package body Gela.Grammars.Attributed.Extended.Constructors is
          Fill_Ext (Result.Part);
 
          Result.Root := Self.Non_Terminals.Element (Self.Root).Index;
+         Result.With_List := Parent.With_List;
       end return;
    end Complete;
 

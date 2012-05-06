@@ -430,4 +430,21 @@ package body Gela.Grammars.Scanner_Handler is
       Token := T.Token_Token;
    end Token_Token;
 
+   ----------------
+   -- With_Token --
+   ----------------
+
+   procedure With_Token
+     (Self    : not null access Handler;
+      Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Token   : out Ag_Tokens.Token;
+      Skip    : in out Boolean)
+   is
+      pragma Unreferenced (Self);
+      pragma Unreferenced (Scanner);
+   begin
+      Skip := False;
+      Token := T.With_Token;
+   end With_Token;
+
 end Gela.Grammars.Scanner_Handler;

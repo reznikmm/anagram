@@ -114,6 +114,7 @@ package Gela.Grammars.Attributed is
       Declaration  : Declaration_Array  (1 .. Last_Declaration);
       Attribute    : Attribute_Array    (1 .. Last_Attribute);
       Rule         : Rule_Array         (1 .. Last_Rule);
+      With_List    : S.Universal_String;
    end record;
 
    type Constructor is abstract
@@ -238,6 +239,7 @@ private
         Attributes       : Nodes.Attribute_Maps.Map;
         Decl_Map         : Nodes.Decl_Index_Maps.Map;
         On_Extended_Attr : Hook;
+        With_List        : S.Universal_String;
    end record;
 
    procedure Copy_Declarations

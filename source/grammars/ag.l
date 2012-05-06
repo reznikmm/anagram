@@ -8,8 +8,9 @@ Synthesized             {Synthesized_Token}
 attributes              {Attributes_Token}
 Rules                   {Rules_Token}
 Token                   {Token_Token}
+With                    {With_Token}
 for                     {For_Token}
-[A-Za-z0-9_]+           {Identifier_Token}
+[A-Za-z0-9_.]+          {Identifier_Token}
 "(."                    {Open_Rule_Token}
 <In_Rule>([^.]|\.[^)])+ {Rule_Body_Token}
 ".)"                    {Close_Rule_Token}
