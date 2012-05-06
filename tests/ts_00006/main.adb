@@ -6,7 +6,7 @@ with Gela.Grammars.Attributed.Extended;
 with Gela.Grammars.Attributed.Extended.Constructors;
 with League.Strings;
 
---  NT2 := /P2/ NT1 { /PL1/ T3 }
+--  NT2 := /P2/ NT1 { /PL1/ T3 } /L1/
 --  NT1 := /P1/ T1 [ /OP1/ T2 NT2 ]
 
 procedure Main is
@@ -60,7 +60,7 @@ begin
       League.Strings.To_Universal_String ("Integer"),
       League.Strings.To_Universal_String ("T3"));
 
---  NT2 := /P2/ { /PL1/ T3 }
+--  NT2 := /P2/ { /PL1/ T3 } /L1/
 --  L1.L1s := F (T3.AT3)
    
    C.Set_Current_Non_Terminal (League.Strings.To_Universal_String ("NT2"));
@@ -81,7 +81,7 @@ begin
      (League.Strings.To_Universal_String ("AT3"),
       League.Strings.To_Universal_String ("t3"));
    
---  NT2 := /P2/ { /PL1/ T3 }
+--  NT2 := /P2/ { /PL1/ T3 } /L1/
 --  NT2.ANT2s := F (L1.L1s)
    C.Set_Current_Non_Terminal (League.Strings.To_Universal_String ("NT2"));
    C.Create_Attribute_Declaration
