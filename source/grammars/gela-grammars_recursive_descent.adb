@@ -89,6 +89,7 @@ package body Gela.Grammars_Recursive_Descent is
       procedure Generate_Call
         (Prefix   : Wide_Wide_String;
          Name     : Wide_Wide_String;
+         Denote   : Wide_Wide_String;
          From     : Attribute_Declaration_Index;
          To       : Attribute_Declaration_Count);
 
@@ -350,6 +351,7 @@ package body Gela.Grammars_Recursive_Descent is
       procedure Generate_Call
         (Prefix   : Wide_Wide_String;
          Name     : Wide_Wide_String;
+         Denote   : Wide_Wide_String;
          From     : Attribute_Declaration_Index;
          To       : Attribute_Declaration_Count)
       is
@@ -357,7 +359,7 @@ package body Gela.Grammars_Recursive_Descent is
          Args : Universal_String;
       begin
          if From > To then
-            P (Prefix & "   Self." & Name & ";");
+            P (Prefix & "   Self." & Denote & ";");
             return;
          end if;
 
@@ -371,7 +373,7 @@ package body Gela.Grammars_Recursive_Descent is
             end if;
          end loop;
 
-         P (Prefix & "   Self." & Name & " (" &
+         P (Prefix & "   Self." & Denote & " (" &
               Args.To_Wide_Wide_String & ");");
       end Generate_Call;
 
@@ -463,6 +465,7 @@ package body Gela.Grammars_Recursive_Descent is
 
                Generate_Call
                  (Prefix,
+                  Self.Part (J).Name.To_Wide_Wide_String,
                   Self.Non_Terminal (Self.Part (J).Denote).Name.
                       To_Wide_Wide_String,
                   Self.Non_Terminal (Self.Part (J).Denote).First,
@@ -521,7 +524,7 @@ package body Gela.Grammars_Recursive_Descent is
          P ("         when others =>");
 
          if Others_Index = 0 then
-            P ("            Self.Syntax_Error (Self.The_Token);");
+            P ("            Self.Syntax_Error;");
          else
             Generate_Production
               ("            ",
