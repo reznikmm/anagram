@@ -25,6 +25,7 @@ for                     {For_Token}
 "]"                     {Close_Option_Token}
 ":"                     {Colon_Token}
 "|"                     {Or_Token}
+","                     {Comma_Token}
 <With_Regexp>[A-Za-z0-9_.+*?()^\[\]]+  {Regexp_Token}
 [ \t]+                  {Spaces}
 "--"[^\n]*              {Comment}

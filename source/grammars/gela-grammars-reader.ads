@@ -7,11 +7,8 @@
 --              Read copyright and license in gela.ads file                 --
 ------------------------------------------------------------------------------
 
-with Gela.Grammars.Attributed.Extended;
-
 package Gela.Grammars.Reader is
 
-   function Read (File_Name : String) return
-     Gela.Grammars.Attributed.Extended.Grammar;
+   function Read (File_Name : String) return Gela.Grammars.Grammar;
 
 end Gela.Grammars.Reader;

@@ -7,15 +7,15 @@
 --              Read copyright and license in gela.ads file                 --
 ------------------------------------------------------------------------------
 
-with Gela.Grammars.Attributed;
-with Gela.Grammars.Attributed.Extended;
+with Gela.Grammars;
 
 package Gela.Grammars_Convertors is
 
    function Convert
-     (Input : access Gela.Grammars.Attributed.Extended.Grammar;
+     (Input : Gela.Grammars.Grammar;
       Left  : Boolean)
-     return Gela.Grammars.Attributed.Grammar;
+      return Gela.Grammars.Grammar;
+   --  Return grammar with expanded options and lists as plain rules.
    --  If Left = True convert list as LIST := ITEM LIST | ITEM
    --  otherwise LIST := LIST ITEM | ITEM
 

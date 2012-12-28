@@ -18,11 +18,11 @@
 %with Ada.Containers.Ordered_Maps;
 %with Gela.Grammars.Parser_Utils;
 {
-   use Gela.Grammars.Parser_Utils;
+   package PU renames Gela.Grammars.Parser_Utils;
 
    type Value_Kinds is
-     (None, Image, Vector, Attr_Def, Attr_Def_List,
-      Part, Production, Production_List);
+     (None, Image, Vector,
+      Part, Named_Part, Production, Named_Production, Production_List);
 
    type YYSType (Kind : Value_Kinds := None) is record
       case Kind is
@@ -32,16 +32,16 @@
             Image  : League.Strings.Universal_String;
          when Vector =>
             Vector : League.String_Vectors.Universal_String_Vector;
-         when Attr_Def =>
-            Attr_Def : Attribute_Definitions;
-         when Attr_Def_List =>
-            Attr_Def_List : Attribute_Definitions_Vectors.Vector;
+         when Named_Part =>
+            Named_Part : PU.Named_Part;
          when Part =>
-            Part : Part_Node;
+            Part : PU.Part_Access;
          when Production =>
-            Production : Production_Index;
+            Production : PU.Production_Access;
+         when Named_Production =>
+            Named_Production : PU.Named_Production;
          when Production_List =>
-            Production_List : Production_Index_Vectors.Vector;
+            Production_List : PU.Production_List_Access;
       end case;
    end record;
 
@@ -73,103 +73,97 @@ with_rule : With_Token identifier ';'
 
 syntax_rule : identifier Equal_Token production_list ';'
 {
-  Context.Add_NT ($1.Image, $3.Production_List);
+  Context.Add_Non_Terminal ($1.Image, $3.Production_List);
 }
 ;
 
-production_list : production
+production_list : named_production
 {
  $$ := (Production_List,
-        Production_Index_Vectors.To_Vector ($1.Production, 1));
+        Context.New_Production_List ($1.Named_Production));
 }
 
-| named_production_list
-{ $$ := $1; }
-;
-
-named_production_list : named_production
+| production_list '|' named_production
 {
  $$ := (Production_List,
-        Production_Index_Vectors.To_Vector ($1.Production, 1));
-}
-
-| named_production_list '|' named_production
-{
-  $$ := $1;
-  Context.Add_Production ($$.Production_List, $3.Production);
+        Context.Add_Production ($1.Production_List, $3.Named_Production));
 }
 ;
 
 named_production : '(' identifier ')' production
 {
-  $$ := $4;
-  Context.Set_Name ($4.Production, $2.Image);
+  $$ := (Named_Production,
+         Context.To_Named_Production ($4.Production, $2.Image));
+}
+
+| production
+{
+  $$ := (Named_Production,
+         Context.To_Named_Production ($1.Production));
 }
 ;
 
 production : named_part
-{
-  $$ := (Production, Production => <>);
-  Context.New_Production ($1.Part, $$.Production);
-}
+{ $$ := (Production, Context.New_Production ($1.Named_Part));}
 
 | production named_part
-{ $$ := $1; Context.Add_Part ($$.Production, $2.Part);}
+{ $$ := (Production, Context.Add_Part ($1.Production, $2.Named_Part));}
 ;
 
 named_part : part
-{ $$ := $1; }
+{ $$ := (Named_Part, Context.To_Named_Part ($1.Part)); }
 
 | part '<' identifier '>'
-{ $$ := $1; $$.Part.Name := $3.Image; }
+{ $$ := (Named_Part, Context.To_Named_Part ($1.Part, $3.Image)); }
 ;
 
 part : identifier
-{ $$ := (Part, (Reference, Name => $1.Image, Reference => $1.Image)); }
+{ $$ := (Part, Context.Add_Reference ($1.Image)); }
 
  | '{' production_list '}'
-{ $$ := (Part, (List, Name => <>, Nested => $2.Production_List)); }
+{ $$ := (Part, Context.Add_List ($2.Production_List)); }
 
  | '[' production_list ']'
-{ $$ := (Part, (Option, Name => <>, Nested => $2.Production_List)); }
+{ $$ := (Part, Context.Add_Option ( $2.Production_List)); }
 ;
 
 inherited_attributes :
- Inherited_Token Attributes_Token attribute_list
- {
-   Context.Inherited.Append ($3.Attr_Def_List);
-   $$ := (Kind => None);
- }
+ Inherited_Token Attributes_Token inherited_attribute
 ;
 
 synthesized_attributes :
- Synthesized_Token Attributes_Token attribute_list
- {
-   Context.Synthesized.Append ($3.Attr_Def_List);
-   $$ := (Kind => None);
- }
+ Synthesized_Token Attributes_Token synthesized_attribute
 ;
 
-attribute_list : attribute
+inherited_attribute :
+  identifier_list ':' attr_type ':' identifier_list ';'
 {
- $$ := (Attr_Def_List,
-        Attribute_Definitions_Vectors.To_Vector ($1.Attr_Def, 1));
+  $$ := (Kind => None);
+  Context.Add_Inherited_Attr
+   (Target => $1.Vector,
+    Tipe   => $3.Image,
+    Names  => $5.Vector);
 }
 ;
 
-attribute :
-  regexp_list ':' attr_type ':' identifier_list ';'
-  { $$ := (Attr_Def, ($1.Vector, $5.Vector, $3.Image)); }
+synthesized_attribute :
+  identifier_list ':' attr_type ':' identifier_list ';'
+{
+  $$ := (Kind => None);
+  Context.Add_Synthesized_Attr
+   (Target => $1.Vector,
+    Tipe   => $3.Image,
+    Names  => $5.Vector);
+}
 ;
 
 attr_type : identifier;
 
-rules : Rules_Token For_Token regexp_list ':'
+rules : Rules_Token For_Token identifier_list ':'
  Open_Rule_Token rule_body Close_Rule_Token
-
 {
-   Context.Rules.Append (($3.Vector, $6.Image));
-   $$ := (Kind => None);
+  $$ := (Kind => None);
+  Context.Add_Rule ($3.Vector, $6.Image);
 }
 ;
 
@@ -177,25 +171,6 @@ rule_body : Rule_Body_Token
   { $$ := (Image, Scanner.Get_Text); }
 ;
 
-regexp_list : regexp
-{
-   $$ := (Vector, League.String_Vectors.Empty_Universal_String_Vector);
-   $$.Vector.Append ($1.Image);
-}
-
-| regexp_list regexp
-{
-   $$ :=(Vector, $1.Vector);
-   $$.Vector.Append ($2.Image);
-}
-;
-
-regexp : identifier
-  { $$ := $1; }
-
- | Regexp_Token
-  { $$ := (Image, Scanner.Get_Text); }
-;
 
 identifier_list : identifier
 {
@@ -218,7 +193,7 @@ identifier : Identifier_Token
 %%
 -- 1
 with League.Strings;
-with Gela.Grammars.Attributed.Extended.Constructors;
+with Gela.Grammars.Constructors;
 
 ##
 
@@ -228,14 +203,12 @@ with Gela.Grammars.Attributed.Extended.Constructors;
      (Self : in out Parser;
       Text : League.Strings.Universal_String);
 
-   function Grammar
-     (Self : Parser)
-      return Gela.Grammars.Attributed.Extended.Grammar;
+   function Grammar (Self : in out Parser) return Gela.Grammars.Grammar;
 
 private
 
    type Parser is tagged limited record
-      Constructor : Gela.Grammars.Attributed.Extended.Constructors.Constructor;
+      Constructor : Gela.Grammars.Constructors.Constructor;
    end record;
 -- 2
 ##
@@ -244,37 +217,21 @@ with String_Sources;
 with Gela.Grammars.Scanners;
 with Gela.Grammars.Scanner_Handler;
 with League.String_Vectors;
-with Gela.Grammars.Parser_Utils; use Gela.Grammars.Parser_Utils;
+with Gela.Grammars.Parser_Utils;
 -- 3
 ##
-   function Grammar
-     (Self : Parser)
-      return Gela.Grammars.Attributed.Extended.Grammar is
+   function Grammar (Self : in out Parser) return Gela.Grammars.Grammar is
    begin
-      return Gela.Grammars.Attributed.Extended.Constructors.Complete
-        (Self.Constructor);
+      return Gela.Grammars.Constructors.Complete (Self.Constructor);
    end Grammar;
-
-   procedure Complete
-     (Self        : in out Parser;
-      Prod_List   : Production_Vectors.Vector;
-      Tokens      : League.String_Vectors.Universal_String_Vector;
-      NT          : NT_Maps.Map;
-      Start       : League.Strings.Universal_String;
-      Inherited   : Attribute_Definitions_Vectors.Vector;
-      Synthesized : Attribute_Definitions_Vectors.Vector;
-      Rules       : Rule_Vectors.Vector;
-      With_List   : League.String_Vectors.Universal_String_Vector) is separate;
 
    procedure Read
      (Self : in out Parser;
       Text : League.Strings.Universal_String)
    is
-      use type Attribute_Definitions_Vectors.Vector;
-
       Scanner     : aliased Gela.Grammars.Scanners.Scanner;
       Handler     : aliased Gela.Grammars.Scanner_Handler.Handler;
-      Context     : Context_Node;
+      Context     : PU.Context_Node;
 
       procedure yyerror (X : Wide_Wide_String) is
       begin
@@ -297,15 +254,5 @@ with Gela.Grammars.Parser_Utils; use Gela.Grammars.Parser_Utils;
       Scanner.Set_Source (Source'Unchecked_Access);
       Scanner.Set_Handler (Handler'Unchecked_Access);
       YYParse;
-
-      Complete
-       (Self,
-        Context.Prod_List,
-        Context.Tokens,
-        Context.NT,
-        Context.Start,
-        Context.Inherited,
-        Context.Synthesized,
-        Context.Rules,
-        Context.With_List);
+      Context.Complete (Self.Constructor);
    end Read;

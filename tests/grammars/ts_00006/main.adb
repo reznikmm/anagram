@@ -2,108 +2,130 @@
 
 with Gela.Grammars_Convertors;
 with Gela.Grammars_Debug;
-with Gela.Grammars.Attributed.Extended;
-with Gela.Grammars.Attributed.Extended.Constructors;
+with Gela.Grammars;
+with Gela.Grammars.Constructors;
 with League.Strings;
 
 --  NT2 := /P2/ NT1 { /PL1/ T3 } /L1/
 --  NT1 := /P1/ T1 [ /OP1/ T2 NT2 ]
 
 procedure Main is
-   C : aliased Gela.Grammars.Attributed.Extended.Constructors.Constructor;
+   use Gela.Grammars.Constructors;
+   C : Gela.Grammars.Constructors.Constructor;
 begin
    C.Create_Terminal (League.Strings.To_Universal_String ("T2"));
    C.Create_Terminal (League.Strings.To_Universal_String ("T1"));
    C.Create_Terminal (League.Strings.To_Universal_String ("T3"));
 
-   C.Create_Non_Terminal (League.Strings.To_Universal_String ("NT2"));
-
-   C.Create_Production (League.Strings.To_Universal_String ("P2"));
-   
-   begin
-      C.Create_Non_Terminal_Reference
+   declare
+      NT1 : constant Part := C.Create_Non_Terminal_Reference
         (League.Strings.To_Universal_String ("nt1"),
          League.Strings.To_Universal_String ("NT1"));
-      C.Create_List (League.Strings.To_Universal_String ("L1"));
-      C.Create_Production (League.Strings.To_Universal_String ("PL1"));
-      C.Create_Terminal_Reference
+      
+      L1 : constant Part := C.Create_List_Reference
+        (League.Strings.To_Universal_String ("L1"),
+         League.Strings.To_Universal_String ("L1"));
+
+      P2 : Production := C.Create_Production
+        (League.Strings.To_Universal_String ("P2"));
+
+      PL : Production_List := C.Create_Production_List;
+   begin
+      P2.Add (NT1);
+      P2.Add (L1);
+      PL.Add (P2);
+      C.Create_Non_Terminal (League.Strings.To_Universal_String ("NT2"), PL);
+   end;
+   
+   declare
+      T3 : constant Part := C.Create_Terminal_Reference
         (League.Strings.To_Universal_String ("t3"),
          League.Strings.To_Universal_String ("T3"));
-      C.End_List;
+      
+      PL1 : Production := C.Create_Production
+        (League.Strings.To_Universal_String ("PL1"));
+
+      PL : Production_List := C.Create_Production_List;
+   begin
+      PL1.Add (T3);
+      PL.Add (PL1);
+      C.Create_List (League.Strings.To_Universal_String ("L1"), PL);
    end;
    
-   C.Create_Non_Terminal (League.Strings.To_Universal_String ("NT1"));
-   C.Create_Production (League.Strings.To_Universal_String ("P1"));
-   
-   begin
-      C.Create_Terminal_Reference
+   declare
+      T1 : constant Part := C.Create_Terminal_Reference
         (League.Strings.To_Universal_String ("t1"),
          League.Strings.To_Universal_String ("T1"));
-      C.Create_Option (League.Strings.To_Universal_String ("O1"));
-      C.Create_Production (League.Strings.To_Universal_String ("OP1"));
-      C.Create_Terminal_Reference
+      
+      T2 : constant Part := C.Create_Terminal_Reference
         (League.Strings.To_Universal_String ("t2"),
          League.Strings.To_Universal_String ("T2"));
-      C.Create_Non_Terminal_Reference
+      
+      NT2 : constant Part := C.Create_Non_Terminal_Reference
         (League.Strings.To_Universal_String ("nt2"),
          League.Strings.To_Universal_String ("NT2"));
-      C.End_Option;
+   
+      OP1 : Production := C.Create_Production
+        (League.Strings.To_Universal_String ("OP1"));
+      
+      P1 : Production := C.Create_Production
+        (League.Strings.To_Universal_String ("P1"));
+      
+      PL : Production_List := C.Create_Production_List;
+   begin
+      OP1.Add (T2);
+      OP1.Add (NT2);
+      PL.Add (OP1);
+      P1.Add (T1);
+      P1.Add (C.Create_Option (League.Strings.To_Universal_String ("O1"), PL));
+      
+      PL := C.Create_Production_List;
+      PL.Add (P1);
+      C.Create_Non_Terminal (League.Strings.To_Universal_String ("NT1"), PL);
    end;
    
    C.Create_Attribute_Declaration
-     (League.Strings.To_Universal_String ("AT2"),
-      League.Strings.To_Universal_String ("Integer"),
-      League.Strings.To_Universal_String ("T2"));
+     (League.Strings.To_Universal_String ("T2"),
+      League.Strings.To_Universal_String ("AT2"),
+      League.Strings.To_Universal_String ("Integer"));
 
    C.Create_Attribute_Declaration
-     (League.Strings.To_Universal_String ("AT3"),
-      League.Strings.To_Universal_String ("Integer"),
-      League.Strings.To_Universal_String ("T3"));
+     (League.Strings.To_Universal_String ("T3"),
+      League.Strings.To_Universal_String ("AT3"),
+      League.Strings.To_Universal_String ("Integer"));
 
 --  NT2 := /P2/ { /PL1/ T3 } /L1/
 --  L1.L1s := F (T3.AT3)
    
-   C.Set_Current_Non_Terminal (League.Strings.To_Universal_String ("NT2"));
-   C.Set_Production
-     (League.Strings.To_Universal_String ("P2"));
-   C.Set_Current_List (League.Strings.To_Universal_String ("L1"));
-   
    C.Create_Attribute_Declaration
-     (League.Strings.To_Universal_String ("L1s"),
-      League.Strings.To_Universal_String ("Integer"),
-      False);
+     (League.Strings.To_Universal_String ("L1"),
+      League.Strings.To_Universal_String ("L1s"),
+      False,
+      League.Strings.To_Universal_String ("Integer"));
    
-   C.Set_Production (League.Strings.To_Universal_String ("PL1"));
    C.Create_Rule
-     (League.Strings.To_Universal_String ("L1s"),
-      League.Strings.To_Universal_String ("null;"));
-   C.Create_Argument
-     (League.Strings.To_Universal_String ("AT3"),
-      League.Strings.To_Universal_String ("t3"));
+     (League.Strings.To_Universal_String ("L1"),
+      League.Strings.To_Universal_String ("PL1"),
+      League.Strings.To_Universal_String ("${L1.L1s} := F (${t3.AT3})"));
    
 --  NT2 := /P2/ { /PL1/ T3 } /L1/
 --  NT2.ANT2s := F (L1.L1s)
-   C.Set_Current_Non_Terminal (League.Strings.To_Universal_String ("NT2"));
    C.Create_Attribute_Declaration
-     (League.Strings.To_Universal_String ("ANT2s"),
-      League.Strings.To_Universal_String ("Integer"),
-      False);
-   C.Set_Production
-     (League.Strings.To_Universal_String ("P2"));
+     (League.Strings.To_Universal_String ("NT2"),
+      League.Strings.To_Universal_String ("ANT2s"),
+      False,
+      League.Strings.To_Universal_String ("Integer"));
 
    C.Create_Rule
-     (League.Strings.To_Universal_String ("ANT2s"),
-      League.Strings.To_Universal_String ("null;"));
-   C.Create_Argument
-     (League.Strings.To_Universal_String ("L1s"),
-      League.Strings.To_Universal_String ("L1"));
+     (League.Strings.To_Universal_String ("NT2"),
+      League.Strings.To_Universal_String ("P2"),
+      League.Strings.To_Universal_String ("${NT2.ANT2s} := F (${L1.L1s})"));
 
    declare
-      Extended : aliased Gela.Grammars.Attributed.Extended.Grammar :=
-        C.Complete;
-      Plain    : aliased Gela.Grammars.Attributed.Grammar :=
-        Gela.Grammars_Convertors.Convert (Extended'Access, Left => False);
+      Extended : Gela.Grammars.Grammar := C.Complete;
+      Plain    : Gela.Grammars.Grammar :=
+        Gela.Grammars_Convertors.Convert (Extended, Left => False);
    begin
-      Gela.Grammars_Debug.Print (Plain'Access);
+      Gela.Grammars_Debug.Print (Plain);
    end;
 end Main;

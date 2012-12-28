@@ -6,108 +6,196 @@
 --                     - - - - - - - - - - - - - - -                        --
 --              Read copyright and license in gela.ads file                 --
 ------------------------------------------------------------------------------
+
 with Ada.Wide_Wide_Text_IO;
 
 package body Gela.Grammars.Parser_Utils is
 
-   ------------
-   -- Add_NT --
-   ------------
+   ---------
+   -- "<" --
+   ---------
 
-   procedure Add_NT
+   function "<" (L, R : Part_Access) return Boolean is
+   begin
+      if L.Kind < R.Kind then
+         return True;
+      elsif L.Kind > R.Kind then
+         return False;
+      end if;
+
+      case L.Kind is
+         when Reference_Kind =>
+            return L.Reference < R.Reference;
+         when others =>
+            return Less (L.List, R.List);
+      end case;
+   end "<";
+
+   ------------------------
+   -- Add_Inherited_Attr --
+   ------------------------
+
+   procedure Add_Inherited_Attr
+     (Self   : in out Context_Node;
+      Target : League.String_Vectors.Universal_String_Vector;
+      Names  : League.String_Vectors.Universal_String_Vector;
+      Tipe   : League.Strings.Universal_String) is
+   begin
+      Self.Inherited.Append ((Target, Names, Tipe));
+   end Add_Inherited_Attr;
+
+   --------------
+   -- Add_List --
+   --------------
+
+   function Add_List
+     (Self  : in out Context_Node;
+      List  : Production_List_Access)
+      return Part_Access is
+   begin
+      if not Self.List_Parts.Contains (List) then
+         Self.List_Parts.Insert (List, new Part'(List_Kind, List));
+      end if;
+
+      return Self.List_Parts (List);
+   end Add_List;
+
+   ------------------------
+   -- Add_List_Reference --
+   ------------------------
+
+   function Add_List_Reference
+     (Self  : in out Context_Node;
+      Text  : League.Strings.Universal_String)
+      return Part_Access is
+   begin
+      if not Self.Reference_Parts.Contains (Text) then
+         Self.Reference_Parts.Insert
+           (Text, new Part'(List_Reference_Kind, Text));
+      end if;
+
+      return Self.Reference_Parts (Text);
+   end Add_List_Reference;
+
+   ----------------------
+   -- Add_Non_Terminal --
+   ----------------------
+
+   procedure Add_Non_Terminal
      (Self  : in out Context_Node;
       Name  : League.Strings.Universal_String;
-      List  : Production_Index_Vectors.Vector)
-   is
-      Ok     : Boolean;
-      Ignore : NT_Maps.Cursor;
+      List  : Production_List_Access) is
    begin
-      if Self.Start.Is_Empty then
-         Self.Start := Name;
+      Self.Non_Terminals.Insert (Name, List);
+   end Add_Non_Terminal;
+
+   ----------------
+   -- Add_Option --
+   ----------------
+
+   function Add_Option
+     (Self   : in out Context_Node;
+      Option : Production_List_Access)
+      return Part_Access
+   is
+   begin
+      if not Self.Option_Parts.Contains (Option) then
+         Self.Option_Parts.Insert (Option, new Part'(Option_Kind, Option));
       end if;
 
-      Self.NT.Insert (Name, List, Ignore, Ok);
+      return Self.Option_Parts (Option);
+   end Add_Option;
 
-      if not Ok then
-         Self.Error ("Duplicate Non Terminal: " & Name.To_Wide_Wide_String);
-      end if;
-   end Add_NT;
+   --------------
+   -- Add_Part --
+   --------------
 
-   procedure Add_Part
-     (Self  : in out Context_Node;
-      Index : Production_Index;
-      Item  : Part_Node)
+   function Add_Part
+     (Self : in out Context_Node;
+      List : Production_Access;
+      Item : Named_Part)
+      return Production_Access
    is
-      procedure Add (Old : in out Production_Node);
+      use type Named_Part_Vectors.Vector;
 
-      procedure Add (Old : in out Production_Node) is
-         Ok     : Boolean;
-         Ignore : Reference_Maps.Cursor;
-      begin
-         case Item.Kind is
-            when Reference =>
-               Old.Refs.Insert (Item.Name, Item.Reference, Ignore, Ok);
-
-               if not Ok then
-                  Self.Error
-                    ("Duplicate name: " & Item.Name.To_Wide_Wide_String);
-               end if;
-            when List =>
-               Old.Refs.Insert (Item.Name, Item.Name, Ignore, Ok);
-
-               if not Ok then
-                  Self.Error
-                    ("Duplicate name: " & Item.Name.To_Wide_Wide_String);
-               end if;
-            when Option =>
-               declare
-                  Refs : Reference_Maps.Map :=
-                    Self.Prod_List.Element (Item.Nested.Element (1)).Refs;
-               begin
-                  for J in 2 .. Item.Nested.Last_Index loop
-                     Self.Join
-                       (Refs,
-                        Self.Prod_List.Element
-                          (Item.Nested.Element (J)).Refs);
-                  end loop;
-
-                  Append (Old.Refs, Refs);
-               end;
-         end case;
-
-         Old.Parts.Append (Item);
-      end Add;
+      V : constant Named_Part_Vectors.Vector := List.Parts & Item;
    begin
-      Self.Prod_List.Update_Element (Index, Add'Access);
+      if not Self.Productions.Contains (V) then
+         Self.Productions.Insert (V, new Production'(Parts => V));
+      end if;
+
+      return Self.Productions (V);
    end Add_Part;
 
    --------------------
    -- Add_Production --
    --------------------
 
-   procedure Add_Production
-     (Self  : in out Context_Node;
-      List  : in out Production_Index_Vectors.Vector;
-      Item  : Production_Index)
+   function Add_Production
+     (Self : in out Context_Node;
+      List : Production_List_Access;
+      Item : Named_Production)
+      return Production_List_Access
    is
-      use type League.Strings. Universal_String;
+      use type Named_Production_Vectors.Vector;
 
-      Node : constant Production_Node := Self.Prod_List.Element (Item);
+      V : constant Named_Production_Vectors.Vector := List.Productions & Item;
    begin
-      for J in List.First_Index .. List.Last_Index loop
-         declare
-            Index : constant Production_Index := List.Element (J);
-         begin
-            if Self.Prod_List.Element (Index).Name = Node.Name then
-               Self.Error ("Duplicated production name: " &
-                             Node.Name.To_Wide_Wide_String);
-               return;
-            end if;
-         end;
-      end loop;
+      if Item.Name.Is_Empty or V.First_Element.Name.Is_Empty then
+         raise Constraint_Error;
+      end if;
 
-      List.Append (Item);
+      if V.Last_Index = 1 and then V.First_Element.Name.Is_Empty then
+         raise Constraint_Error;
+      end if;
+
+      if not Self.Prod_Lists.Contains (V) then
+         Self.Prod_Lists.Insert (V, new Production_List'(Productions => V));
+      end if;
+
+      return Self.Prod_Lists (V);
    end Add_Production;
+
+   -------------------
+   -- Add_Reference --
+   -------------------
+
+   function Add_Reference
+     (Self  : in out Context_Node;
+      Text  : League.Strings.Universal_String)
+      return Part_Access is
+   begin
+      if not Self.Reference_Parts.Contains (Text) then
+         Self.Reference_Parts.Insert (Text, new Part'(Reference_Kind, Text));
+      end if;
+
+      return Self.Reference_Parts (Text);
+   end Add_Reference;
+
+   --------------
+   -- Add_Rule --
+   --------------
+
+   procedure Add_Rule
+     (Self   : in out Context_Node;
+      Target : League.String_Vectors.Universal_String_Vector;
+      Text   : League.Strings.Universal_String) is
+   begin
+      Self.Rules.Append ((Target, Text));
+   end Add_Rule;
+
+   --------------------------
+   -- Add_Synthesized_Attr --
+   --------------------------
+
+   procedure Add_Synthesized_Attr
+     (Self   : in out Context_Node;
+      Target : League.String_Vectors.Universal_String_Vector;
+      Names  : League.String_Vectors.Universal_String_Vector;
+      Tipe   : League.Strings.Universal_String) is
+   begin
+      Self.Synthesized.Append ((Target, Names, Tipe));
+   end Add_Synthesized_Attr;
 
    ---------------
    -- Add_Token --
@@ -117,11 +205,7 @@ package body Gela.Grammars.Parser_Utils is
      (Self  : in out Context_Node;
       Image : League.Strings.Universal_String) is
    begin
-      if not Self.Tokens.Is_Empty and then Self.Tokens.Index (Image) > 0 then
-         Self.Error ("Dublicate token: " & Image.To_Wide_Wide_String);
-      end if;
-
-      Self.Tokens.Append (Image);
+      Self.Tokens.Insert (Image);
    end Add_Token;
 
    --------------
@@ -135,18 +219,188 @@ package body Gela.Grammars.Parser_Utils is
       Self.With_List.Append (Image);
    end Add_With;
 
-   procedure Append
-     (Left  : in out Reference_Maps.Map;
-      Right : Reference_Maps.Map)
+   --------------
+   -- Complete --
+   --------------
+
+   procedure Complete
+     (Self        : in out Context_Node;
+      Constructor : in out Gela.Grammars.Constructors.Constructor)
    is
-      Pos : Reference_Maps.Cursor := Right.First;
+      function To_Production_List
+        (List   : Production_List_Access;
+         Inside : League.Strings.Universal_String :=
+           League.Strings.Empty_Universal_String)
+        return Gela.Grammars.Constructors.Production_List;
+
+      procedure To_Production
+        (Production : Production_Access;
+         Result : in out Gela.Grammars.Constructors.Production);
+
+      -------------------
+      -- To_Production --
+      -------------------
+
+      procedure To_Production
+        (Production : Production_Access;
+         Result     : in out Gela.Grammars.Constructors.Production) is
+      begin
+         for Part of Production.Parts loop
+            case Part.Data.Kind is
+               when Reference_Kind =>
+                  if Self.Tokens.Contains (Part.Data.Reference) then
+                     Result.Add
+                       (Constructor.Create_Terminal_Reference
+                          (Part.Name, Part.Data.Reference));
+                  else
+                     Result.Add
+                       (Constructor.Create_Non_Terminal_Reference
+                          (Part.Name, Part.Data.Reference));
+                  end if;
+               when List_Reference_Kind =>
+                  declare
+                     use League.Strings;
+
+                     Production : Gela.Grammars.Constructors.Production :=
+                       Constructor.Create_Production (Part.Name);
+                     List       : Gela.Grammars.Constructors.Production_List :=
+                       Constructor.Create_Production_List;
+                     Option_Name : Universal_String := Part.Name & "_Option";
+                  begin
+                     Production.Add
+                       (Constructor.Create_Non_Terminal_Reference
+                          (Part.Name, Part.Data.Reference));
+                     List.Add (Production);
+                     Result.Add
+                       (Constructor.Create_Option (Option_Name, List));
+                  end;
+               when others =>
+                  declare
+                     List : Gela.Grammars.Constructors.Production_List :=
+                       To_Production_List (Part.Data.List);
+                  begin
+                     Result.Add
+                       (Constructor.Create_Option (Part.Name, List));
+                  end;
+            end case;
+         end loop;
+      end To_Production;
+
+      ------------------------
+      -- To_Production_List --
+      ------------------------
+
+      function To_Production_List
+        (List   : Production_List_Access;
+         Inside : League.Strings.Universal_String :=
+           League.Strings.Empty_Universal_String)
+         return Gela.Grammars.Constructors.Production_List
+      is
+         Result : Gela.Grammars.Constructors.Production_List :=
+           Constructor.Create_Production_List;
+      begin
+         for Production of List.Productions loop
+            declare
+               Item : Gela.Grammars.Constructors.Production :=
+                 Constructor.Create_Production (Production.Name);
+            begin
+               To_Production (Production.Data, Item);
+               Result.Add (Item);
+            end;
+
+            if not Inside.Is_Empty then
+               declare
+                  Item : Gela.Grammars.Constructors.Production :=
+                    Constructor.Create_Production
+                      (Production.Name & "_append");
+               begin
+                  Item.Add
+                    (Constructor.Create_Non_Terminal_Reference
+                       (Name   => League.Strings.To_Universal_String ("head"),
+                        Denote => Inside));
+
+                  To_Production (Production.Data, Item);
+                  Result.Add (Item);
+               end;
+            end if;
+         end loop;
+
+         return Result;
+      end To_Production_List;
+
    begin
-      while Reference_Maps.Has_Element (Pos) loop
-         Left.Insert (Reference_Maps.Key (Pos),
-                      Reference_Maps.Element (Pos));
-         Reference_Maps.Next (Pos);
+      for Token of Self.Tokens loop
+         Constructor.Create_Terminal (Token);
       end loop;
-   end Append;
+
+      for NT in Self.Non_Terminals.Iterate loop
+         declare
+            List : Gela.Grammars.Constructors.Production_List :=
+              To_Production_List (Non_Terminal_Maps.Element (NT));
+         begin
+            Constructor.Create_Non_Terminal
+              (Non_Terminal_Maps.Key (NT),
+               List);
+         end;
+      end loop;
+
+      for NT in Self.Lists.Iterate loop
+         declare
+            List : Gela.Grammars.Constructors.Production_List :=
+              To_Production_List
+                (List_Maps.Element (NT), List_Maps.Key (NT));
+         begin
+            Constructor.Create_Non_Terminal
+              (List_Maps.Key (NT),
+               List);
+         end;
+      end loop;
+
+      for Attr of Self.Inherited loop
+         for Target in 1 .. Attr.Target.Length loop
+            for Name in 1 .. Attr.Names.Length loop
+               Constructor.Create_Attribute_Declaration
+                 (Non_Terminal => Attr.Target (Target),
+                  Name         => Attr.Names (Name),
+                  Is_Inherited => True,
+                  Type_Name    => Attr.Tipe);
+            end loop;
+         end loop;
+      end loop;
+
+      for Attr of Self.Synthesized loop
+         for Target in 1 .. Attr.Target.Length loop
+            for Name in 1 .. Attr.Names.Length loop
+               if Self.Tokens.Contains (Attr.Target (Target)) then
+                  Constructor.Create_Attribute_Declaration
+                    (Terminal  => Attr.Target (Target),
+                     Name      => Attr.Names (Name),
+                     Type_Name => Attr.Tipe);
+               else
+                  Constructor.Create_Attribute_Declaration
+                    (Non_Terminal => Attr.Target (Target),
+                     Name         => Attr.Names (Name),
+                     Is_Inherited => False,
+                     Type_Name    => Attr.Tipe);
+               end if;
+            end loop;
+         end loop;
+      end loop;
+
+      for Rule of Self.Rules loop
+         for Target in 1 .. Rule.Target.Length loop
+            declare
+               Items : constant League.String_Vectors.Universal_String_Vector :=
+                 Rule.Target (Target).Split ('.');
+            begin
+               Constructor.Create_Rule
+                 (Non_Terminal => Items (1),
+                  Production   => Items (2),
+                  Text         => Rule.Text);
+            end;
+         end loop;
+      end loop;
+   end Complete;
 
    -----------
    -- Error --
@@ -157,67 +411,250 @@ package body Gela.Grammars.Parser_Utils is
       Text  : Wide_Wide_String) is
    begin
       Ada.Wide_Wide_Text_IO.Put_Line (Text);
-      Self.Errors := True;
    end Error;
 
-   procedure Join
-     (Self  : in out Context_Node;
-      Left  : in out Reference_Maps.Map;
-      Right : Reference_Maps.Map)
-   is
-      use League.Strings;
-      Pos : Reference_Maps.Cursor := Right.First;
+   ----------
+   -- Less --
+   ----------
+
+   function Less (Left, Right : Production_List_Access) return Boolean is
+      use type Ada.Containers.Count_Type;
    begin
-      while Reference_Maps.Has_Element (Pos) loop
-         declare
-            X : constant League.Strings.Universal_String :=
-              Reference_Maps.Key (Pos);
-            Y : constant League.Strings.Universal_String :=
-              Reference_Maps.Element (Pos);
-         begin
-            if Left.Contains (X) then
-               if Left.Element (X) /= Y then
-                  Self.Error
-                    ("Dublicate name: " & X.To_Wide_Wide_String &
-                       " refs " & Left.Element (X).To_Wide_Wide_String &
-                       " and " & Y.To_Wide_Wide_String);
-               end if;
-            else
-               Left.Insert (X, Y);
+      if Left.Productions.Length < Right.Productions.Length then
+         return True;
+      elsif Left.Productions.Length > Right.Productions.Length then
+         return False;
+      end if;
+
+      for J in 1 .. Left.Productions.Last_Index loop
+         if Left.Productions (J).Name = Right.Productions (J).Name then
+            if Left.Productions (J).Data /= Right.Productions (J).Data then
+               return Less (Left.Productions (J).Data.Parts,
+                            Right.Productions (J).Data.Parts);
             end if;
-
-            Reference_Maps.Next (Pos);
-         end;
+         else
+            return Left.Productions (J).Name < Right.Productions (J).Name;
+         end if;
       end loop;
-   end Join;
 
-   procedure Set_Name
-     (Self  : in out Context_Node;
-      Index : Production_Index;
-      Name  : League.Strings.Universal_String)
+      return False;
+   end Less;
+
+   ----------
+   -- Less --
+   ----------
+
+   function Less (Left, Right : Named_Part_Vectors.Vector) return Boolean is
+      use type Ada.Containers.Count_Type;
+   begin
+      if Left.Length < Right.Length then
+         return True;
+      elsif Left.Length > Right.Length then
+         return False;
+      end if;
+
+      for J in 1 .. Left.Last_Index loop
+         if Left (J).Name = Right (J).Name then
+            if Left (J).Data /= Right (J).Data then
+               return Left (J).Data < Right (J).Data;
+            end if;
+         else
+            return Left (J).Name < Right (J).Name;
+         end if;
+      end loop;
+
+      return False;
+   end Less;
+
+   ----------
+   -- Less --
+   ----------
+
+   function Less (L, R : Named_Production_Vectors.Vector) return Boolean is
+      use type Ada.Containers.Count_Type;
+   begin
+      if L.Length < R.Length then
+         return True;
+      elsif L.Length > R.Length then
+         return False;
+      end if;
+
+      for J in 1 .. L.Last_Index loop
+         if L (J).Name = R (J).Name then
+            if L (J).Data /= R (J).Data then
+               return Less (L (J).Data.Parts, R (J).Data.Parts);
+            end if;
+         else
+            return L (J).Name < R (J).Name;
+         end if;
+      end loop;
+
+      return False;
+   end Less;
+
+   --------------------
+   -- New_Production --
+   --------------------
+
+   function New_Production
+     (Self : in out Context_Node;
+      Item : Named_Part)
+      return Production_Access
    is
-      procedure Set (Old : in out Production_Node);
+      use type Named_Part_Vectors.Vector;
 
-      procedure Set (Old : in out Production_Node) is
-      begin
-         Old.Name := Name;
-      end Set;
+      V : constant Named_Part_Vectors.Vector :=
+        Named_Part_Vectors.To_Vector (Item, 1);
    begin
-      Self.Prod_List.Update_Element (Index, Set'Access);
-   end Set_Name;
+      if not Self.Productions.Contains (V) then
+         Self.Productions.Insert (V, new Production'(Parts => V));
+      end if;
 
-   procedure New_Production
-     (Self   : in out Context_Node;
-      Item   : Part_Node;
-      Result : out  Production_Index) is
-   begin
-      Self.Prod_List.Append
-        ((Name  => <>,
-          Refs  => <>,
-          Parts => <>));
-
-      Result := Self.Prod_List.Last_Index;
-      Self.Add_Part (Result, Item);
+      return Self.Productions (V);
    end New_Production;
+
+   -------------------------
+   -- New_Production_List --
+   -------------------------
+
+   function New_Production_List
+     (Self : in out Context_Node;
+      Item : Named_Production)
+      return Production_List_Access
+   is
+      use type Named_Production_Vectors.Vector;
+
+      V : constant Named_Production_Vectors.Vector :=
+        Named_Production_Vectors.To_Vector (Item, 1);
+   begin
+      if not Self.Prod_Lists.Contains (V) then
+         Self.Prod_Lists.Insert (V, new Production_List'(Productions => V));
+      end if;
+
+      return Self.Prod_Lists (V);
+   end New_Production_List;
+
+   -------------------------
+   -- New_Production_List --
+   -------------------------
+
+   function New_Production_List
+     (Self : in out Context_Node;
+      Item : Production_Access)
+      return Production_List_Access
+   is
+      use type Named_Production_Vectors.Vector;
+
+      V : constant Named_Production_Vectors.Vector :=
+        Named_Production_Vectors.To_Vector
+          ((Name => League.Strings.Empty_Universal_String,
+            Data => Item), 1);
+   begin
+      if not Self.Prod_Lists.Contains (V) then
+         Self.Prod_Lists.Insert (V, new Production_List'(Productions => V));
+      end if;
+
+      return Self.Prod_Lists (V);
+   end New_Production_List;
+
+   ----------------------
+   -- Invent_List_Name --
+   ----------------------
+
+   function Invent_List_Name
+     (Data : Part_Access)
+      return League.Strings.Universal_String
+   is
+      Production : Production_Access;
+      Part       : Part_Access;
+   begin
+      if Data.List.Productions.Last_Index = 1 then
+         Production := Data.List.Productions.First_Element.Data;
+
+         if Production.Parts.Last_Index = 1 then
+            Part := Production.Parts.First_Element.Data;
+
+            if Part.Kind = Reference_Kind then
+               return Part.Reference & "_list";
+            end if;
+         end if;
+      end if;
+
+      return League.Strings.Empty_Universal_String;
+   end Invent_List_Name;
+
+   -------------------
+   -- To_Named_Part --
+   -------------------
+
+   function To_Named_Part
+     (Self : in out Context_Node;
+      Data : Part_Access;
+      Name : League.Strings.Universal_String :=
+        League.Strings.Empty_Universal_String)
+      return Named_Part
+   is
+      Part : Part_Access := Data;
+   begin
+      case Data.Kind is
+         when List_Kind =>
+            declare
+               List_Name : League.Strings.Universal_String := Name;
+            begin
+               if List_Name.Is_Empty then
+                  List_Name := Invent_List_Name (Data);
+               end if;
+
+               if List_Name.Is_Empty then
+                  raise Constraint_Error;
+               elsif not Self.Lists.Contains (List_Name) then
+                  Self.Lists.Insert (List_Name, Data.List);
+               elsif Self.Lists (List_Name) /= Data.List then
+                  raise Constraint_Error;
+               end if;
+
+               return (List_Name, Self.Add_List_Reference (List_Name));
+            end;
+         when Option_Kind =>
+            return (Name, Data);
+         when Reference_Kind =>
+            if Name.Is_Empty then
+               return (Data.Reference, Data);
+            else
+               return (Name, Data);
+            end if;
+         when List_Reference_Kind =>
+            raise Constraint_Error;
+      end case;
+
+   end To_Named_Part;
+
+   -------------------------
+   -- To_Named_Production --
+   -------------------------
+
+   function To_Named_Production
+     (Self : in out Context_Node;
+      Data : Production_Access;
+      Name : League.Strings.Universal_String :=
+        League.Strings.Empty_Universal_String)
+      return Named_Production
+   is
+      Text : League.Strings.Universal_String := Name;
+   begin
+      if Text.Is_Empty then
+         if Data.Parts.Last_Index = 1 then
+            declare
+               Part : Part_Access := Data.Parts.First_Element.Data;
+            begin
+               if Part.Kind = Reference_Kind then
+                  Text := Part.Reference;
+               end if;
+            end;
+         end if;
+      end if;
+
+      return (Text, Data);
+   end To_Named_Production;
 
 end Gela.Grammars.Parser_Utils;

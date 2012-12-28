@@ -2,11 +2,10 @@
 
 with Gela.Grammars.Reader;
 with Gela.Grammars_Debug;
-with Gela.Grammars.Attributed.Extended;
 
 procedure Main is
-   G : aliased Gela.Grammars.Attributed.Extended.Grammar :=
+   G : aliased Gela.Grammars.Grammar :=
      Gela.Grammars.Reader.Read ("test.ag");
 begin
-   Gela.Grammars_Debug.Print (G'Access);
+   Gela.Grammars_Debug.Print (G);
 end Main;

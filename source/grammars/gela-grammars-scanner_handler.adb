@@ -134,6 +134,23 @@ package body Gela.Grammars.Scanner_Handler is
    end Colon_Token;
 
    -----------------
+   -- Comma_Token --
+   -----------------
+
+   procedure Comma_Token
+     (Self    : not null access Handler;
+      Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Token   : out Ag_Tokens.Token;
+      Skip    : in out Boolean)
+   is
+      pragma Unreferenced (Self);
+      pragma Unreferenced (Scanner);
+   begin
+      Skip := False;
+      Token := T.',';
+   end Comma_Token;
+
+   -----------------
    -- Equal_Token --
    -----------------
 

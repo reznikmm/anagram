@@ -12,14 +12,13 @@ with Ada.Wide_Wide_Text_IO;
 package body Gela.Grammars_Checks is
 
    use Gela.Grammars;
-   use Gela.Grammars.Attributed;
 
    ---------------------
    -- Is_L_Attributed --
    ---------------------
 
    function Is_L_Attributed
-     (Self : access Gela.Grammars.Attributed.Grammar)
+     (Self : Gela.Grammars.Grammar)
      return Boolean
    is
 
@@ -53,7 +52,7 @@ package body Gela.Grammars_Checks is
          begin
             if Decl.Is_Inherited and not Attr.Is_Left_Hand_Side then
                for A in
-                 Self.Rule (J).Argument_First .. Self.Rule (J).Argument_Last
+                 Self.Rule (J).First_Argument .. Self.Rule (J).Last_Argument
                loop
                   if not Check (Attr.Origin, A) then
                      return False;
@@ -71,7 +70,7 @@ package body Gela.Grammars_Checks is
    --------------------
 
    function Is_Well_Formed
-     (Self    : access Gela.Grammars.Attributed.Grammar;
+     (Self    : Gela.Grammars.Grammar;
       Verbose : Boolean)
      return Boolean
    is
@@ -130,9 +129,9 @@ package body Gela.Grammars_Checks is
 
          Result : Boolean := True;
          From   : constant Attribute_Declaration_Index :=
-           Self.Non_Terminal (Item).First;
+           Self.Non_Terminal (Item).First_Attribute;
          To     : constant Attribute_Declaration_Count :=
-           Self.Non_Terminal (Item).Last;
+           Self.Non_Terminal (Item).Last_Attribute;
       begin
          for Decl in From .. To loop
             if Self.Declaration (Decl).Is_Inherited xor RHS then
@@ -188,7 +187,8 @@ package body Gela.Grammars_Checks is
          Offset : array (From .. To) of Attribute_Declaration_Count;
 
          Total  : Attribute_Declaration_Count :=
-           Self.Non_Terminal (NT).Last - Self.Non_Terminal (NT).First + 1;
+           Self.Non_Terminal (NT).Last_Attribute -
+           Self.Non_Terminal (NT).First_Attribute + 1;
       begin
          --  Fill Offset and First arrays
          for J in Offset'Range loop
@@ -198,23 +198,25 @@ package body Gela.Grammars_Checks is
                declare
                   T : constant Non_Terminal_Index := Self.Part (J).Denote;
                begin
-                  First (J) := Self.Non_Terminal (T).First;
-                  Total := Total + Self.Non_Terminal (T).Last - First (J) + 1;
+                  First (J) := Self.Non_Terminal (T).First_Attribute;
+                  Total := Total + Self.Non_Terminal (T).Last_Attribute -
+                    First (J) + 1;
                end;
             else
                declare
                   T : constant Terminal_Index := Self.Part (J).Denote;
                begin
-                  First (J) := Self.Terminal (T).First;
-                  Total := Total + Self.Terminal (T).Last - First (J) + 1;
+                  First (J) := Self.Terminal (T).First_Attribute;
+                  Total := Total + Self.Terminal (T).Last_Attribute -
+                    First (J) + 1;
                end;
             end if;
          end loop;
 
          declare
             Count  : Count_Array (1 .. Total) := (others => 0);
-            From   : constant Rule_Index := Self.Production (P).First;
-            To     : constant Rule_Count := Self.Production (P).Last;
+            From   : constant Rule_Index := Self.Production (P).First_Rule;
+            To     : constant Rule_Count := Self.Production (P).Last_Rule;
             Index  : Attribute_Declaration_Index;
          begin
             --  Fill Count array
@@ -224,7 +226,7 @@ package body Gela.Grammars_Checks is
                begin
                   if Self.Attribute (Result).Is_Left_Hand_Side then
                      Index := Self.Attribute (Result).Declaration -
-                       Self.Non_Terminal (NT).First + 1;
+                       Self.Non_Terminal (NT).First_Attribute + 1;
                   else
                      Index := Offset (Self.Attribute (Result).Origin) +
                        Self.Attribute (Result).Declaration -

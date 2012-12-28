@@ -8,10 +8,10 @@ NT ::= (T) T NT2 |
 NT2 ::= T;
 
 Inherited attributes
-.* : Integer : env;
+NT, NT2 : Integer : env;
 
 Synthesized attributes
-.* : Integer : ast;
+NT, T : Integer : ast;
 
 Rules for NT.T :
 (. F (${NT.ast}, ${T.ast}); .)

@@ -6,11 +6,8 @@ E  ::= T E1;
 E1 ::= Plus T;
 T  ::= Id;
 
-Inherited attributes
-X.* : Character : env;
-
 Synthesized attributes
-.* : Integer : ast;
+E, E1, T, Id : Integer : ast;
 
 Rules for E. :
 (. ${E.ast} := ${T.ast} + ${E1.ast}; .)

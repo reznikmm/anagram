@@ -7,12 +7,12 @@
 --              Read copyright and license in gela.ads file                 --
 ------------------------------------------------------------------------------
 
-with Gela.Grammars.Attributed;
+with Gela.Grammars;
 
 package Gela.Grammars_Recursive_Descent is
 
    procedure Generate
-     (Self : access Gela.Grammars.Attributed.Grammar;
+     (Self : Gela.Grammars.Grammar;
       File : String;
       Ok   : out Boolean);
 

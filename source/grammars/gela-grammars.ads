@@ -1,6 +1,6 @@
 ------------------------------------------------------------------------------
 --                        G E L A   G R A M M A R S                         --
---        Library for dealing with grammars for for Gela project,           --
+--          Library for dealing with grammars for Gela project,             --
 --                        a portable Ada compiler                           --
 --                        http://gela.ada-ru.org/                           --
 --                     - - - - - - - - - - - - - - -                        --
@@ -8,7 +8,6 @@
 ------------------------------------------------------------------------------
 
 with League.Strings;
-private with Ada.Containers.Ordered_Maps;
 
 package Gela.Grammars is
    package S renames League.Strings;
@@ -17,6 +16,9 @@ package Gela.Grammars is
    type Non_Terminal_Count is new Natural;
    type Production_Count is new Natural;
    type Part_Count is new Natural;
+   type Attribute_Declaration_Count is new Natural;
+   type Attribute_Count is new Natural;
+   type Rule_Count is new Natural;
 
    subtype Terminal_Index is Terminal_Count range 1 .. Terminal_Count'Last;
 
@@ -28,29 +30,99 @@ package Gela.Grammars is
 
    subtype Part_Index is Part_Count range 1 .. Part_Count'Last;
 
-   type Terminal is tagged limited private;
-   function Image (Self : access Terminal) return S.Universal_String;
-   function Index (Self : access Terminal) return Terminal_Index;
+   subtype Attribute_Declaration_Index is Attribute_Declaration_Count
+     range 1 .. Attribute_Declaration_Count'Last;
 
-   type Non_Terminal is tagged limited private;
-   function Name  (Self : access Non_Terminal) return S.Universal_String;
-   function Index (Self : access Non_Terminal) return Non_Terminal_Index;
-   function First (Self : access Non_Terminal) return Production_Index;
-   function Last  (Self : access Non_Terminal) return Production_Count;
+   subtype Attribute_Index is Attribute_Count
+     range 1 .. Attribute_Count'Last;
 
-   type Production is tagged limited private;
-   function Name  (Self : access Production) return S.Universal_String;
-   function Index (Self : access Production) return Production_Index;
-   function First (Self : access Production) return Part_Index;
-   function Last  (Self : access Production) return Part_Count;
+   subtype Rule_Index is Rule_Count range 1 .. Rule_Count'Last;
 
-   type Part is tagged limited private;
-   function Name  (Self : access Part) return S.Universal_String;
-   function Index (Self : access Part) return Part_Index;
-   function Is_Terminal_Reference     (Self : access Part) return Boolean;
-   function Is_Non_Terminal_Reference (Self : access Part) return Boolean;
-   function Denote (Self : access Part) return Terminal_Count;
-   function Denote (Self : access Part) return Non_Terminal_Count;
+   type Terminal is tagged private;
+   function Image (Self : Terminal) return S.Universal_String;
+   function Index (Self : Terminal) return Terminal_Index;
+
+   function First_Attribute
+     (Self : Terminal)
+     return Attribute_Declaration_Index;
+
+   function Last_Attribute
+     (Self : Terminal)
+     return Attribute_Declaration_Count;
+
+   type Non_Terminal is tagged private;
+   function Is_List (Self : Non_Terminal) return Boolean;
+   function Name  (Self : Non_Terminal) return S.Universal_String;
+   function Index (Self : Non_Terminal) return Non_Terminal_Index;
+   function First (Self : Non_Terminal) return Production_Index;
+   function Last  (Self : Non_Terminal) return Production_Count;
+
+   function First_Attribute
+     (Self : Non_Terminal)
+     return Attribute_Declaration_Index;
+
+   function Last_Attribute
+     (Self : Non_Terminal)
+     return Attribute_Declaration_Count;
+
+   type Production is tagged private;
+   function Name  (Self : Production) return S.Universal_String;
+   function Index (Self : Production) return Production_Index;
+   function First (Self : Production) return Part_Index;
+   function Last  (Self : Production) return Part_Count;
+   function First_Rule (Self : Production) return Rule_Index;
+   function Last_Rule  (Self : Production) return Rule_Count;
+
+   type Part is tagged private;
+   function Name  (Self : Part) return S.Universal_String;
+   function Index (Self : Part) return Part_Index;
+   function Is_Terminal_Reference     (Self : Part) return Boolean;
+   function Is_Non_Terminal_Reference (Self : Part) return Boolean;
+   function Is_List_Reference (Self : Part) return Boolean;
+   function Denote (Self : Part) return Terminal_Count;
+   --  Only if Is_Terminal_Reference
+   function Denote (Self : Part) return Non_Terminal_Count;
+   --  Only if Is_Non_Terminal_Reference or Is_List_Reference
+   function Is_Option (Self : Part) return Boolean;
+   --  Only if Is_Option:
+   function First     (Self : Part) return Production_Index;
+   function Last      (Self : Part) return Production_Count;
+
+   type Attribute_Declaration is tagged private;
+
+   function Is_Inherited (Self : Attribute_Declaration) return Boolean;
+
+   function Name
+     (Self : Attribute_Declaration)
+     return S.Universal_String;
+
+   function Type_Name
+     (Self : Attribute_Declaration)
+     return S.Universal_String;
+
+   function Index
+     (Self : Attribute_Declaration)
+     return Attribute_Declaration_Index;
+
+   type Attribute is tagged private;
+
+   function Is_Left_Hand_Side (Self : Attribute) return Boolean;
+   function Index             (Self : Attribute) return Attribute_Index;
+   function Origin            (Self : Attribute) return Part_Count;
+   --  Only if not Is_Left_Hand_Side
+
+   function Declaration
+     (Self : Attribute)
+     return Attribute_Declaration_Index;
+
+   type Rule is tagged private;
+
+   function Index          (Self : Rule) return Rule_Index;
+   function Result         (Self : Rule) return Attribute_Index;
+   function First_Argument (Self : Rule) return Attribute_Index;
+   function Last_Argument  (Self : Rule) return Attribute_Count;
+   function Parent         (Self : Rule) return Production_Index;
+   function Text           (Self : Rule) return S.Universal_String;
 
    type Terminal_Array is array (Terminal_Index range <>) of aliased Terminal;
 
@@ -62,190 +134,95 @@ package Gela.Grammars is
 
    type Part_Array is array (Part_Index range <>) of aliased Part;
 
+   type Declaration_Array is array (Attribute_Declaration_Index range <>) of
+     aliased Attribute_Declaration;
+
+   type Attribute_Array is array (Attribute_Index range <>) of
+     aliased Attribute;
+
+   type Rule_Array is array (Rule_Index range <>) of aliased Rule;
+
    type Grammar
      (Last_Terminal     : Terminal_Count;
       Last_Non_Terminal : Non_Terminal_Count;
       Last_Production   : Production_Count;
-      Last_Part         : Part_Count) is
-   tagged limited record
+      Last_Part         : Part_Count;
+      Last_Declaration  : Attribute_Declaration_Count;
+      Last_Attribute    : Attribute_Count;
+      Last_Rule         : Rule_Count) is
+   tagged record
       Root         : Non_Terminal_Index;
       Terminal     : Terminal_Array     (1 .. Last_Terminal);
       Non_Terminal : Non_Terminal_Array (1 .. Last_Non_Terminal);
       Production   : Production_Array   (1 .. Last_Production);
       Part         : Part_Array         (1 .. Last_Part);
+      Declaration  : Declaration_Array  (1 .. Last_Declaration);
+      Attribute    : Attribute_Array    (1 .. Last_Attribute);
+      Rule         : Rule_Array         (1 .. Last_Rule);
+      With_List    : S.Universal_String;
    end record;
-
-   function Find
-     (Self  : Grammar;
-      Image : S.Universal_String)
-     return Terminal_Count;
-
-   function Find
-     (Self : Grammar;
-      Name : S.Universal_String)
-     return Non_Terminal_Count;
-
-   type Constructor_Base is abstract tagged limited private;
 
 private
 
-   type Terminal is tagged limited record
+   type Terminal is tagged record
       Image : S.Universal_String;
       Index : Terminal_Index;
+      First_Attribute : Attribute_Declaration_Index := 1;
+      Last_Attribute  : Attribute_Declaration_Count := 0;
    end record;
 
-   type Non_Terminal is tagged limited record
+   type Non_Terminal is tagged record
       Name  : S.Universal_String;
       Index : Non_Terminal_Index;
       First : Production_Index;
       Last  : Production_Count;
+      Is_List         : Boolean;
+      First_Attribute : Attribute_Declaration_Index := 1;
+      Last_Attribute  : Attribute_Declaration_Count := 0;
    end record;
 
-   type Production is tagged limited record
+   type Production is tagged record
       Name  : S.Universal_String;
       Index : Production_Index;
       First : Part_Index;
       Last  : Part_Count;
+      First_Rule : Rule_Index := 1;
+      Last_Rule  : Rule_Count := 0;
    end record;
 
-   type Part is tagged limited record
+   type Part is tagged record
       Name                      : S.Universal_String;
       Index                     : Part_Index;
       Is_Terminal_Reference     : Boolean;
       Is_Non_Terminal_Reference : Boolean;
+      Is_List                   : Boolean;
+      Is_Option                 : Boolean;
       Denoted_Terminal          : Terminal_Count;
       Denoted_Non_Terminal      : Non_Terminal_Count;
+      First : Production_Index;
+      Last  : Production_Count;
    end record;
 
-   package Constructor_Nodes is
+   type Attribute_Declaration is tagged record
+      Name         : S.Universal_String;
+      Type_Name    : S.Universal_String;
+      Index        : Attribute_Declaration_Index;
+      Is_Inherited : Boolean;
+   end record;
 
-      type Alternative_Key is record
-         Non_Terminal      : S.Universal_String;
-         Extension         : Natural;
-      end record;
+   type Attribute is tagged record
+      Index             : Attribute_Index;
+      Origin            : Part_Count;
+      Declaration       : Attribute_Declaration_Index;
+   end record;
 
-      function "<" (Left, Right : Alternative_Key) return Boolean;
-
-      type Production_Key is record
-         Parent            : Alternative_Key;
-         Production_Index  : Positive;
-      end record;
-
-      function "<" (Left, Right : Production_Key) return Boolean;
-
-      type Production_Node is record
-         Name : S.Universal_String;
-      end record;
-
-      type Part_Key is record
-         Parent     : Production_Key;
-         Part_Index : Natural;
-      end record;
-
-      function "<" (Left, Right : Part_Key) return Boolean;
-
-      type Part_Node is record
-         Is_Terminal       : Boolean;
-         Name              : S.Universal_String;
-         Denote            : S.Universal_String;
-         List_Extension    : Natural;
-         Option_Extension  : Natural;
-      end record;
-
-      use type S.Universal_String;
-
-      type Terminal_Access is access all Terminal'Class;
-
-      package Terminal_Maps is new Ada.Containers.Ordered_Maps
-        (S.Universal_String, Terminal_Access);
-
-      type Non_Terminal_Access is access all Non_Terminal'Class;
-
-      package Non_Terminal_Maps is new Ada.Containers.Ordered_Maps
-        (S.Universal_String, Non_Terminal_Access);
-
-      package Production_Maps is new Ada.Containers.Ordered_Maps
-        (Production_Key, Production_Node);
-
-      package Part_Maps is new Ada.Containers.Ordered_Maps
-        (Part_Key, Part_Node);
-
-      type Production_Access is access all Production'Class;
-
-      package Prod_Index_Maps is new Ada.Containers.Ordered_Maps
-        (Positive, Production_Access);
-
-      type Part_Access is access all Part'Class;
-
-      package Part_Index_Maps is new Ada.Containers.Ordered_Maps
-        (Positive, Part_Access);
-
-      package Extension_Maps is new Ada.Containers.Ordered_Maps
-        (Positive, Part_Index);
-
-      type Constructor_Node is abstract tagged limited record
-         Self            : access Constructor_Node'Class :=
-           Constructor_Node'Unchecked_Access;
-         Root            : S.Universal_String;
-         Terminals       : Terminal_Maps.Map;
-         Non_Terminals   : Non_Terminal_Maps.Map;
-         Productions     : Production_Maps.Map;
-         Parts           : Part_Maps.Map;
-         Last_Production : Production_Key;
-         Prod_Map        : Prod_Index_Maps.Map;
-         Part_Map        : Part_Index_Maps.Map;
-         Ext_Map         : Extension_Maps.Map;
-      end record;
-
-      generic
-         type Terminal_Extention is new Terminal with private;
-         type Terminal_Extention_Array is array (Terminal_Index range <>) of
-           aliased Terminal_Extention;
-      procedure Generic_Copy_Terminals
-        (Self   : in out Constructor_Node'Class;
-         Result : out Terminal_Extention_Array);
-
-      generic
-         type Non_Terminal_Extention is new Non_Terminal with private;
-         type Non_Terminal_Extention_Array is
-           array (Non_Terminal_Index range <>) of aliased
-             Non_Terminal_Extention;
-      procedure Generic_Copy_Non_Terminals
-        (Self   : in out Constructor_Node'Class;
-         Result : out Non_Terminal_Extention_Array);
-
-      generic
-         type Production_Extention is new Production with private;
-         type Production_Extention_Array is
-           array (Production_Index range <>) of aliased
-             Production_Extention;
-      procedure Generic_Copy_Productions
-        (Self          : in out Constructor_Node'Class;
-         Result        : out Production_Extention_Array);
-
-      generic
-         type Part_Extention is new Part with private;
-         type Part_Extention_Array is array (Part_Index range <>) of
-           aliased Part_Extention;
-         with procedure The_New_Part
-           (Node   : Part_Node;
-            Result : in out Part_Extention'Class) is null;
-      procedure Generic_Copy_Parts
-        (Self          : in out Constructor_Node'Class;
-         Result        : out Part_Extention_Array);
-
-      procedure New_Part
-        (Node   : Part_Node;
-         Result : in out Part'Class);
-
-   end Constructor_Nodes;
-
-   type Constructor_Base is
-     new Constructor_Nodes.Constructor_Node with null record;
-
-   function Find_Part
-     (Self : Constructor_Base'Class;
-      Name : S.Universal_String)
-     return Constructor_Nodes.Part_Key;
+   type Rule is tagged record
+      Index          : Rule_Index;
+      Result         : Attribute_Count := 0;
+      First_Argument : Attribute_Index;
+      Last_Argument  : Attribute_Count;
+      Parent         : Production_Index;
+      Text           : S.Universal_String;
+   end record;
 
 end Gela.Grammars;

@@ -8,15 +8,9 @@
 ------------------------------------------------------------------------------
 
 with Gela.Grammars;
-with Gela.Grammars.Attributed;
-with Gela.Grammars.Extended;
-with Gela.Grammars.Attributed.Extended;
 
 package Gela.Grammars_Debug is
 
-   procedure Print (Self : access Gela.Grammars.Grammar);
-   procedure Print (Self : access Gela.Grammars.Extended.Grammar);
-   procedure Print (Self : access Gela.Grammars.Attributed.Grammar);
-   procedure Print (Self : access Gela.Grammars.Attributed.Extended.Grammar);
+   procedure Print (Self : Gela.Grammars.Grammar);
 
 end Gela.Grammars_Debug;

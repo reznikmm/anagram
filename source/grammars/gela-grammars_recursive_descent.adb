@@ -16,10 +16,9 @@ with Gela.Grammars_Checks;
 package body Gela.Grammars_Recursive_Descent is
 
    use Gela.Grammars;
-   use Gela.Grammars.Attributed;
 
    procedure Generate
-     (Self : access Attributed.Grammar;
+     (Self : Grammar;
       File : String;
       Ok   : out Boolean)
    is
@@ -431,14 +430,14 @@ package body Gela.Grammars_Recursive_Descent is
                Generate_Vars
                  (Prefix & "   ",
                   Self.Part (J).Name.To_Wide_Wide_String,
-                  Self.Terminal (Self.Part (J).Denote).First,
-                  Self.Terminal (Self.Part (J).Denote).Last);
+                  Self.Terminal (Self.Part (J).Denote).First_Attribute,
+                  Self.Terminal (Self.Part (J).Denote).Last_Attribute);
             else
                Generate_Vars
                  (Prefix & "   ",
                   Self.Part (J).Name.To_Wide_Wide_String,
-                  Self.Non_Terminal (Self.Part (J).Denote).First,
-                  Self.Non_Terminal (Self.Part (J).Denote).Last);
+                  Self.Non_Terminal (Self.Part (J).Denote).First_Attribute,
+                  Self.Non_Terminal (Self.Part (J).Denote).Last_Attribute);
             end if;
          end loop;
 
@@ -449,8 +448,8 @@ package body Gela.Grammars_Recursive_Descent is
                Generate_Rules
                  (Prefix & "   ",
                   J,
-                  Self.Production (Prod).First,
-                  Self.Production (Prod).Last);
+                  Self.Production (Prod).First_Rule,
+                  Self.Production (Prod).Last_Rule);
 
                P (Prefix & "   Self.Match (Tokens." &
                     Self.Terminal (Self.Part (J).Denote).Image.
@@ -460,24 +459,24 @@ package body Gela.Grammars_Recursive_Descent is
                Generate_Rules
                  (Prefix & "   ",
                   J,
-                  Self.Production (Prod).First,
-                  Self.Production (Prod).Last);
+                  Self.Production (Prod).First_Rule,
+                  Self.Production (Prod).Last_Rule);
 
                Generate_Call
                  (Prefix,
                   Self.Part (J).Name.To_Wide_Wide_String,
                   Self.Non_Terminal (Self.Part (J).Denote).Name.
                       To_Wide_Wide_String,
-                  Self.Non_Terminal (Self.Part (J).Denote).First,
-                  Self.Non_Terminal (Self.Part (J).Denote).Last);
+                  Self.Non_Terminal (Self.Part (J).Denote).First_Attribute,
+                  Self.Non_Terminal (Self.Part (J).Denote).Last_Attribute);
             end if;
          end loop;
 
          Generate_Rules
            (Prefix & "   ",
             0,
-            Self.Production (Prod).First,
-            Self.Production (Prod).Last);
+            Self.Production (Prod).First_Rule,
+            Self.Production (Prod).Last_Rule);
 
          if From > To then
             P (Prefix & "   null;");
@@ -545,12 +544,17 @@ package body Gela.Grammars_Recursive_Descent is
          Part     : Part_Count;
          From, To : Rule_Count)
       is
---         Index : Attribute_Declaration_Index;
+         use Gela.Grammars.Rule_Templates;
+         --         Index : Attribute_Declaration_Index;
       begin
          for J in From .. To loop
             if Self.Attribute (Self.Rule (J).Result).Origin = Part then
-               P (Prefix & Self.Rule (J).Template.Substitute
-                    (Make_Args (Self.Rule (J).Template)).To_Wide_Wide_String);
+               declare
+                  Template : Rule_Template := Create (Self.Rule (J).Text);
+               begin
+                  P (Prefix & Template.Substitute
+                     (Make_Args (Template)).To_Wide_Wide_String);
+               end;
             end if;
          end loop;
       end Generate_Rules;
@@ -589,9 +593,9 @@ package body Gela.Grammars_Recursive_Descent is
          Suffix : Wide_Wide_String)
       is
          From : constant Attribute_Declaration_Index :=
-           Self.Non_Terminal (NT).First;
+           Self.Non_Terminal (NT).First_Attribute;
          To   : constant Attribute_Declaration_Count :=
-           Self.Non_Terminal (NT).Last;
+           Self.Non_Terminal (NT).Last_Attribute;
       begin
          P ("   procedure " & Self.Non_Terminal (NT).Name.To_Wide_Wide_String);
 
@@ -889,6 +893,7 @@ package body Gela.Grammars_Recursive_Descent is
         (Self : Rule_Templates.Rule_Template)
         return League.String_Vectors.Universal_String_Vector
       is
+         use type League.Strings.Universal_String;
          Item   : League.Strings.Universal_String;
          Result : League.String_Vectors.Universal_String_Vector;
       begin

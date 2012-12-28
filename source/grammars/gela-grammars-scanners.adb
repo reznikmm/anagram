@@ -9,7 +9,7 @@ package body Gela.Grammars.Scanners is
       function Switch (S : State; Class : Character_Class) return State;
       pragma Inline (Switch);
 
-      function Rule (S : State) return Rule_Index;
+      function Rule (S : State) return Scanner_Types.Rule_Index;
       pragma Inline (Rule);
    end Tables;
 
@@ -20,7 +20,7 @@ package body Gela.Grammars.Scanners is
    procedure On_Accept
      (Self    : not null access Gela.Grammars.Scanner_Handlers.Handler'Class;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
-      Rule    : Rule_Index;
+      Rule    : Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean) is separate;
 
@@ -81,7 +81,7 @@ package body Gela.Grammars.Scanners is
       
       Current_State : State := Self.Start;
       Char : Character_Class;
-      Next_Rule : Rule_Index;
+      Next_Rule : Scanner_Types.Rule_Index;
       Skip      : Boolean := True;
    begin
       loop
@@ -103,7 +103,7 @@ package body Gela.Grammars.Scanners is
                
                exit when Current_State = Error_State;
                
-               Next_Rule := Rule (Current_State);
+               Next_Rule := Tables.Rule (Current_State);
                
                if Next_Rule /= 0 then
                   Self.Rule := Next_Rule;

@@ -1,0 +1,15 @@
+with "gela_lib";
+with "league";
+
+project Gela_Grammars is
+
+   Build := external ("GELA_BUILD", "/tmp/gela");
+   for Source_Dirs use ("../source/grammars", "../source/grammars/generated");
+   for Object_Dir use Build & "/gela_grammars";
+
+   package Compiler is
+      for Default_Switches ("ada") use
+        ("-gnat12", "-gnatW8", "-g");
+   end Compiler;
+
+end Gela_Grammars;

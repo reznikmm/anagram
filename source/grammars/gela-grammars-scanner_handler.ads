@@ -159,6 +159,12 @@ package Gela.Grammars.Scanner_Handler is
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean);
 
+   procedure Comma_Token
+     (Self    : not null access Handler;
+      Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Token   : out Ag_Tokens.Token;
+      Skip    : in out Boolean);
+
    procedure Spaces
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
