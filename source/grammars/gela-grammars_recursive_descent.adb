@@ -550,7 +550,8 @@ package body Gela.Grammars_Recursive_Descent is
          for J in From .. To loop
             if Self.Attribute (Self.Rule (J).Result).Origin = Part then
                declare
-                  Template : Rule_Template := Create (Self.Rule (J).Text);
+                  Template : constant Rule_Template :=
+                    Create (Self.Rule (J).Text);
                begin
                   P (Prefix & Template.Substitute
                      (Make_Args (Template)).To_Wide_Wide_String);

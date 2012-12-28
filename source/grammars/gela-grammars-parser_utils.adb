@@ -11,6 +11,10 @@ with Ada.Wide_Wide_Text_IO;
 
 package body Gela.Grammars.Parser_Utils is
 
+   function Invent_List_Name
+     (Data : Part_Access)
+      return League.Strings.Universal_String;
+
    ---------
    -- "<" --
    ---------
@@ -265,7 +269,8 @@ package body Gela.Grammars.Parser_Utils is
                        Constructor.Create_Production (Part.Name);
                      List       : Gela.Grammars.Constructors.Production_List :=
                        Constructor.Create_Production_List;
-                     Option_Name : Universal_String := Part.Name & "_Option";
+                     Option_Name : constant Universal_String :=
+                       Part.Name & "_Option";
                   begin
                      Production.Add
                        (Constructor.Create_Non_Terminal_Reference
@@ -390,8 +395,8 @@ package body Gela.Grammars.Parser_Utils is
       for Rule of Self.Rules loop
          for Target in 1 .. Rule.Target.Length loop
             declare
-               Items : constant League.String_Vectors.Universal_String_Vector :=
-                 Rule.Target (Target).Split ('.');
+               Items : constant League.String_Vectors.Universal_String_Vector
+                 := Rule.Target (Target).Split ('.');
             begin
                Constructor.Create_Rule
                  (Non_Terminal => Items (1),
@@ -408,7 +413,9 @@ package body Gela.Grammars.Parser_Utils is
 
    procedure Error
      (Self  : in out Context_Node;
-      Text  : Wide_Wide_String) is
+      Text  : Wide_Wide_String)
+   is
+      pragma Unreferenced (Self);
    begin
       Ada.Wide_Wide_Text_IO.Put_Line (Text);
    end Error;
@@ -594,7 +601,6 @@ package body Gela.Grammars.Parser_Utils is
         League.Strings.Empty_Universal_String)
       return Named_Part
    is
-      Part : Part_Access := Data;
    begin
       case Data.Kind is
          when List_Kind =>
@@ -640,12 +646,13 @@ package body Gela.Grammars.Parser_Utils is
         League.Strings.Empty_Universal_String)
       return Named_Production
    is
+      pragma Unreferenced (Self);
       Text : League.Strings.Universal_String := Name;
    begin
       if Text.Is_Empty then
          if Data.Parts.Last_Index = 1 then
             declare
-               Part : Part_Access := Data.Parts.First_Element.Data;
+               Part : constant Part_Access := Data.Parts.First_Element.Data;
             begin
                if Part.Kind = Reference_Kind then
                   Text := Part.Reference;

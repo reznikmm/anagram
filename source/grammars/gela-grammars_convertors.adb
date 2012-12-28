@@ -53,6 +53,7 @@ package body Gela.Grammars_Convertors is
       Left  : Boolean)
       return Gela.Grammars.Grammar
    is
+      pragma Unreferenced (Left);
       use Gela.Grammars;
 
       procedure Copy_Productions
@@ -78,8 +79,11 @@ package body Gela.Grammars_Convertors is
          Attr       : Attribute_Index) return Boolean;
 
       Output    : Gela.Grammars.Constructors.Constructor;
-      Processed : Option_Maps.Map;
       Derived   : Derived_Production_Vectors.Vector;
+
+      -------------------------
+      -- Create_Declarations --
+      -------------------------
 
       procedure Create_Declarations
         (Non_Terminal : S.Universal_String;
@@ -93,6 +97,10 @@ package body Gela.Grammars_Convertors is
                Is_Inherited => Declaration.Is_Inherited);
          end loop;
       end Create_Declarations;
+
+      -----------------------
+      -- Create_Production --
+      -----------------------
 
       procedure Create_Production
         (PL        : in out Constructors.Production_List;
@@ -111,6 +119,10 @@ package body Gela.Grammars_Convertors is
             Processed : Option_Maps.Map;
             Result    : in out Constructors.Production;
             Derived   : in out Derived_Production);
+
+         --------------------
+         -- Copy_Recursive --
+         --------------------
 
          procedure Copy_Recursive
            (Nested    : Production;
@@ -151,6 +163,10 @@ package body Gela.Grammars_Convertors is
                end if;
             end loop;
          end Copy_Recursive;
+
+         ----------------------
+         -- Create_Recursive --
+         ----------------------
 
          procedure Create_Recursive
            (Nested    : Production;
@@ -202,6 +218,10 @@ package body Gela.Grammars_Convertors is
          PL.Add (Result);
       end Create_Production;
 
+      -----------
+      -- Check --
+      -----------
+
       function Check
         (Part_Names : String_Sets.Set;
          Attr       : Attribute_Index) return Boolean is
@@ -213,6 +233,10 @@ package body Gela.Grammars_Convertors is
          return Part_Names.Contains
            (Input.Part (Input.Attribute (Attr).Origin).Name);
       end Check;
+
+      ----------------------
+      -- Copy_Productions --
+      ----------------------
 
       procedure Copy_Productions
         (PL          : in out Constructors.Production_List;
@@ -229,6 +253,10 @@ package body Gela.Grammars_Convertors is
          end loop;
       end Copy_Productions;
 
+      ----------------
+      -- Copy_Rules --
+      ----------------
+
       procedure Copy_Rules (Derived : Derived_Production) is
          Prod   : Production renames Input.Production (Derived.Index);
          Map    : Rule_Maps.Map;
@@ -236,7 +264,6 @@ package body Gela.Grammars_Convertors is
          Ok     : Boolean := True;
          Weight : Natural;
          Key    : S.Universal_String;
-         Pos    : Rule_Maps.Cursor;
       begin
          for Rule of Input.Rule (Prod.First_Rule .. Prod.Last_Rule) loop
             Ok := Check (Derived.Part_Names, Rule.Result);

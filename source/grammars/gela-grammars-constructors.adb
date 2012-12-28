@@ -56,6 +56,16 @@ package body Gela.Grammars.Constructors is
      (Left  : in out Reference_Maps.Map;
       Right : Reference_Maps.Map);
 
+   procedure Fill_Part
+     (Self   : in out Constructor'Class;
+      Result : in out Grammar;
+      Item   : Part_Access);
+
+   procedure Fill_Production_List
+     (Self   : in out Constructor'Class;
+      Result : in out Grammar;
+      List   : Production_List_Access);
+
    ---------
    -- Add --
    ---------
@@ -217,6 +227,8 @@ package body Gela.Grammars.Constructors is
       Denote : S.Universal_String)
       return Part
    is
+      pragma Unreferenced (Self);
+
       Next : constant Part_Node :=
         (Index  => 999,
          Kind   => List,
@@ -259,6 +271,8 @@ package body Gela.Grammars.Constructors is
       Denote : S.Universal_String)
       return Part
    is
+      pragma Unreferenced (Self);
+
       Next : constant Part_Node :=
         (Index  => 999,
          Kind   => Non_Terminal_Reference,
@@ -278,6 +292,8 @@ package body Gela.Grammars.Constructors is
       List  : in out Production_List'Class)
       return Part
    is
+      pragma Unreferenced (Self);
+
       Refs : Reference_Maps.Map;
       X    : Production_Vectors.Vector renames List.Data.Productions;
    begin
@@ -285,7 +301,7 @@ package body Gela.Grammars.Constructors is
          Join (Refs, X.Element (J).References);
       end loop;
 
-      return Result : Part :=
+      return Result : constant Part :=
         (Data => new Part_Node'
                 (Index => 999,
                  Kind  => Option,
@@ -304,7 +320,9 @@ package body Gela.Grammars.Constructors is
    function Create_Production
      (Self   : Constructor'Class;
       Name   : S.Universal_String)
-      return Production is
+      return Production
+   is
+      pragma Unreferenced (Self);
    begin
       return (Data => new Production_Node'
                 (Index       => 999,
@@ -323,7 +341,9 @@ package body Gela.Grammars.Constructors is
 
    function Create_Production_List
      (Self : Constructor'Class)
-      return Production_List is
+      return Production_List
+   is
+      pragma Unreferenced (Self);
    begin
       return (Data => new Production_List_Node'
                 (Productions => Production_Vectors.Empty_Vector,
@@ -345,7 +365,6 @@ package body Gela.Grammars.Constructors is
       use type S.Universal_String;
 
       List     : Production_List_Access;
-      Data     : Rule_Data;
       Template : constant Rule_Templates.Rule_Template :=
         Rule_Templates.Create (Text);
    begin
@@ -392,6 +411,8 @@ package body Gela.Grammars.Constructors is
       Image : S.Universal_String)
       return Part
    is
+      pragma Unreferenced (Self);
+
       Next : constant Part_Node :=
         (Index => 999,
          Kind  => Terminal_Reference,
@@ -419,7 +440,9 @@ package body Gela.Grammars.Constructors is
      (Self   : in out Constructor'Class;
       Result : in out Grammar;
       Parent : S.Universal_String;
-      Attr   : in out Attribute_Declaration_Maps.Map) is
+      Attr   : in out Attribute_Declaration_Maps.Map)
+   is
+      pragma Unreferenced (Parent);
    begin
       for Item of Attr loop
          Self.Last_Declaration := Self.Last_Declaration + 1;
@@ -470,7 +493,7 @@ package body Gela.Grammars.Constructors is
    procedure Fill_Part
      (Self   : in out Constructor'Class;
       Result : in out Grammar;
-      Item   : in out Part_Access) is
+      Item   : Part_Access) is
    begin
       Self.Last_Part := Self.Last_Part + 1;
 
@@ -656,7 +679,7 @@ package body Gela.Grammars.Constructors is
       if LHS_Attr = 0 then
          raise Constraint_Error;
       end if;
-    end Fill_Rule;
+   end Fill_Rule;
 
    ---------------
    -- Fill_Attr --
@@ -720,11 +743,9 @@ package body Gela.Grammars.Constructors is
          declare
             X : constant S.Universal_String := Reference_Maps.Key (Pos);
             Y : constant Part_Access := Reference_Maps.Element (Pos);
-            Z : Part_Access;
          begin
             if Left.Contains (X) then
                if Left.Element (X).Denote /= Y.Denote then
-                  Z := Left.Element (X);
                   Ada.Wide_Wide_Text_IO.Put_Line (X.To_Wide_Wide_String);
                   raise Constraint_Error;
                end if;

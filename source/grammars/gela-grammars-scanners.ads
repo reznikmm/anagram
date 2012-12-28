@@ -8,16 +8,15 @@
 ------------------------------------------------------------------------------
 
 with Abstract_Sources;
-with Matreshka.Internals.Unicode;
 with League.Strings;
 with Gela.Grammars.Scanner_Handlers;
-with AG_Tokens;
+with Ag_Tokens;
 
 with Gela.Grammars.Scanner_Types; use Gela.Grammars.Scanner_Types;
 
 package Gela.Grammars.Scanners is
 
-   subtype Token is AG_Tokens.Token;
+   subtype Token is Ag_Tokens.Token;
    type Scanner is tagged limited private;
 
    procedure Set_Source
@@ -63,7 +62,7 @@ private
    type Scanner is tagged limited record
       Handler : Gela.Grammars.Scanner_Handlers.Handler_Access;
       Source  : Abstract_Sources.Source_Access;
-      Start   : State := Initial;
+      Start   : State := INITIAL;
       Next    : Buffer_Index := 1;
       From    : Buffer_Index := 1;
       To      : Natural := 0;
