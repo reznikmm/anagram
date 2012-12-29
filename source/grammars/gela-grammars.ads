@@ -72,6 +72,7 @@ package Gela.Grammars is
    function Last  (Self : Production) return Part_Count;
    function First_Rule (Self : Production) return Rule_Index;
    function Last_Rule  (Self : Production) return Rule_Count;
+   function Parent (Self : Production) return Non_Terminal_Count;
 
    type Part is tagged private;
    function Name  (Self : Part) return S.Universal_String;
@@ -87,6 +88,7 @@ package Gela.Grammars is
    --  Only if Is_Option:
    function First     (Self : Part) return Production_Index;
    function Last      (Self : Part) return Production_Count;
+   function Parent    (Self : Part) return Production_Index;
 
    type Attribute_Declaration is tagged private;
 
@@ -188,11 +190,13 @@ private
       Last  : Part_Count;
       First_Rule : Rule_Index := 1;
       Last_Rule  : Rule_Count := 0;
+      Parent     : Non_Terminal_Count;
    end record;
 
    type Part is tagged record
       Name                      : S.Universal_String;
       Index                     : Part_Index;
+      Parent                    : Production_Index;
       Is_Terminal_Reference     : Boolean;
       Is_Non_Terminal_Reference : Boolean;
       Is_List                   : Boolean;

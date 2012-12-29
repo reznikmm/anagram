@@ -59,12 +59,14 @@ package body Gela.Grammars.Constructors is
    procedure Fill_Part
      (Self   : in out Constructor'Class;
       Result : in out Grammar;
-      Item   : Part_Access);
+      Item   : Part_Access;
+      Parent : Production_Index);
 
    procedure Fill_Production_List
      (Self   : in out Constructor'Class;
       Result : in out Grammar;
-      List   : Production_List_Access);
+      List   : Production_List_Access;
+      Parent : Non_Terminal_Count);
 
    ---------
    -- Add --
@@ -493,7 +495,8 @@ package body Gela.Grammars.Constructors is
    procedure Fill_Part
      (Self   : in out Constructor'Class;
       Result : in out Grammar;
-      Item   : Part_Access) is
+      Item   : Part_Access;
+      Parent : Production_Index) is
    begin
       Self.Last_Part := Self.Last_Part + 1;
 
@@ -503,6 +506,7 @@ package body Gela.Grammars.Constructors is
          Item.Index := Self.Last_Part;
          P.Name := Item.Name;
          P.Index := Self.Last_Part;
+         P.Parent := Parent;
          P.Is_Terminal_Reference     := Item.Kind = Terminal_Reference;
          P.Is_Non_Terminal_Reference := Item.Kind = Non_Terminal_Reference;
          P.Is_List                   := Item.Kind = List;
@@ -542,7 +546,8 @@ package body Gela.Grammars.Constructors is
    procedure Fill_Production_List
      (Self   : in out Constructor'Class;
       Result : in out Grammar;
-      List   : Production_List_Access) is
+      List   : Production_List_Access;
+      Parent : Non_Terminal_Count) is
    begin
       for P of List.Productions loop
          Self.Last_Production := Self.Last_Production + 1;
@@ -554,9 +559,10 @@ package body Gela.Grammars.Constructors is
          Result.Production (Self.Last_Production).First := Self.Last_Part + 1;
          Result.Production (Self.Last_Production).Last := Self.Last_Part +
            P.Parts.Last_Index;
+         Result.Production (Self.Last_Production).Parent := Parent;
 
          for Part of P.Parts loop
-            Fill_Part (Self, Result, Part);
+            Fill_Part (Self, Result, Part, Self.Last_Production);
          end loop;
       end loop;
 
@@ -566,7 +572,7 @@ package body Gela.Grammars.Constructors is
                Result.Part (Part.Index).First := Self.Last_Production + 1;
                Result.Part (Part.Index).Last := Self.Last_Production
                  + Part.List.Productions.Last_Index;
-               Fill_Production_List (Self, Result, Part.List);
+               Fill_Production_List (Self, Result, Part.List, Parent => 0);
             end if;
          end loop;
 
@@ -592,7 +598,7 @@ package body Gela.Grammars.Constructors is
          Result.Non_Terminal (Item.Index).First := Self.Last_Production + 1;
          Result.Non_Terminal (Item.Index).Last := Self.Last_Production
            + Item.List.Productions.Last_Index;
-         Fill_Production_List (Self, Result, Item.List);
+         Fill_Production_List (Self, Result, Item.List, Parent => Item.Index);
       end loop;
    end Fill_Productions;
 
@@ -800,6 +806,7 @@ package body Gela.Grammars.Constructors is
          begin
             T := (Name => League.Strings.Empty_Universal_String,
                   Index => Result.Last_Production,
+                  Parent => Result.Root,
                   First => Result.Last_Part,
                   Last => Result.Last_Part,
                   First_Rule => 1,
@@ -814,6 +821,7 @@ package body Gela.Grammars.Constructors is
          begin
             T := (Name => NT.Name,
                   Index => Result.Last_Part,
+                  Parent => Result.Last_Production,
                   Is_Terminal_Reference => False,
                   Is_Non_Terminal_Reference => True,
                   Is_List => False,

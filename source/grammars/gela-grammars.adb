@@ -373,6 +373,24 @@ package body Gela.Grammars is
    -- Parent --
    ------------
 
+   function Parent    (Self : Part) return Production_Index is
+   begin
+      return Self.Parent;
+   end Parent;
+
+   ------------
+   -- Parent --
+   ------------
+
+   function Parent (Self : Production) return Non_Terminal_Count is
+   begin
+      return Self.Parent;
+   end Parent;
+
+   ------------
+   -- Parent --
+   ------------
+
    function Parent (Self : Rule) return Production_Index is
    begin
       return Self.Parent;
