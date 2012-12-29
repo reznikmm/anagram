@@ -8,6 +8,7 @@
 ------------------------------------------------------------------------------
 
 with Ada.Wide_Wide_Text_IO;
+with Gela.Grammars.LR;
 
 package body Gela.Grammars_Debug is
 
@@ -134,5 +135,106 @@ package body Gela.Grammars_Debug is
            (Self.Non_Terminal (J).First, Self.Non_Terminal (J).Last);
       end loop;
    end Print;
+
+   ---------------------
+   -- Print_Conflicts --
+   ---------------------
+
+   procedure Print_Conflicts (Self  : Gela.Grammars.Grammar;
+                              Table : Gela.Grammars.LR_Tables.Table)
+   is
+      use Ada.Wide_Wide_Text_IO;
+      use Gela.Grammars.LR_Tables;
+      use type Gela.Grammars.LR.State_Count;
+
+      procedure Print_State (State : Gela.Grammars.LR.State_Index);
+      procedure Print_Reduce (R : in out Reduce_Iterator);
+
+      ------------------
+      -- Print_Reduce --
+      ------------------
+
+      procedure Print_Reduce (R : in out Reduce_Iterator) is
+         P  : Gela.Grammars.Production_Index;
+         NT : Gela.Grammars.Non_Terminal_Index;
+      begin
+         while not Is_Empty (R) loop
+            P := Production (R);
+            NT := Self.Production (P).Parent;
+
+            Put_Line
+              ("Non terminal "
+               & Self.Non_Terminal (NT).Name.To_Wide_Wide_String
+               & " production "
+               & Self.Production (P).Name.To_Wide_Wide_String);
+
+            Next (Table, R);
+         end loop;
+      end Print_Reduce;
+
+      -----------------
+      -- Print_State --
+      -----------------
+
+      procedure Print_State (State : Gela.Grammars.LR.State_Index) is
+      begin
+         Put_Line
+           ("State:" & Gela.Grammars.LR.State_Index'Wide_Wide_Image (State));
+      end Print_State;
+
+      State_Printed : Boolean;
+
+      S : Gela.Grammars.LR.State_Count;
+      R : Reduce_Iterator;
+   begin
+      for State in 1 .. Last_State (Table) loop
+         State_Printed := False;
+
+         for T in 0 .. Self.Last_Terminal loop
+            S := Shift (Table, State, T);
+            R := Reduce (Table, State, T);
+
+            if S /= 0 then
+               if not Is_Empty (R) then
+                  if not State_Printed then
+                     State_Printed := True;
+                     Print_State (State);
+                  end if;
+
+                  Put_Line
+                    ("Shift/Reduce conflict on token '"
+                     & Self.Terminal (T).Image.To_Wide_Wide_String
+                     & "'");
+
+                  Put ("Shift to ");
+                  Print_State (S);
+                  Put ("Reduce to ");
+                  Print_Reduce (R);
+               elsif not Is_Empty (R) then
+                  declare
+                     Save : Reduce_Iterator := R;
+                  begin
+                     Next (Table, R);
+
+                     if not Is_Empty (R) then
+                        if not State_Printed then
+                           State_Printed := True;
+                           Print_State (State);
+                        end if;
+
+                        Put_Line
+                          ("Reduce/Reduce conflict on token '"
+                           & Self.Terminal (T).Image.To_Wide_Wide_String
+                           & "'");
+
+                        Put ("Reduce to ");
+                        Print_Reduce (Save);
+                     end if;
+                  end;
+               end if;
+            end if;
+         end loop;
+      end loop;
+   end Print_Conflicts;
 
 end Gela.Grammars_Debug;

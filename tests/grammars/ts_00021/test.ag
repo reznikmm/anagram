@@ -1,0 +1,17 @@
+Token a_id;
+Token b_plus;
+Token c_star;
+Token d_open;
+Token e_close;
+
+a_E ::=
+ (plus)   a_E b_plus b_T |
+ (single) b_T;
+
+b_T ::=
+ (star)   b_T c_star c_F |
+ (single) c_F;
+
+c_F ::=
+ (br) d_open a_E e_close |
+ (id) a_id;

@@ -7,9 +7,16 @@ project Gela_Grammars is
    for Source_Dirs use ("../source/grammars", "../source/grammars/generated");
    for Object_Dir use Build & "/gela_grammars";
 
+   Default_Ada_Switches :=
+     ("-gnat12", "-gnatW8", "-g");
+
    package Compiler is
       for Default_Switches ("ada") use
-        ("-gnat12", "-gnatW8", "-g");
+        Default_Ada_Switches & ("-gnatwea", "-gnaty");
+      for Switches ("ag.adb") use Default_Ada_Switches;
+      for Switches ("ag-goto_table.ads") use Default_Ada_Switches;
+      for Switches ("ag-shift_reduce.ads") use Default_Ada_Switches;
+      for Switches ("ag_tokens.ads") use Default_Ada_Switches;
    end Compiler;
 
 end Gela_Grammars;
