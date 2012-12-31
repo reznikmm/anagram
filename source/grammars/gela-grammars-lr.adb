@@ -25,59 +25,73 @@ package body Gela.Grammars.LR is
 
    procedure Append
      (Data : in out Set_Of_LR_Item_Set_Access;
-      Set  : LR_Item_Set) is
+      Set  : LR_Item_Set)
+   is
+      Last_Item : constant LR_Item_Index := Data.Last_Item + Set'Length;
    begin
-      if Data.Length = Data.Last then
+      if Data.Max_States = Data.Last_State or Data.Max_Items < Last_Item then
          declare
             Next : constant Set_Of_LR_Item_Set_Access :=
               new Set_Of_LR_Item_Set'
-                (Length          => 2 * Data.Length,
-                 Last_Item       => Data.Last_Item,
+                (Max_States      => (if Data.Max_States = Data.Last_State
+                                     then 2 * Data.Max_States
+                                     else Data.Max_States),
+                 Max_Items       => (if Data.Max_Items < Last_Item
+                                     then 2 * Data.Max_Items
+                                     else Data.Max_Items),
                  First_Reference => Data.First_Reference,
                  Last_Reference  => Data.Last_Reference,
-                 Last            => Data.Last,
-                 Items           => (others => (others => False)),
+                 Last_State            => Data.Last_State,
+                 Last_Item       => Data.Last_Item,
+                 Ranges          => <>,
+                 List            => <>,
                  Go_To           => (others => (others => 0)));
          begin
-            for S in 1 .. Data.Length loop
-               for J in Data.Items'Range (1) loop
-                  Next.Items (J, S) := Data.Items (J, S);
-               end loop;
-
+            for S in 1 .. Data.Last_State loop
                for R in Data.Go_To'Range (1) loop
                   Next.Go_To (R, S) := Data.Go_To (R, S);
                end loop;
             end loop;
+
+            Next.Ranges (1 .. Data.Last_State) :=
+              Data.Ranges (1 .. Data.Last_State);
+
+            Next.List (1 .. Data.Last_Item) :=
+              Data.List (1 .. Data.Last_Item);
 
             Free (Data);
             Data := Next;
          end;
       end if;
 
-      Data.Last := Data.Last + 1;
+      Data.Last_State := Data.Last_State + 1;
 
-      for J in Data.Items'Range (1) loop
-         Data.Items (J, Data.Last) := Set.Items (J);
-      end loop;
+      Data.Ranges (Data.Last_State) :=
+        (First => Data.Last_Item + 1,
+         Last  => Last_Item);
+
+      Data.Last_Item := Last_Item;
+
+      Data.List (Data.Ranges (Data.Last_State).First
+                 .. Data.Ranges (Data.Last_State).Last) := Set;
+
    end Append;
 
-   --------------
-   -- Contains --
-   --------------
+   ----------
+   -- Find --
+   ----------
 
    function Find
      (Data : Set_Of_LR_Item_Set_Access;
       Set  : LR_Item_Set)
       return State_Count is
    begin
-      for S in 1 .. Data.Last loop
-         for J in Set.Items'Range loop
-            exit when Data.Items (J, S) /= Set.Items (J);
-
-            if J = Set.Items'Last then
-               return S;
-            end if;
-         end loop;
+      for S in 1 .. Data.Last_State loop
+         if Data.List (Data.Ranges (S).First .. Data.Ranges (S).Last)
+           = Set
+         then
+            return S;
+         end if;
       end loop;
 
       return 0;
@@ -87,11 +101,10 @@ package body Gela.Grammars.LR is
    -- Go --
    --------
 
-   procedure Go
+   function Go
      (Input  : Grammar;
       Data   : LR_Item_Set;
-      Symbol : Reference;
-      Result : out LR_Item_Set)
+      Symbol : Reference) return LR_Item_Set
    is
       function Match (Part : Part_Index) return Boolean;
 
@@ -101,11 +114,13 @@ package body Gela.Grammars.LR is
       --  Add given Item if matched and check recursive if it's non-terminal
       --  reference. Here Part points to checked part of Production.
 
+      procedure Append (Part : Part_Index);
+      --  Append Part to result set
+
       type Non_Terminal_Map is array (Non_Terminal_Index range <>) of Boolean;
 
       Added : Non_Terminal_Map (1 .. Input.Last_Non_Terminal) :=
         (others => False);
-
 
       ---------
       -- Add --
@@ -117,7 +132,7 @@ package body Gela.Grammars.LR is
       begin
          if Part <= Input.Production (Production).Last then
             if Match (Part) then
-               Result.Items (To_Item (Part)) := True;
+               Append (Part);
             end if;
 
             if Input.Part (Part).Is_Non_Terminal_Reference and then
@@ -137,6 +152,31 @@ package body Gela.Grammars.LR is
          end if;
       end Add;
 
+      Result : LR_Item_Set (1 .. LR_Item_Index (Input.Last_Part));
+      Last   : LR_Item_Count := 0;
+
+      ------------
+      -- Append --
+      ------------
+
+      procedure Append (Part : Part_Index) is
+         Item : constant LR_Item := To_Item (Part);
+      begin
+         for J in 1 .. Last loop
+            if Result (J) = Item then
+               return;
+            elsif Result (J) > Item then
+               Result (J + 1 .. Last + 1) := Result (J .. Last);
+               Result (J) := Item;
+               Last := Last + 1;
+               return;
+            end if;
+         end loop;
+
+         Last := Last + 1;
+         Result (Last) := Item;
+      end Append;
+
       -----------
       -- Match --
       -----------
@@ -153,31 +193,20 @@ package body Gela.Grammars.LR is
       Production : Production_Index;
       Next       : Part_Index;
    begin
-      Result.Items := (others => False);
-
-      for Item in Data.Items'Range loop
-         if Data.Items (Item) then
-            if Item = 0 then  --  X := . A B C
-               Production := Input.Non_Terminal (Input.Root).First;
-               Next := Input.Production (Production).First;
-            else  --  X := A . B C
-               Production := To_Production (Input, Item);
-               Next := Part_Index (Item + 1);
-            end if;
-
-            Add (Next, Production);
+      for Item of Data loop
+         if Item = 0 then  --  X := . A B C
+            Production := Input.Non_Terminal (Input.Root).First;
+            Next := Input.Production (Production).First;
+         else  --  X := A . B C
+            Production := To_Production (Input, Item);
+            Next := Part_Index (Item + 1);
          end if;
+
+         Add (Next, Production);
       end loop;
+
+      return Result (1 .. Last);
    end Go;
-
-   --------------
-   -- Is_Empty --
-   --------------
-
-   function Is_Empty (Set : LR_Item_Set) return Boolean is
-   begin
-      return Set.Items = (Set.Items'Range => False);
-   end Is_Empty;
 
    -----------
    -- Items --
@@ -187,38 +216,42 @@ package body Gela.Grammars.LR is
       Index  : State_Index := 1;
       Target : State_Count;
       Result : Set_Of_LR_Item_Set_Access := new Set_Of_LR_Item_Set'
-        (Length          => 100,
-         Last_Item       => To_Item (Input.Last_Part),
+        (Max_States          => 100,
+         Max_Items     => 200,
          First_Reference => To_Reference (Input.Last_Terminal),
          Last_Reference  => To_Reference (Input.Last_Non_Terminal),
-         Last            => 1,
-         Items           => (others => (others => False)),
-         Go_To           => (others => (others => 0)));
-
-      Set      : LR_Item_Set (Result.Last_Item);
-      Go_Set   : LR_Item_Set (Result.Last_Item);
+         Last_State            => 1,
+         Last_Item       => 1,
+         Go_To           => (others => (others => 0)),
+         Ranges          => (others => <>),
+         List            => (others => <>));
 
    begin
       --  S' = .S in State = 1
-      Result.Items (0, 1) := True;
+      Result.Ranges (1) := (1, 1);
+      Result.List (1) := 0;
 
-      while Index <= Result.Last loop
-         To_Set (Result, Index, Set);
+      while Index <= Result.Last_State loop
+         declare
+            Set : constant LR_Item_Set := To_Set (Result, Index);
+         begin
+            for R in Result.Go_To'Range (1) loop
+               declare
+                  Go_Set : constant LR_Item_Set := Go (Input, Set, R);
+               begin
+                  if Go_Set'Length > 0 then
+                     Target := Find (Result, Go_Set);
 
-         for R in Result.Go_To'Range (1) loop
-            Go (Input, Set, R, Go_Set);
+                     if Target = 0 then
+                        Append (Result, Go_Set);
+                        Target := Result.Last_State;
+                     end if;
 
-            if not Is_Empty (Go_Set) then
-               Target := Find (Result, Go_Set);
-
-               if Target = 0 then
-                  Append (Result, Go_Set);
-                  Target := Result.Last;
-               end if;
-
-               Result.Go_To (R, Index) := Target;
-            end if;
-         end loop;
+                     Result.Go_To (R, Index) := Target;
+                  end if;
+               end;
+            end loop;
+         end;
 
          Index := Index + 1;
       end loop;
@@ -268,19 +301,28 @@ package body Gela.Grammars.LR is
       return Reference (NT);
    end To_Reference;
 
+   ------------------
+   -- To_Reference --
+   ------------------
+
+   function To_Reference (P : Part) return Reference is
+   begin
+      if P.Is_Terminal_Reference then
+         return To_Reference (T => P.Denote);
+      else
+         return To_Reference (NT => P.Denote);
+      end if;
+   end To_Reference;
+
    ------------
    -- To_Set --
    ------------
 
-   procedure To_Set
+   function To_Set
      (Data   : Set_Of_LR_Item_Set_Access;
-      State  : State_Index;
-      Result : out LR_Item_Set)
-   is
+      State  : State_Index) return LR_Item_Set is
    begin
-      for J in Data.Items'Range (1) loop
-         Result.Items (J) := Data.Items (J, State);
-      end loop;
+      return Data.List (Data.Ranges (State).First .. Data.Ranges (State).Last);
    end To_Set;
 
 end Gela.Grammars.LR;

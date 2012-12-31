@@ -18,7 +18,7 @@ package body Gela.Grammars.LR.Simple is
    function Build (Input : Grammar) return LR_Tables.Table is
       type Non_Terminal_Map is array (Non_Terminal_Index range <>) of Boolean;
 
-      procedure Add
+      procedure Add_Reduces
         (Added : in out Non_Terminal_Map;
          State : State_Index;
          Prod  : Production_Index;
@@ -33,15 +33,15 @@ package body Gela.Grammars.LR.Simple is
 
       C          : constant Set_Of_LR_Item_Set_Access := Items (Input);
       Result     : LR_Tables.Table := LR_Tables.Create
-        (Last_State        => C.Last,
+        (Last_State        => C.Last_State,
          Last_Terminal     => Input.Last_Terminal,
          Last_Non_Terminal => Input.Last_Non_Terminal);
 
-      ---------
-      -- Add --
-      ---------
+      -----------------
+      -- Add_Reduces --
+      -----------------
 
-      procedure Add
+      procedure Add_Reduces
         (Added : in out Non_Terminal_Map;
          State : State_Index;
          Prod  : Production_Index;
@@ -60,17 +60,8 @@ package body Gela.Grammars.LR.Simple is
                   end if;
                end loop;
             end if;
-         elsif Input.Part (Next).Is_Terminal_Reference then  --  A := α . a β
-            declare
-               T : constant Terminal_Index := Input.Part (Next).Denote;
-            begin
-               LR_Tables.Set_Shift
-                 (Result,
-                  State,
-                  T,
-                  C.Go_To (To_Reference (T), State));
-            end;
-         else  --  A := α . B β
+         elsif Input.Part (Next).Is_Non_Terminal_Reference then
+            --  A := α . B β
             --  Add closure of kernel item
             declare
                B : Non_Terminal renames
@@ -80,40 +71,47 @@ package body Gela.Grammars.LR.Simple is
                   Added (B.Index) := True;
 
                   for P in B.First .. B.Last loop
-                     Add (Added, State, P, Input.Production (P).First);
+                     Add_Reduces (Added, State, P, Input.Production (P).First);
                   end loop;
                end if;
             end;
          end if;
-      end Add;
+      end Add_Reduces;
 
    begin
       Tools.Get_First (Input, First);
       Tools.Get_Follow (Input, First, Follow);
 
-      for State in 1 .. C.Last loop
+      for State in 1 .. C.Last_State loop
          declare
             Target  : State_Count;
-            Set     : LR_Item_Set (C.Last_Item);
+            Set     : constant LR_Item_Set := To_Set (C, State);
             Added   : Non_Terminal_Map (1 .. Input.Last_Non_Terminal) :=
               (others => False);
          begin
-            To_Set (C, State, Set);
+            for Item of Set loop
+               declare
+                  Next : constant Part_Index := Part_Index (Item + 1);
+                  Prod : constant Production_Index :=
+                    To_Production (Input, Item);
+               begin
+                  Add_Reduces (Added, State, Prod, Next);
+               end;
+            end loop;
 
-            for Item in Set.Items'Range loop
-               if Set.Items (Item) then
-                  declare
-                     Next : constant Part_Index := Part_Index (Item + 1);
-                     Prod : constant Production_Index :=
-                       To_Production (Input, Item);
-                  begin
-                     Add (Added, State, Prod, Next);
-                  end;
+            --  Add shifts on terminals
+            for T in Input.Terminal'Range loop
+               Target := C.Go_To (To_Reference (T), State);
+
+               if Target /= 0 then
+                  LR_Tables.Set_Shift (Result, State, T, Target);
                end if;
             end loop;
 
+            --  Add shifts on non-terminals
             for NT in Input.Non_Terminal'Range loop
                Target := C.Go_To (To_Reference (NT), State);
+
                if Target /= 0 then
                   LR_Tables.Set_Shift (Result, State, NT, Target);
                end if;
