@@ -19,4 +19,8 @@ package Gela.Grammars_Convertors is
    --  If Left = True convert list as LIST := ITEM LIST | ITEM
    --  otherwise LIST := LIST ITEM | ITEM
 
+   function Convert_With_Empty
+     (Input : Gela.Grammars.Grammar)
+      return Gela.Grammars.Grammar;
+
 end Gela.Grammars_Convertors;

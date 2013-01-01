@@ -91,10 +91,16 @@ package body Gela.Grammars.LR.Simple is
          begin
             for Item of Set loop
                declare
-                  Next : constant Part_Index := Part_Index (Item + 1);
+                  Next : Part_Index;
                   Prod : constant Production_Index :=
                     To_Production (Input, Item);
                begin
+                  if Item = 0 then
+                     Next := Input.Production (Prod).First;
+                  else
+                     Next := Part_Index (Item + 1);
+                  end if;
+
                   Add_Reduces (Added, State, Prod, Next);
                end;
             end loop;

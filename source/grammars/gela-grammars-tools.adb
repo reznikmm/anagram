@@ -123,7 +123,7 @@ package body Gela.Grammars.Tools is
       for NT in 1 .. Input.Last_Non_Terminal loop
          First := Input.Non_Terminal (NT).First;
 
-         for T in 1 .. Input.Last_Terminal loop
+         for T in 0 .. Input.Last_Terminal loop
             Value.Map (NT, T) := Temp.Map (First, T);
 
             for Production in First + 1 .. Input.Non_Terminal (NT).Last loop

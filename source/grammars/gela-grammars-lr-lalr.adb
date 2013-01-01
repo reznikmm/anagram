@@ -81,20 +81,12 @@ package body Gela.Grammars.LR.LALR is
                   end if;
                end loop;
             end if;
-         elsif Input.Part (Next).Is_Terminal_Reference then  --  A := α . a β
-            declare
-               T : constant Terminal_Index := Input.Part (Next).Denote;
-            begin
-               LR_Tables.Set_Shift
-                 (Result,
-                  State,
-                  T,
-                  C.Go_To (To_Reference (T), State));
-            end;
          elsif Input.Part (Next).Is_Non_Terminal_Reference then
             --  A := α . B β
             --  Add closure of kernel item
             declare
+               Set : constant Terminal_Set :=
+                 Get_First (Next + 1, P.Last, LA);
                B : Non_Terminal renames
                  Input.Non_Terminal (Input.Part (Next).Denote);
             begin
@@ -108,7 +100,7 @@ package body Gela.Grammars.LR.LALR is
                         State,
                         P,
                         Input.Production (P).First,
-                        LA);
+                        Set);
                   end loop;
                end if;
             end;
@@ -218,11 +210,17 @@ package body Gela.Grammars.LR.LALR is
                To_Do_Count := To_Do_Count - 1;
 
                declare
-                  Next : constant Part_Index :=
-                    Part_Index (C.List (Source_Index) + 1);
+                  Item : constant LR_Item := C.List (Source_Index);
+                  Next : Part_Index;
                   Prod : constant Production_Index :=
-                    To_Production (Input, C.List (Source_Index));
+                    To_Production (Input, Item);
                begin
+                  if Item = 0 then
+                     Next := Input.Production (Prod).First;
+                  else
+                     Next := Part_Index (Item + 1);
+                  end if;
+
                   Add
                     (Added,
                      Source_State,
@@ -258,13 +256,13 @@ package body Gela.Grammars.LR.LALR is
                   if First.Map (P.Denote, T) then  --  Append FIRST(X)
                      Result (T) := True;
                   end if;
-
-                  if not First.Map (P.Denote, Tools.ε) then
-                     return Result;
-                  end if;
-
-                  --  Continue if ε ∈ FIRST(X)
                end loop;
+
+               if not First.Map (P.Denote, Tools.ε) then
+                  return Result;
+               end if;
+
+               --  Continue if ε ∈ FIRST(X)
             end if;
          end loop;
 
@@ -320,10 +318,16 @@ package body Gela.Grammars.LR.LALR is
             for J in Set'Range loop
                declare
                   Item : constant LR_Item := Set (J);
-                  Next : constant Part_Index := Part_Index (Item + 1);
+                  Next : Part_Index;
                   Prod : constant Production_Index :=
                     To_Production (Input, Item);
                begin
+                  if Item = 0 then
+                     Next := Input.Production (Prod).First;
+                  else
+                     Next := Part_Index (Item + 1);
+                  end if;
+
                   Add_Recuces
                     (Result, Added, State, Prod, Next, Look_Aheads (J));
                end;

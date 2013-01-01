@@ -7,7 +7,6 @@
 --              Read copyright and license in gela.ads file                 --
 ------------------------------------------------------------------------------
 
-
 package body Gela.Grammars.LR is
 
    function Find

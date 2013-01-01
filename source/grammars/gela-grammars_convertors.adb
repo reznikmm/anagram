@@ -349,4 +349,231 @@ package body Gela.Grammars_Convertors is
       return Output.Complete;
    end Convert;
 
+   ------------------------
+   -- Convert_With_Empty --
+   ------------------------
+
+   function Convert_With_Empty
+     (Input : Gela.Grammars.Grammar)
+      return Gela.Grammars.Grammar
+   is
+      use Gela.Grammars;
+
+      type Part_Order is ('<', '>', '=');
+
+      function Less (Left, Right : Part_Index) return Part_Order;
+      function Less (Left, Right : Part_Index) return Boolean;
+
+      procedure Create_Option (P : Part);
+
+      procedure Copy_Production
+        (PL    : in out Constructors.Production_List;
+         Index : Production_Index);
+
+      procedure Copy_Productions
+        (PL          : in out Constructors.Production_List;
+         First, Last : Production_Index);
+
+      package Opt_Map is new Ada.Containers.Ordered_Maps
+        (Part_Index,
+         League.Strings.Universal_String,
+         "<" => Less,
+         "=" => League.Strings."=");
+
+      Output    : Gela.Grammars.Constructors.Constructor;
+      Options   : Opt_Map.Map;
+
+      ---------------------
+      -- Copy_Production --
+      ---------------------
+
+      procedure Copy_Production
+        (PL    : in out Constructors.Production_List;
+         Index : Production_Index)
+      is
+         P      : Production renames Input.Production (Index);
+         Result : Constructors.Production := Output.Create_Production (P.Name);
+      begin
+         for Part of Input.Part (P.First .. P.Last) loop
+            if Part.Is_Option then
+               Create_Option (Part);
+               Result.Add
+                 (Output.Create_Non_Terminal_Reference
+                    (Part.Name, Options (Part.Index)));
+            elsif Part.Is_Terminal_Reference then
+               Result.Add
+                 (Output.Create_Terminal_Reference
+                    (Part.Name, Input.Terminal (Part.Denote).Image));
+            else
+               Result.Add
+                 (Output.Create_Non_Terminal_Reference
+                    (Part.Name, Input.Non_Terminal (Part.Denote).Name));
+            end if;
+         end loop;
+
+         PL.Add (Result);
+      end Copy_Production;
+
+      ----------------------
+      -- Copy_Productions --
+      ----------------------
+
+      procedure Copy_Productions
+        (PL          : in out Constructors.Production_List;
+         First, Last : Production_Index) is
+      begin
+         for P in First .. Last loop
+            Copy_Production (PL, P);
+         end loop;
+      end Copy_Productions;
+
+      -------------------
+      -- Create_Option --
+      -------------------
+
+      procedure Create_Option (P : Part) is
+      begin
+         if Options.Contains (P.Index) then
+            return;
+         end if;
+
+         declare
+            use type Ada.Containers.Count_Type;
+
+            PL    : Constructors.Production_List :=
+              Output.Create_Production_List;
+            Name  : League.Strings.Universal_String :=
+              League.Strings.To_Universal_String ("option");
+            Image : Wide_Wide_String :=
+              Ada.Containers.Count_Type'Wide_Wide_Image (Options.Length + 1);
+            Empty : constant League.Strings.Universal_String :=
+              League.Strings.To_Universal_String ("empty");
+         begin
+            Image (1) := '_';
+            Name.Append (Image);
+            Options.Insert (P.Index, Name);
+
+            PL.Add (Output.Create_Production (Empty));
+
+            Copy_Productions
+              (PL,
+               P.First,
+               P.Last);
+
+            Output.Create_Non_Terminal (Name, PL);
+         end;
+      end Create_Option;
+
+      ----------
+      -- Less --
+      ----------
+
+      function Less (Left, Right : Part_Index) return Part_Order is
+         M : constant array (Boolean) of Part_Order := ('>', '<');
+         L : Part renames Input.Part (Left);
+         R : Part renames Input.Part (Right);
+      begin
+         if L.Last - L.First /= R.Last - R.First then
+            return M (L.Last - L.First < R.Last - R.First);
+         end if;
+
+         for P in L.First .. L.Last loop
+            declare
+               L_Prod : Production renames Input.Production (P);
+               R_Prod : Production renames
+                 Input.Production (P - L.First + R.First);
+            begin
+               if L_Prod.Last - L_Prod.First /= R_Prod.Last - R_Prod.First then
+                  return M
+                    (L_Prod.Last - L_Prod.First < R_Prod.Last - R_Prod.First);
+               end if;
+
+               for J in L_Prod.First .. L_Prod.Last loop
+                  declare
+                     L_Part : Part renames Input.Part (J);
+                     R_Part : Part renames
+                       Input.Part (J - L_Prod.First + R_Prod.First);
+                  begin
+                     if L_Part.Is_Option /= R_Part.Is_Option then
+                        return M (L_Part.Is_Option < R_Part.Is_Option);
+                     elsif L_Part.Is_Terminal_Reference /=
+                       R_Part.Is_Terminal_Reference
+                     then
+                        return M (L_Part.Is_Terminal_Reference <
+                          R_Part.Is_Terminal_Reference);
+                     end if;
+
+                     if L_Part.Is_Option then
+                        declare
+                           Compare : constant Part_Order :=
+                             Less (L_Part.Index, R_Part.Index);
+                        begin
+                           if Compare /= '=' then
+                              return Compare;
+                           end if;
+                        end;
+                     elsif L_Part.Is_Terminal_Reference then
+                        if Terminal_Count'(L_Part.Denote) /= R_Part.Denote then
+                           return M (Terminal_Count'(L_Part.Denote) <
+                                       R_Part.Denote);
+                        end if;
+                     else
+                        if Non_Terminal_Count'(L_Part.Denote) /=
+                          R_Part.Denote
+                        then
+                           return M (Non_Terminal_Count'(L_Part.Denote) <
+                                       R_Part.Denote);
+                        end if;
+                     end if;
+                  end;
+               end loop;
+            end;
+         end loop;
+
+         return '=';
+      end Less;
+
+      ----------
+      -- Less --
+      ----------
+
+      function Less (Left, Right : Part_Index) return Boolean is
+      begin
+         return Less (Left, Right) = '<';
+      end Less;
+
+   begin
+      for Terminal of Input.Terminal loop
+         Output.Create_Terminal (Terminal.Image);
+
+         for Declaration of Input.Declaration
+           (Terminal.First_Attribute .. Terminal.Last_Attribute)
+         loop
+            Output.Create_Attribute_Declaration
+              (Name      => Declaration.Name,
+               Type_Name => Declaration.Type_Name,
+               Terminal  => Terminal.Image);
+         end loop;
+      end loop;
+
+      for Non_Terminal of Input.Non_Terminal loop
+         declare
+            PL : Constructors.Production_List := Output.Create_Production_List;
+         begin
+            Copy_Productions
+              (PL,
+               Non_Terminal.First,
+               Non_Terminal.Last);
+
+            Output.Create_Non_Terminal (Non_Terminal.Name, PL);
+
+--              Create_Declarations
+--                (Non_Terminal.Name,
+--                 Non_Terminal.First_Attribute,
+--                 Non_Terminal.Last_Attribute);
+         end;
+      end loop;
+      return Output.Complete;
+   end Convert_With_Empty;
+
 end Gela.Grammars_Convertors;
