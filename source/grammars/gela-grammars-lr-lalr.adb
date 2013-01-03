@@ -21,8 +21,6 @@ package body Gela.Grammars.LR.LALR is
       C : constant Set_Of_LR_Item_Set_Access := Items (Input);
       --  Set of LR(0) items
 
-      type Non_Terminal_Map is array (Input.Non_Terminal'Range) of Boolean;
-
       type Terminal_Set is array (0 .. Input.Last_Terminal) of Boolean
         with Pack;
 
@@ -34,7 +32,7 @@ package body Gela.Grammars.LR.LALR is
 
       procedure Add_Recuces
         (Result : in out LR_Tables.Table;
-         Added  : in out Non_Terminal_Map;
+         Added  : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
          State  : State_Index;
          Prod   : Production_Index;
          Next   : Part_Index;
@@ -56,13 +54,20 @@ package body Gela.Grammars.LR.LALR is
          Default  : Terminal_Set)   --  This is a
          return Terminal_Set;       --  This is FIRST (βa)
 
+      function Check_Added
+        (Added  : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
+         Index  : Non_Terminal_Index;
+         Set    : in out Terminal_Set) return Boolean;
+      --  Check if some of Set not in Added (Index) yet.
+      --  Then let "Added := Added or Set" and "Set := Set - Added"
+
       -----------------
       -- Add_Recuces --
       -----------------
 
       procedure Add_Recuces
         (Result : in out LR_Tables.Table;
-         Added  : in out Non_Terminal_Map;
+         Added  : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
          State  : State_Index;
          Prod   : Production_Index;
          Next   : Part_Index;
@@ -85,14 +90,12 @@ package body Gela.Grammars.LR.LALR is
             --  A := α . B β
             --  Add closure of kernel item
             declare
-               Set : constant Terminal_Set :=
+               Set : Terminal_Set :=
                  Get_First (Next + 1, P.Last, LA);
                B : Non_Terminal renames
                  Input.Non_Terminal (Input.Part (Next).Denote);
             begin
-               if not Added (B.Index) then
-                  Added (B.Index) := True;
-
+               if Check_Added (Added, B.Index, Set) then
                   for P in B.First .. B.Last loop
                      Add_Recuces
                        (Result,
@@ -107,6 +110,31 @@ package body Gela.Grammars.LR.LALR is
          end if;
       end Add_Recuces;
 
+      -----------------
+      -- Check_Added --
+      -----------------
+
+      function Check_Added
+        (Added  : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
+         Index  : Non_Terminal_Index;
+         Set    : in out Terminal_Set) return Boolean
+      is
+         Result : Boolean := False;
+      begin
+         for J in Set'Range loop
+            if Set (J) then
+               if Added (Index, J) then
+                  Set (J) := False;
+               else
+                  Added (Index, J) := True;
+                  Result := True;
+               end if;
+            end if;
+         end loop;
+
+         return Result;
+      end Check_Added;
+
       ----------------------
       -- Fill_Look_Aheads --
       ----------------------
@@ -114,7 +142,7 @@ package body Gela.Grammars.LR.LALR is
       procedure Fill_Look_Aheads (Look_Aheads : in out Terminal_Offset_Map) is
 
          procedure Add
-           (Added      : in out Non_Terminal_Map;
+           (Added      : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
             State      : State_Index;
             Prod       : Production_Index;
             Next       : Part_Index;
@@ -131,7 +159,7 @@ package body Gela.Grammars.LR.LALR is
          ---------
 
          procedure Add
-           (Added      : in out Non_Terminal_Map;
+           (Added      : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
             State      : State_Index;
             Prod       : Production_Index;
             Next       : Part_Index;
@@ -175,14 +203,12 @@ package body Gela.Grammars.LR.LALR is
             if Input.Part (Next).Is_Non_Terminal_Reference then
                --  Add closure of kernel item
                declare
-                  Set : constant Terminal_Set :=
+                  Set : Terminal_Set :=
                     Get_First (Next + 1, P.Last, Look_Ahead);
                   B : Non_Terminal renames
                     Input.Non_Terminal (Input.Part (Next).Denote);
                begin
-                  if not Added (B.Index) then
-                     Added (B.Index) := True;
-
+                  if Check_Added (Added, B.Index, Set) then
                      for P in B.First .. B.Last loop
                         Add
                           (Added,
@@ -203,7 +229,9 @@ package body Gela.Grammars.LR.LALR is
 
          while To_Do_Count > 0 loop
             declare
-               Added : Non_Terminal_Map := (others => False);
+               Added : Tools.Terminal_Set_Indexed_By_Non_Terminal :=
+                 (1 .. Input.Last_Non_Terminal =>
+                    (0 .. Input.Last_Terminal => False));
             begin
                Next_To_Do_Item (To_Do, Source_State, Source_Index);
                To_Do (Source_Index) := False;
@@ -313,7 +341,9 @@ package body Gela.Grammars.LR.LALR is
          declare
             Target  : State_Count;
             Set     : constant LR_Item_Set := To_Set (C, State);
-            Added   : Non_Terminal_Map := (others => False);
+            Added   : Tools.Terminal_Set_Indexed_By_Non_Terminal :=
+              (1 .. Input.Last_Non_Terminal =>
+                 (0 .. Input.Last_Terminal => False));
          begin
             for J in Set'Range loop
                declare

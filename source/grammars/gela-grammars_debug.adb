@@ -148,13 +148,18 @@ package body Gela.Grammars_Debug is
       use type Gela.Grammars.LR.State_Count;
 
       procedure Print_State (State : Gela.Grammars.LR.State_Index);
-      procedure Print_Reduce (R : in out Reduce_Iterator);
+      procedure Print_Reduce
+        (Prefix : Wide_Wide_String;
+         R      : in out Reduce_Iterator);
 
       ------------------
       -- Print_Reduce --
       ------------------
 
-      procedure Print_Reduce (R : in out Reduce_Iterator) is
+      procedure Print_Reduce
+        (Prefix : Wide_Wide_String;
+         R      : in out Reduce_Iterator)
+      is
          P  : Gela.Grammars.Production_Index;
          NT : Gela.Grammars.Non_Terminal_Index;
       begin
@@ -163,7 +168,7 @@ package body Gela.Grammars_Debug is
             NT := Self.Production (P).Parent;
 
             Put_Line
-              ("Non terminal "
+              (Prefix & "Non terminal "
                & Self.Non_Terminal (NT).Name.To_Wide_Wide_String
                & " production "
                & Self.Production (P).Name.To_Wide_Wide_String);
@@ -208,30 +213,28 @@ package body Gela.Grammars_Debug is
 
                   Put ("Shift to ");
                   Print_State (S);
-                  Put ("Reduce to ");
-                  Print_Reduce (R);
-               elsif not Is_Empty (R) then
-                  declare
-                     Save : Reduce_Iterator := R;
-                  begin
-                     Next (Table, R);
-
-                     if not Is_Empty (R) then
-                        if not State_Printed then
-                           State_Printed := True;
-                           Print_State (State);
-                        end if;
-
-                        Put_Line
-                          ("Reduce/Reduce conflict on token '"
-                           & Self.Terminal (T).Image.To_Wide_Wide_String
-                           & "'");
-
-                        Put ("Reduce to ");
-                        Print_Reduce (Save);
-                     end if;
-                  end;
+                  Print_Reduce ("Shift/Reduce ", R);
                end if;
+            elsif not Is_Empty (R) then
+               declare
+                  Save : Reduce_Iterator := R;
+               begin
+                  Next (Table, R);
+
+                  if not Is_Empty (R) then
+                     if not State_Printed then
+                        State_Printed := True;
+                        Print_State (State);
+                     end if;
+
+                     Put_Line
+                       ("Reduce/Reduce conflict on token '"
+                        & Self.Terminal (T).Image.To_Wide_Wide_String
+                        & "'");
+
+                     Print_Reduce ("Reduce/Reduce ", Save);
+                  end if;
+               end;
             end if;
          end loop;
       end loop;
