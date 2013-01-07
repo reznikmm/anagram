@@ -54,6 +54,7 @@ package body Gela.Grammars.RNGLR is
       procedure Reducer;
       procedure Shifter;
       function Has_Edge (From, To : GSS_Node_Access) return Boolean;
+      procedure Print (Ui : GSS_Node_Access);
 
       R     : R_Vectors.Vector;      --  R
       Q     : Q_Vectors.Vector;      --  Q
@@ -315,7 +316,7 @@ package body Gela.Grammars.RNGLR is
                 ("  UP:" & LR.State_Index'Wide_Wide_Image (w.Up.State));
             end if;
 
-            w := w.next;
+            w := w.Next;
          end loop;
       end Print;
 
