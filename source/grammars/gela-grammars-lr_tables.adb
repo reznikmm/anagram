@@ -18,6 +18,15 @@ package body Gela.Grammars.LR_Tables is
       return Self.Last_State;
    end Last_State;
 
+   ----------
+   -- Part --
+   ----------
+
+   function Part (Self : Reduce_Iterator) return Part_Count is
+   begin
+      return Self.Part;
+   end Part;
+
    ----------------
    -- Production --
    ----------------
@@ -100,7 +109,7 @@ package body Gela.Grammars.LR_Tables is
       Index : constant Natural := Self.T_Reduce (State, T);
    begin
       if Index = 0 then
-         return (0, 0);
+         return (0, 0, 0);
       else
          return Self.Reduce_Vector (Index);
       end if;
@@ -153,9 +162,11 @@ package body Gela.Grammars.LR_Tables is
      (Self  : in out Table;
       State : LR.State_Index;
       T     : Terminal_Count;
-      Value : Production_Index)
+      Value : Production_Index;
+      Part  : Part_Count := 0)
    is
-      Item : constant Reduce_Iterator := (Value, Self.T_Reduce (State, T));
+      Item : constant Reduce_Iterator :=
+        (Value, Part, Self.T_Reduce (State, T));
    begin
       Self.Reduce_Vector.Append (Item);
       Self.T_Reduce (State, T) := Self.Reduce_Vector.Last_Index;

@@ -17,7 +17,10 @@ package body Gela.Grammars.LR.LALR is
    -- Build --
    -----------
 
-   function Build (Input : Grammar) return LR_Tables.Table is
+   function Build
+     (Input        : Grammar;
+      Right_Nulled : Boolean) return LR_Tables.Table
+   is
       C : constant Set_Of_LR_Item_Set_Access := Items (Input);
       --  Set of LR(0) items
 
@@ -61,6 +64,8 @@ package body Gela.Grammars.LR.LALR is
       --  Check if some of Set not in Added (Index) yet.
       --  Then let "Added := Added or Set" and "Set := Set - Added"
 
+      function Is_Right_Nulled (From, To : Part_Index) return Boolean;
+      --  Check if parts => ε and Right_Nulled enabled
       -----------------
       -- Add_Recuces --
       -----------------
@@ -82,11 +87,19 @@ package body Gela.Grammars.LR.LALR is
             else
                for T in 0 .. Input.Last_Terminal loop
                   if LA (T) then
-                     LR_Tables.Set_Reduce (Result, State, T, Prod);
+                     LR_Tables.Set_Reduce (Result, State, T, Prod, P.Last);
                   end if;
                end loop;
             end if;
          elsif Input.Part (Next).Is_Non_Terminal_Reference then
+            if Is_Right_Nulled (Next, P.Last) then
+               for T in 0 .. Input.Last_Terminal loop
+                  if LA (T) then
+                     LR_Tables.Set_Reduce (Result, State, T, Prod, Next - 1);
+                  end if;
+               end loop;
+            end if;
+
             --  A := α . B β
             --  Add closure of kernel item
             declare
@@ -298,6 +311,27 @@ package body Gela.Grammars.LR.LALR is
 
          return Result;
       end Get_First;
+
+      ---------------------
+      -- Is_Right_Nulled --
+      ---------------------
+
+      function Is_Right_Nulled (From, To : Part_Index) return Boolean is
+      begin
+         if Right_Nulled then
+            for P of Input.Part (From .. To) loop
+               if P.Is_Terminal_Reference or else
+                 not First.Map (P.Denote, Tools.ε)
+               then
+                  return False;
+               end if;
+            end loop;
+
+            return True;
+         else
+            return False;
+         end if;
+      end Is_Right_Nulled;
 
       ---------------------
       -- Next_To_Do_Item --

@@ -151,6 +151,9 @@ package body Gela.Grammars_Debug is
       procedure Print_Reduce
         (Prefix : Wide_Wide_String;
          R      : in out Reduce_Iterator);
+      procedure Print_Conflict
+        (Prefix : Wide_Wide_String;
+         T      : Gela.Grammars.Terminal_Count);
 
       ------------------
       -- Print_Reduce --
@@ -187,6 +190,22 @@ package body Gela.Grammars_Debug is
            ("State:" & Gela.Grammars.LR.State_Index'Wide_Wide_Image (State));
       end Print_State;
 
+      procedure Print_Conflict
+        (Prefix : Wide_Wide_String;
+         T      : Gela.Grammars.Terminal_Count)
+      is
+         use type Gela.Grammars.Terminal_Count;
+      begin
+         if T = 0 then
+            Put_Line (Prefix & " conflict on token End_Of_File");
+         else
+            Put_Line
+              (Prefix & " conflict on token '"
+               & Self.Terminal (T).Image.To_Wide_Wide_String
+               & "'");
+         end if;
+      end Print_Conflict;
+
       State_Printed : Boolean;
 
       S : Gela.Grammars.LR.State_Count;
@@ -206,10 +225,7 @@ package body Gela.Grammars_Debug is
                      Print_State (State);
                   end if;
 
-                  Put_Line
-                    ("Shift/Reduce conflict on token '"
-                     & Self.Terminal (T).Image.To_Wide_Wide_String
-                     & "'");
+                  Print_Conflict ("Shift/Reduce", T);
 
                   Put ("Shift to ");
                   Print_State (S);
@@ -227,10 +243,7 @@ package body Gela.Grammars_Debug is
                         Print_State (State);
                      end if;
 
-                     Put_Line
-                       ("Reduce/Reduce conflict on token '"
-                        & Self.Terminal (T).Image.To_Wide_Wide_String
-                        & "'");
+                     Print_Conflict ("Reduce/Reduce", T);
 
                      Print_Reduce ("Reduce/Reduce ", Save);
                   end if;

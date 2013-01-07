@@ -21,6 +21,10 @@ package Gela.Grammars.LR_Tables is
 
    function Production (Self : Reduce_Iterator) return Production_Index;
 
+   function Part (Self : Reduce_Iterator) return Part_Count;
+   --  This is used only for Right Nulled Tables.
+   --  Point to last (right) part included in reduction.
+
    procedure Next
      (Self : Table;
       Item : in out Reduce_Iterator);
@@ -70,7 +74,8 @@ package Gela.Grammars.LR_Tables is
      (Self  : in out Table;
       State : LR.State_Index;
       T     : Terminal_Count;
-      Value : Production_Index);
+      Value : Production_Index;
+      Part  : Part_Count := 0);
 
    procedure Set_Finish
      (Self  : in out Table;
@@ -80,6 +85,7 @@ private
 
    type Reduce_Iterator is record
       Production : Production_Count;
+      Part       : Part_Count;
       Next       : Natural;
    end record;
 

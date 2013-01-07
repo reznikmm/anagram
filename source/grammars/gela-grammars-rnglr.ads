@@ -9,14 +9,14 @@
 
 with Gela.Grammars.LR_Tables;
 
-package Gela.Grammars.LR.LALR is
+package Gela.Grammars.RNGLR is
 
-   function Build
-     (Input        : Grammar;
-      Right_Nulled : Boolean) return LR_Tables.Table;
-   --  Build LARL table.
-   --  If Right_Nulled then include reduction on LR items in form
-   --  A ::= x1 ... xm · B1 ... Bt, where B1 ... Bt => ε. In this case
-   --  reduction includes position of m.
+   type Lexer is interface;
+   function Next (Self : in out Lexer) return Terminal_Count is abstract;
 
-end Gela.Grammars.LR.LALR;
+   procedure Parse
+     (G : Grammar;
+      T : LR_Tables.Table;
+      L : in out Lexer'Class);
+
+end Gela.Grammars.RNGLR;
