@@ -111,6 +111,8 @@ package body Gela.Grammars.CMOF_Writer is
          Property_To.Set_Visibility ((False, AMF.CMOF.Public_Visibility));
          Property_To.Set_Is_Composite (False);
          Property_To.Set_Type (AMF.CMOF.Types.CMOF_Type_Access (To));
+         Property_To.Set_Name
+           ((False, "To" & Name));
 
          Member_End.Add (Property_From);
          Member_End.Add (Property_To);
@@ -119,6 +121,8 @@ package body Gela.Grammars.CMOF_Writer is
          Owned_End.Add (Property_To);
 
          Association.Set_Visibility ((False, AMF.CMOF.Public_Visibility));
+         Association.Set_Name
+           ((False, "Ass" & Name));
          Packaged.Add (Association);
 --         Association.Set_
       end Create_Link;
@@ -237,6 +241,8 @@ package body Gela.Grammars.CMOF_Writer is
       CMOF_Package.Set_Visibility ((False, AMF.CMOF.Public_Visibility));
       CMOF_Package.Set_Name
         ((False, League.Strings.To_Universal_String ("Grammar")));
+      CMOF_Package.Set_Uri
+        ((False, League.Strings.To_Universal_String ("urn:Grammar")));
 
       Packaged := CMOF_Package.Get_Packaged_Element;
 

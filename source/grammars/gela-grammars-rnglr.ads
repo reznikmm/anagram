@@ -8,7 +8,7 @@
 ------------------------------------------------------------------------------
 
 with Gela.Grammars.LR_Tables;
-
+with Gela.Grammars.AST_Nodes;
 package Gela.Grammars.RNGLR is
 
    type Lexer is interface;
@@ -17,6 +17,8 @@ package Gela.Grammars.RNGLR is
    procedure Parse
      (G : Grammar;
       T : LR_Tables.Table;
-      L : in out Lexer'Class);
+      F : AST_Nodes.Node_Fabric'Class;
+      L : in out Lexer'Class;
+      Tree : out AST_Nodes.Node_Access);
 
 end Gela.Grammars.RNGLR;

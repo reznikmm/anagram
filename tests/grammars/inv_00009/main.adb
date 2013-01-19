@@ -8,10 +8,10 @@ with Gela.Grammars_Convertors;
 with Gela.Grammars_Debug;
 
 procedure Main is
-   G : aliased Gela.Grammars.Grammar :=
+   G : constant Gela.Grammars.Grammar :=
      Gela.Grammars.Reader.Read ("test.ag");
 
-   Plain : aliased Gela.Grammars.Grammar :=
+   Plain : constant Gela.Grammars.Grammar :=
      Gela.Grammars_Convertors.Convert (G, Left => True);
 
    Ok : Boolean;

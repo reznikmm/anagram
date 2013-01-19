@@ -7,18 +7,18 @@ with League.Strings;
 
 procedure Main is
    use Gela.Grammars.Constructors;
-   
+
    C : Gela.Grammars.Constructors.Constructor;
 begin
    C.Create_Terminal (League.Strings.To_Universal_String ("T2"));
    C.Create_Terminal (League.Strings.To_Universal_String ("T1"));
    C.Create_Terminal (League.Strings.To_Universal_String ("T3"));
-   
+
    declare
       T1 : constant Part := C.Create_Terminal_Reference
         (League.Strings.To_Universal_String ("t1"),
          League.Strings.To_Universal_String ("T1"));
-      
+
       NT3 : constant Part := C.Create_Non_Terminal_Reference
         (League.Strings.To_Universal_String ("nt3"),
          League.Strings.To_Universal_String ("NT3"));
@@ -31,7 +31,7 @@ begin
       PL.Add (P2);
       C.Create_Non_Terminal (League.Strings.To_Universal_String ("NT2"), PL);
    end;
-   
+
    declare
       NT3 : constant Part := C.Create_Non_Terminal_Reference
         (League.Strings.To_Universal_String ("nt3"),
@@ -40,11 +40,11 @@ begin
       NT2 : constant Part := C.Create_Non_Terminal_Reference
         (League.Strings.To_Universal_String ("nt2"),
          League.Strings.To_Universal_String ("NT2"));
-      
+
       T3 : constant Part := C.Create_Terminal_Reference
         (League.Strings.To_Universal_String ("t3"),
          League.Strings.To_Universal_String ("T3"));
-      
+
       P1 : Production := C.Create_Production
         (League.Strings.To_Universal_String ("P1"));
 
@@ -61,7 +61,7 @@ begin
       T2 : constant Part := C.Create_Terminal_Reference
         (League.Strings.To_Universal_String ("t2"),
          League.Strings.To_Universal_String ("T2"));
-      
+
       NT1 : constant Part := C.Create_Non_Terminal_Reference
         (League.Strings.To_Universal_String ("nt1"),
          League.Strings.To_Universal_String ("NT1"));
@@ -76,9 +76,9 @@ begin
       PL.Add (P3);
       C.Create_Non_Terminal (League.Strings.To_Universal_String ("NT3"), PL);
    end;
-   
+
    declare
-      Result : Gela.Grammars.Grammar := C.Complete;
+      Result : constant Gela.Grammars.Grammar := C.Complete;
    begin
       Gela.Grammars_Debug.Print (Result);
    end;

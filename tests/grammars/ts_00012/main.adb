@@ -7,10 +7,10 @@ with Gela.Grammars_Recursive_Descent;
 with Gela.Grammars_Convertors;
 
 procedure Main is
-   G : aliased Gela.Grammars.Grammar :=
+   G : constant Gela.Grammars.Grammar :=
      Gela.Grammars.Reader.Read ("test.ag");
 
-   Plain : aliased Gela.Grammars.Grammar :=
+   Plain : constant Gela.Grammars.Grammar :=
      Gela.Grammars_Convertors.Convert (G, Left => False);
 
    Ok : Boolean;

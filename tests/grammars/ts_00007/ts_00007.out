@@ -5,7 +5,7 @@ Non Terminals:
  1 NT
   Attr: ast inherited=FALSE
   Attr: env inherited=TRUE
-  Production: NT-T
+  Production: T ( 1)
     T refs T
     NT2 refs NT2
 Rule: 
@@ -14,22 +14,27 @@ Rule:
 Rule: 
   Result: NT2.env
   Arg: LHS.env
-  Production: NT-TT
+  Production: TT ( 2)
     t1 refs T
     t2 refs T
-  Production: NT-TList
-    tlist List:
-  Production: NT-TList-tlist-
-    T refs T
-    End
-  Production: NT-TOpt
+  Production: TList ( 3)
+    tlist_Option Option:
+  Production: tlist ( 5)
+    tlist refs tlist
+ End
+  Production: TOpt ( 4)
      Option:
-  Production: NT-TOpt-
+  Production:  ( 6)
     T refs T
     nt2 refs NT
-    End
+ End
  2 NT2
-  Attr: ast inherited=FALSE
   Attr: env inherited=TRUE
-  Production: NT2-
+  Production: T ( 7)
+    T refs T
+ 3 tlist
+  Production: T ( 8)
+    T refs T
+  Production: T_append ( 9)
+    head refs tlist
     T refs T

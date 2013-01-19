@@ -13,8 +13,7 @@ with Ada.Text_IO;
 procedure Main is
 
    procedure Print_Action
-     (AG    : Gela.Grammars.Grammar;
-      Table : Gela.Grammars.LR_Tables.Table;
+     (Table : Gela.Grammars.LR_Tables.Table;
       State : Gela.Grammars.LR.State_Index;
       T     : Gela.Grammars.Terminal_Count);
 
@@ -23,8 +22,7 @@ procedure Main is
    ------------------
 
    procedure Print_Action
-     (AG    : Gela.Grammars.Grammar;
-      Table : Gela.Grammars.LR_Tables.Table;
+     (Table : Gela.Grammars.LR_Tables.Table;
       State : Gela.Grammars.LR.State_Index;
       T     : Gela.Grammars.Terminal_Count)
    is
@@ -34,7 +32,7 @@ procedure Main is
 
       S : constant Gela.Grammars.LR.State_Count :=
         Shift (Table, State, T);
-      R : Reduce_Iterator := Reduce (Table, State, T);
+      R : constant Reduce_Iterator := Reduce (Table, State, T);
    begin
       Ada.Text_IO.Put (' ');
 
@@ -89,12 +87,12 @@ begin
       for S in 1 .. LR_Tables.Last_State (Table) loop
          Ada.Text_IO.Put (State_Index'Image (S));
 
-         if S in 1 .. 9 then
+         if S <= 9 then
             Ada.Text_IO.Put (' ');
          end if;
 
          for T in 0 .. AG.Last_Terminal loop
-            Print_Action (AG, Table, S, T);
+            Print_Action (Table, S, T);
          end loop;
 
          Ada.Text_IO.Put (ASCII.HT);
