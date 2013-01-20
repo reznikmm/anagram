@@ -8,10 +8,8 @@
 ------------------------------------------------------------------------------
 
 with Ada.Containers.Vectors;
-with Ada.Wide_Wide_Text_IO;
 
 with Gela.Grammars.LR;
-with Gela.Grammars.LR_Tables;
 
 package body Gela.Grammars.RNGLR is
 
@@ -60,7 +58,6 @@ package body Gela.Grammars.RNGLR is
       procedure Reducer;
       procedure Shifter;
       function Get_Edge (From, To : GSS_Node_Access) return GSS_Node_Access;
-      procedure Print (Ui : GSS_Node_Access);
 
       R     : R_Vectors.Vector;      --  R
       Q     : Q_Vectors.Vector;      --  Q
@@ -206,7 +203,7 @@ package body Gela.Grammars.RNGLR is
 
          while Find (U) loop
             declare
-               Node : AST_Nodes.Node_Access := New_Node;
+               Node : constant AST_Nodes.Node_Access := New_Node;
                Edge : GSS_Node_Access;
                K : constant LR.State_Index := U.State;
                L : constant LR.State_Index := LR_Tables.Shift (T, K, X);
@@ -380,23 +377,6 @@ package body Gela.Grammars.RNGLR is
          Ui := Un;
       end Shifter;
 
-      procedure Print (Ui : GSS_Node_Access) is
-         w : GSS_Node_Access := Ui;
-      begin
-         Ada.Wide_Wide_Text_IO.Put_Line ("Next cycle");
-         while w /= null loop
-            Ada.Wide_Wide_Text_IO.Put_Line
-              (LR.State_Index'Wide_Wide_Image (w.State));
-
-            if w.Up /= null then
-               Ada.Wide_Wide_Text_IO.Put_Line
-                ("  UP:" & LR.State_Index'Wide_Wide_Image (w.Up.State));
-            end if;
-
-            w := w.Next;
-         end loop;
-      end Print;
-
    begin
       declare
          K : constant LR.State_Count := LR_Tables.Shift (T, V0.State, A1);
@@ -422,7 +402,6 @@ package body Gela.Grammars.RNGLR is
          end loop;
       end;
 
-      Print (Ui);
       An := A1;
 
       loop
@@ -440,7 +419,6 @@ package body Gela.Grammars.RNGLR is
             An := L.Next;
             Shifter;
          end if;
-         Print (Ui);
 
          exit when Ai = 0;
       end loop;
