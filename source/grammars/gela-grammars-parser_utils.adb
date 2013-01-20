@@ -8,12 +8,19 @@
 ------------------------------------------------------------------------------
 
 with Ada.Wide_Wide_Text_IO;
+with Ada.Unchecked_Deallocation;
 
 package body Gela.Grammars.Parser_Utils is
 
    function Invent_List_Name
      (Data : Part_Access)
       return League.Strings.Universal_String;
+
+   procedure Free is new Ada.Unchecked_Deallocation (Part, Part_Access);
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Production, Production_Access);
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Production_List, Production_List_Access);
 
    ---------
    -- "<" --
@@ -405,6 +412,28 @@ package body Gela.Grammars.Parser_Utils is
             end;
          end loop;
       end loop;
+
+      --  Free context
+      for Item of Self.List_Parts loop
+         Free (Item);
+      end loop;
+
+      for Item of Self.Reference_Parts loop
+         Free (Item);
+      end loop;
+
+      for Item of Self.Option_Parts loop
+         Free (Item);
+      end loop;
+
+      for Item of Self.Productions loop
+         Free (Item);
+      end loop;
+
+      for Item of Self.Prod_Lists loop
+         Free (Item);
+      end loop;
+
    end Complete;
 
    -----------

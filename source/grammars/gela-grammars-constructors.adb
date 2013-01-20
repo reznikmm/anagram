@@ -9,6 +9,7 @@
 
 with Gela.Grammars.Rule_Templates;
 with Ada.Wide_Wide_Text_IO;
+with Ada.Unchecked_Deallocation;
 
 
 package body Gela.Grammars.Constructors is
@@ -68,6 +69,14 @@ package body Gela.Grammars.Constructors is
       List   : Production_List_Access;
       Parent : Non_Terminal_Count);
 
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Production_List_Node, Production_List_Access);
+
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Production_Node, Production_Access);
+
+   procedure Free is new Ada.Unchecked_Deallocation (Part_Node, Part_Access);
+
    ---------
    -- Add --
    ---------
@@ -126,6 +135,28 @@ package body Gela.Grammars.Constructors is
    --------------
 
    function Complete (Self : in out Constructor) return Grammar is
+      procedure Destroy (List : in out Production_List_Access);
+
+      -------------
+      -- Destroy --
+      -------------
+
+      procedure Destroy (List : in out Production_List_Access) is
+      begin
+         for X of List.Productions loop
+            for Y of X.Parts loop
+               if Y.Kind = Option then
+                  Destroy (Y.List);
+               end if;
+               Free (Y);
+            end loop;
+
+            Free (X);
+         end loop;
+
+         Free (List);
+      end Destroy;
+
       Last_Terminal     : constant Terminal_Count :=
         Terminal_Count (Self.Terminals.Length);
       Last_Non_Terminal : constant Non_Terminal_Count :=
@@ -151,6 +182,10 @@ package body Gela.Grammars.Constructors is
             Fill_Non_Terminals (Self, Result);
             Fill_Productions (Self, Result);
             Result.Root := 1;
+
+            for Item of Self.Non_Terminals loop
+               Destroy (Item.List);
+            end loop;
          end;
       end return;
    end Complete;

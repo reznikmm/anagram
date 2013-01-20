@@ -18,7 +18,7 @@ with Gela.Grammars.Constructors;
 package Gela.Grammars.Parser_Utils is
 
    type Production_List;
-   type Production_List_Access is access constant Production_List;
+   type Production_List_Access is access all Production_List;
 
    type Part_Kind is
      (Reference_Kind, List_Reference_Kind, Option_Kind, List_Kind);
@@ -33,7 +33,7 @@ package Gela.Grammars.Parser_Utils is
       end case;
    end record;
 
-   type Part_Access is access constant Part;
+   type Part_Access is access all Part;
    function "<" (L, R : Part_Access) return Boolean;
 
    type Named_Part is record
@@ -48,7 +48,7 @@ package Gela.Grammars.Parser_Utils is
       Parts : Named_Part_Vectors.Vector;
    end record;
 
-   type Production_Access is access constant Production;
+   type Production_Access is access all Production;
 
    type Named_Production is record
       Name : League.Strings.Universal_String;
