@@ -201,5 +201,6 @@ begin
       Ada.Text_IO.New_Line;
       Ada.Text_IO.Put_Line ("Print Tree:");
       Print_Tree (Printed, Tree, G);
+      Tree.Reference (-1);
    end;
 end Main;

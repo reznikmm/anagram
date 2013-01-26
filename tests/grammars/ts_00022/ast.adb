@@ -1,8 +1,40 @@
+with Ada.Unchecked_Deallocation;
 with Ada.Wide_Wide_Text_IO;
 
 package body AST is
 
    Last : Natural := 0;
+
+   ---------------
+   -- Reference --
+   ---------------
+
+   overriding procedure Reference
+     (Self : access Node;
+      Step : Integer := 1)
+   is
+      use type Gela.Grammars.AST_Nodes.Node_Access;
+
+      procedure Free is new
+        Ada.Unchecked_Deallocation
+          (Gela.Grammars.AST_Nodes.Node'Class,
+           Gela.Grammars.AST_Nodes.Node_Access);
+
+      Save : Gela.Grammars.AST_Nodes.Node_Access :=
+        Gela.Grammars.AST_Nodes.Node_Access (Self);
+   begin
+      if Self.Count = 1 and Step = -1 then
+         for X of Self.Children loop
+            if X /= null then
+               X.Reference (-1);
+            end if;
+         end loop;
+
+         Free (Save);
+      else
+         Self.Count := Self.Count + Step;
+      end if;
+   end Reference;
 
    ---------------
    -- Set_Child --
@@ -14,6 +46,7 @@ package body AST is
       Value : access Gela.Grammars.AST_Nodes.Node'Class) is
    begin
       Self.Children (Index) := Gela.Grammars.AST_Nodes.Node_Access (Value);
+      Value.Reference;
    end Set_Child;
 
    ---------------
@@ -30,6 +63,7 @@ package body AST is
       return new Node'(Identifier     => Last,
                        Is_Token       => True,
                        Is_Alternative => False,
+                       Count          => 1,
                        others         => <>);
    end New_Token;
 
@@ -49,6 +83,7 @@ package body AST is
                        Is_Token       => False,
                        Is_Alternative => False,
                        Prod           => Production,
+                       Count          => 1,
                        others         => <>);
    end New_Node;
 
@@ -68,6 +103,7 @@ package body AST is
                        Is_Token       => False,
                        Is_Alternative => True,
                        NT             => NT,
+                       Count          => 1,
                        others         => <>);
    end New_Alternative;
 

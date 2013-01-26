@@ -8,18 +8,19 @@ package AST is
       Is_Token       : Boolean;
       Is_Alternative : Boolean;
       Children       : Node_Array;
+      Count          : Positive;
       Prod           : Gela.Grammars.Production_Index;
       NT             : Gela.Grammars.Non_Terminal_Index;
    end record;
-
-   ---------------
-   -- Set_Child --
-   ---------------
 
    overriding procedure Set_Child
      (Self  : in out Node;
       Index : Positive;
       Value : access Gela.Grammars.AST_Nodes.Node'Class);
+
+   overriding procedure Reference
+     (Self : access Node;
+      Step : Integer := 1);
 
    type Node_Fabric is
      new Gela.Grammars.AST_Nodes.Node_Fabric with null record;

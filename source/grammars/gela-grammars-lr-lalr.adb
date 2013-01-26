@@ -21,7 +21,7 @@ package body Gela.Grammars.LR.LALR is
      (Input        : Grammar;
       Right_Nulled : Boolean) return LR_Tables.Table
    is
-      C : constant Set_Of_LR_Item_Set_Access := Items (Input);
+      C : Set_Of_LR_Item_Set_Access := Items (Input);
       --  Set of LR(0) items
 
       type Terminal_Set is array (0 .. Input.Last_Terminal) of Boolean
@@ -417,6 +417,7 @@ package body Gela.Grammars.LR.LALR is
          end;
       end loop;
 
+      Free (C);
       return Result;
    end Build;
 

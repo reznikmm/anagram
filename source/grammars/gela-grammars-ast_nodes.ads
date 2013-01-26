@@ -17,6 +17,10 @@ package Gela.Grammars.AST_Nodes is
       Index : Positive;
       Value : access Node'Class) is abstract;
 
+   procedure Reference
+     (Self : access Node;
+      Step : Integer := 1) is abstract;
+
    type Node_Fabric is abstract tagged null record;
 
    function New_Token (Self : Node_Fabric) return Node_Access is abstract;
