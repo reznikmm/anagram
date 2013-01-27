@@ -227,6 +227,23 @@ package body Gela.Grammars.Scanner_Handler is
       Token := T.Inherited_Token;
    end Inherited_Token;
 
+   -------------------
+   -- Integer_Token --
+   -------------------
+
+   procedure Integer_Token
+     (Self    : not null access Handler;
+      Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Token   : out Ag_Tokens.Token;
+      Skip    : in out Boolean)
+   is
+      pragma Unreferenced (Self);
+      pragma Unreferenced (Scanner);
+   begin
+      Skip := False;
+      Token := T.Integer_Token;
+   end Integer_Token;
+
    --------------
    -- New_Line --
    --------------
@@ -344,6 +361,23 @@ package body Gela.Grammars.Scanner_Handler is
       Skip := False;
       Token := T.'|';
    end Or_Token;
+
+   --------------------
+   -- Priority_Token --
+   --------------------
+
+   procedure Priority_Token
+     (Self    : not null access Handler;
+      Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Token   : out Ag_Tokens.Token;
+      Skip    : in out Boolean)
+   is
+      pragma Unreferenced (Self);
+      pragma Unreferenced (Scanner);
+   begin
+      Skip := False;
+      Token := T.Priority_Token;
+   end Priority_Token;
 
    ------------------
    -- Regexp_Token --

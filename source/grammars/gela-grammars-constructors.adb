@@ -369,7 +369,8 @@ package body Gela.Grammars.Constructors is
                  References  => Reference_Maps.Empty_Map,
                  Attr_Count  => 0,
                  Prods_Count => 1,
-                 Parts_Count => 0));
+                 Parts_Count => 0,
+                 Precedence  => Undefined_Precedence));
    end Create_Production;
 
    ----------------------------
@@ -428,12 +429,14 @@ package body Gela.Grammars.Constructors is
 
    procedure Create_Terminal
      (Self  : in out Constructor;
-      Image : S.Universal_String)
+      Image : S.Universal_String;
+      Prec  : Precedence_Value := Undefined_Precedence)
    is
       Next : constant Terminal :=
         (Index       => 999,
          Name        => Image,
-         Attr        => Attribute_Declaration_Maps.Empty_Map);
+         Attr        => Attribute_Declaration_Maps.Empty_Map,
+         Prec        => Prec);
    begin
       Self.Terminals.Insert (Image, Next);
    end Create_Terminal;
@@ -595,6 +598,7 @@ package body Gela.Grammars.Constructors is
          Result.Production (Self.Last_Production).Last := Self.Last_Part +
            P.Parts.Last_Index;
          Result.Production (Self.Last_Production).Parent := Parent;
+         Result.Production (Self.Last_Production).Precedence := P.Precedence;
 
          for Part of P.Parts loop
             Fill_Part (Self, Result, Part, Self.Last_Production);
@@ -762,6 +766,7 @@ package body Gela.Grammars.Constructors is
          Result.Terminal (Last_Terminal).Last_Attribute :=
            Self.Last_Declaration +
              Attribute_Declaration_Count (Item.Attr.Length);
+         Result.Terminal (Last_Terminal).Precedence := Item.Prec;
 
          Fill_Attr_Declarations (Self, Result, Item.Name, Item.Attr);
 
@@ -798,6 +803,32 @@ package body Gela.Grammars.Constructors is
          end;
       end loop;
    end Join;
+
+   --------------------
+   -- Set_Precedence --
+   --------------------
+
+   procedure Set_Precedence
+     (Self         : in out Constructor;
+      Non_Terminal : S.Universal_String;
+      Production   : S.Universal_String;
+      Precedence   : Precedence_Value)
+   is
+      use type S.Universal_String;
+
+      List     : Production_List_Access;
+   begin
+      List := Self.Non_Terminals.Element (Non_Terminal).List;
+
+      for Prod of List.Productions loop
+         if Prod.Name = Production then
+            Prod.Precedence := Precedence;
+            return;
+         end if;
+      end loop;
+
+      raise Constraint_Error;
+   end Set_Precedence;
 
    ------------------
    -- To_Augmented --
@@ -845,7 +876,8 @@ package body Gela.Grammars.Constructors is
                   First => Result.Last_Part,
                   Last => Result.Last_Part,
                   First_Rule => 1,
-                  Last_Rule => 0);
+                  Last_Rule => 0,
+                  Precedence => Undefined_Precedence);
          end;
 
          Result.Part (Input.Part'Range) := Input.Part;

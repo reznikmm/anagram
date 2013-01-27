@@ -56,7 +56,7 @@ package body Gela.Grammars.LR.Simple is
             else
                for T in 0 .. Input.Last_Terminal loop
                   if Follow.Map (NT, T) then
-                     LR_Tables.Set_Reduce (Result, State, T, Prod);
+                     LR_Tables.Set_Reduce (Result, State, T, Prod, P.Last);
                   end if;
                end loop;
             end if;

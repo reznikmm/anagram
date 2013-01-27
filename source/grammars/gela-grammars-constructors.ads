@@ -22,7 +22,8 @@ package Gela.Grammars.Constructors is
 
    procedure Create_Terminal
      (Self  : in out Constructor;
-      Image : S.Universal_String);
+      Image : S.Universal_String;
+      Prec  : Precedence_Value := Undefined_Precedence);
 
    procedure Create_Non_Terminal
      (Self : in out Constructor;
@@ -94,6 +95,12 @@ package Gela.Grammars.Constructors is
       Production   : S.Universal_String;
       Text         : S.Universal_String);
 
+   procedure Set_Precedence
+     (Self         : in out Constructor;
+      Non_Terminal : S.Universal_String;
+      Production   : S.Universal_String;
+      Precedence   : Precedence_Value);
+
    function Complete (Self : in out Constructor) return Grammar;
    --  Complete construction and return resulting grammar
 
@@ -163,6 +170,7 @@ private
       Attr_Count  : Attribute_Count := 0;
       Prods_Count : Production_Count := 0;
       Parts_Count : Part_Count := 0;
+      Precedence  : Precedence_Value;
    end record;
 
    function Equal_Name (Left, Right : Production_Access) return Boolean;
@@ -192,6 +200,7 @@ private
       Index : Terminal_Index;
       Name  : S.Universal_String;
       Attr  : Attribute_Declaration_Maps.Map;
+      Prec  : Precedence_Value;
    end record;
 
    package Terminal_Maps is new Ada.Containers.Ordered_Maps

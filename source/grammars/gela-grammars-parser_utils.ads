@@ -9,7 +9,6 @@
 
 with League.Strings;
 with League.String_Vectors;
-with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Ordered_Maps;
 with Ada.Containers.Vectors;
 with Ada.Containers.Doubly_Linked_Lists;
@@ -75,6 +74,12 @@ package Gela.Grammars.Parser_Utils is
    procedure Add_Token
      (Self  : in out Context_Node;
       Image : League.Strings.Universal_String);
+
+   procedure Add_Token
+     (Self  : in out Context_Node;
+      Image : League.Strings.Universal_String;
+      Prio  : League.Strings.Universal_String;
+      Assoc : League.Strings.Universal_String);
 
    procedure Add_With
      (Self  : in out Context_Node;
@@ -163,6 +168,12 @@ package Gela.Grammars.Parser_Utils is
       Target : League.String_Vectors.Universal_String_Vector;
       Text   : League.Strings.Universal_String);
 
+   procedure Add_Priority
+     (Self  : in out Context_Node;
+      Name  : League.Strings.Universal_String;
+      Prio  : League.Strings.Universal_String;
+      Assoc : League.Strings.Universal_String);
+
    procedure Complete
      (Self        : in out Context_Node;
       Constructor : in out Gela.Grammars.Constructors.Constructor);
@@ -208,8 +219,8 @@ private
 
    package Rule_Lists is new Ada.Containers.Doubly_Linked_Lists (Rule);
 
-   package Token_Sets is new Ada.Containers.Ordered_Sets
-     (League.Strings.Universal_String);
+   package Token_Maps is new Ada.Containers.Ordered_Maps
+     (League.Strings.Universal_String, Precedence_Value);
 
    package List_Maps is new Ada.Containers.Ordered_Maps
      (League.Strings.Universal_String, Production_List_Access);
@@ -224,9 +235,10 @@ private
       Option_Parts    : List_Part_Maps.Map;
       Reference_Parts : Reference_Part_Maps.Map;
       Rules           : Rule_Lists.List;
-      Tokens          : Token_Sets.Set;
+      Tokens          : Token_Maps.Map;
       Lists           : List_Maps.Map;
       With_List       : League.String_Vectors.Universal_String_Vector;
+      Priorities      : Token_Maps.Map;
    end record;
 
 end Gela.Grammars.Parser_Utils;

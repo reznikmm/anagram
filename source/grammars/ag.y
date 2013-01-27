@@ -3,7 +3,9 @@
 %token Synthesized_Token
 %token Attributes_Token
 %token Rules_Token
+%token Priority_Token
 %token Identifier_Token
+%token Integer_Token
 %token Token_Token
 %token Open_Rule_Token
 %token Rule_Body_Token
@@ -60,11 +62,15 @@ item :
  syntax_rule |
  inherited_attributes |
  synthesized_attributes |
+ priority |
  rules
 ;
 
 token_rule: Token_Token identifier ';'
   { Context.Add_Token ($2.Image); }
+
+| Token_Token identifier Priority_Token integer identifier  ';'
+  { Context.Add_Token ($2.Image, $4.Image, $5.Image); }
 ;
 
 with_rule : With_Token identifier ';'
@@ -171,6 +177,11 @@ rule_body : Rule_Body_Token
   { $$ := (Image, Scanner.Get_Text); }
 ;
 
+priority : Priority_Token identifier integer identifier ';'
+{
+  Context.Add_Priority ($2.Image, $3.Image, $4.Image);
+}
+;
 
 identifier_list : identifier
 {
@@ -186,6 +197,10 @@ identifier_list : identifier
 ;
 
 identifier : Identifier_Token
+  { $$ := (Image, Scanner.Get_Text); }
+;
+
+integer : Integer_Token
   { $$ := (Image, Scanner.Get_Text); }
 ;
 

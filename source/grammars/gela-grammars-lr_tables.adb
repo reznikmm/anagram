@@ -115,6 +115,44 @@ package body Gela.Grammars.LR_Tables is
       end if;
    end Reduce;
 
+   -------------------
+   -- Remove_Reduce --
+   -------------------
+
+   procedure Remove_Reduce
+     (Self  : in out Table;
+      State : LR.State_Index;
+      T     : Terminal_Count;
+      Value : Production_Index)
+   is
+      Index : Natural := Self.T_Reduce (State, T);
+      Next  : Natural := Self.Reduce_Vector (Index).Next;
+   begin
+      if Self.Reduce_Vector (Index).Production = Value then
+         Self.T_Reduce (State, T) := Next;
+         return;
+      end if;
+
+      while Self.Reduce_Vector (Next).Production /= Value loop
+         Index := Next;
+         Next := Self.Reduce_Vector (Index).Next;
+      end loop;
+
+      Self.Reduce_Vector (Index).Next := Self.Reduce_Vector (Next).Next;
+   end Remove_Reduce;
+
+   ------------------
+   -- Remove_Shift --
+   ------------------
+
+   procedure Remove_Shift
+     (Self  : in out Table;
+      State : LR.State_Index;
+      T     : Terminal_Count) is
+   begin
+      Self.T_Shift (State, T) := 0;
+   end Remove_Shift;
+
    ------------
    -- Finish --
    ------------

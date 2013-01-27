@@ -396,6 +396,24 @@ package body Gela.Grammars is
       return Self.Parent;
    end Parent;
 
+   ----------------
+   -- Precedence --
+   ----------------
+
+   function Precedence (Self : Terminal) return Precedence_Value is
+   begin
+      return Self.Precedence;
+   end Precedence;
+
+   ----------------
+   -- Precedence --
+   ----------------
+
+   function Precedence (Self : Production) return Precedence_Value is
+   begin
+      return Self.Precedence;
+   end Precedence;
+
    ------------
    -- Result --
    ------------

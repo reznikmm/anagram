@@ -32,63 +32,69 @@ begin
          Self.For_Token (Scanner, Token, Skip);
 
       when 9 =>
-         Self.Identifier_Token (Scanner, Token, Skip);
+         Self.Priority_Token (Scanner, Token, Skip);
 
       when 10 =>
-         Self.Open_Rule_Token (Scanner, Token, Skip);
+         Self.Integer_Token (Scanner, Token, Skip);
 
       when 11 =>
-         Self.Rule_Body_Token (Scanner, Token, Skip);
+         Self.Identifier_Token (Scanner, Token, Skip);
 
       when 12 =>
-         Self.Close_Rule_Token (Scanner, Token, Skip);
+         Self.Open_Rule_Token (Scanner, Token, Skip);
 
       when 13 =>
-         Self.Semicolon_Token (Scanner, Token, Skip);
+         Self.Rule_Body_Token (Scanner, Token, Skip);
 
       when 14 =>
-         Self.Open_Production_Name_Token (Scanner, Token, Skip);
+         Self.Close_Rule_Token (Scanner, Token, Skip);
 
       when 15 =>
-         Self.Close_Production_Name_Token (Scanner, Token, Skip);
+         Self.Semicolon_Token (Scanner, Token, Skip);
 
       when 16 =>
-         Self.Open_Part_Name_Token (Scanner, Token, Skip);
+         Self.Open_Production_Name_Token (Scanner, Token, Skip);
 
       when 17 =>
-         Self.Close_Part_Name_Token (Scanner, Token, Skip);
+         Self.Close_Production_Name_Token (Scanner, Token, Skip);
 
       when 18 =>
-         Self.Open_List_Token (Scanner, Token, Skip);
+         Self.Open_Part_Name_Token (Scanner, Token, Skip);
 
       when 19 =>
-         Self.Close_List_Token (Scanner, Token, Skip);
+         Self.Close_Part_Name_Token (Scanner, Token, Skip);
 
       when 20 =>
-         Self.Open_Option_Token (Scanner, Token, Skip);
+         Self.Open_List_Token (Scanner, Token, Skip);
 
       when 21 =>
-         Self.Close_Option_Token (Scanner, Token, Skip);
+         Self.Close_List_Token (Scanner, Token, Skip);
 
       when 22 =>
-         Self.Colon_Token (Scanner, Token, Skip);
+         Self.Open_Option_Token (Scanner, Token, Skip);
 
       when 23 =>
-         Self.Or_Token (Scanner, Token, Skip);
+         Self.Close_Option_Token (Scanner, Token, Skip);
 
       when 24 =>
-         Self.Comma_Token (Scanner, Token, Skip);
+         Self.Colon_Token (Scanner, Token, Skip);
 
       when 25 =>
-         Self.Regexp_Token (Scanner, Token, Skip);
+         Self.Or_Token (Scanner, Token, Skip);
 
       when 26 =>
-         Self.Spaces (Scanner, Token, Skip);
+         Self.Comma_Token (Scanner, Token, Skip);
 
       when 27 =>
-         Self.Comment (Scanner, Token, Skip);
+         Self.Regexp_Token (Scanner, Token, Skip);
 
       when 28 =>
+         Self.Spaces (Scanner, Token, Skip);
+
+      when 29 =>
+         Self.Comment (Scanner, Token, Skip);
+
+      when 30 =>
          Self.New_Line (Scanner, Token, Skip);
 
       when others =>

@@ -126,6 +126,23 @@ package Gela.Grammars is
    function Parent         (Self : Rule) return Production_Index;
    function Text           (Self : Rule) return S.Universal_String;
 
+   type Associate_Kind is (Undefined, None, Left, Right);
+   type Precedence_Level is new Natural;
+   type Precedence_Value (Associative : Associate_Kind := Undefined) is record
+      case Associative is
+         when Undefined =>
+            null;
+         when None | Left | Right =>
+            Level : Precedence_Level;
+      end case;
+   end record;
+
+   Undefined_Precedence : constant Precedence_Value :=
+     (Associative => Undefined);
+
+   function Precedence (Self : Terminal) return Precedence_Value;
+   function Precedence (Self : Production) return Precedence_Value;
+
    type Terminal_Array is array (Terminal_Index range <>) of aliased Terminal;
 
    type Non_Terminal_Array is array (Non_Terminal_Index range <>) of
@@ -171,6 +188,7 @@ private
       Index : Terminal_Index;
       First_Attribute : Attribute_Declaration_Index := 1;
       Last_Attribute  : Attribute_Declaration_Count := 0;
+      Precedence      : Precedence_Value;
    end record;
 
    type Non_Terminal is tagged record
@@ -191,6 +209,7 @@ private
       First_Rule : Rule_Index := 1;
       Last_Rule  : Rule_Count := 0;
       Parent     : Non_Terminal_Count;
+      Precedence : Precedence_Value;
    end record;
 
    type Part is tagged record

@@ -138,6 +138,26 @@ package body Gela.Grammars.Parser_Utils is
       return Self.Productions (V);
    end Add_Part;
 
+   ------------------
+   -- Add_Priority --
+   ------------------
+
+   procedure Add_Priority
+     (Self  : in out Context_Node;
+      Name  : League.Strings.Universal_String;
+      Prio  : League.Strings.Universal_String;
+      Assoc : League.Strings.Universal_String)
+   is
+      Prec : Precedence_Value
+        (Associate_Kind'Wide_Wide_Value (Assoc.To_Wide_Wide_String));
+   begin
+      if Prec.Associative /= Undefined then
+         Prec.Level := Precedence_Level'Value (Prio.To_UTF_8_String);
+      end if;
+
+      Self.Priorities.Insert (Name, Prec);
+   end Add_Priority;
+
    --------------------
    -- Add_Production --
    --------------------
@@ -216,7 +236,27 @@ package body Gela.Grammars.Parser_Utils is
      (Self  : in out Context_Node;
       Image : League.Strings.Universal_String) is
    begin
-      Self.Tokens.Insert (Image);
+      Self.Tokens.Insert (Image, Undefined_Precedence);
+   end Add_Token;
+
+   ---------------
+   -- Add_Token --
+   ---------------
+
+   procedure Add_Token
+     (Self  : in out Context_Node;
+      Image : League.Strings.Universal_String;
+      Prio  : League.Strings.Universal_String;
+      Assoc : League.Strings.Universal_String)
+   is
+      Prec : Precedence_Value
+        (Associate_Kind'Wide_Wide_Value (Assoc.To_Wide_Wide_String));
+   begin
+      if Prec.Associative /= Undefined then
+         Prec.Level := Precedence_Level'Value (Prio.To_UTF_8_String);
+      end if;
+
+      Self.Tokens.Insert (Image, Prec);
    end Add_Token;
 
    --------------
@@ -341,8 +381,10 @@ package body Gela.Grammars.Parser_Utils is
       end To_Production_List;
 
    begin
-      for Token of Self.Tokens loop
-         Constructor.Create_Terminal (Token);
+      for Token in Self.Tokens.Iterate loop
+         Constructor.Create_Terminal
+           (Token_Maps.Key (Token),
+            Token_Maps.Element (Token));
       end loop;
 
       for NT in Self.Non_Terminals.Iterate loop
@@ -402,15 +444,27 @@ package body Gela.Grammars.Parser_Utils is
       for Rule of Self.Rules loop
          for Target in 1 .. Rule.Target.Length loop
             declare
-               Items : constant League.String_Vectors.Universal_String_Vector
-                 := Rule.Target (Target).Split ('.');
+               Items : League.String_Vectors.Universal_String_Vector;
             begin
+               Items := Rule.Target (Target).Split ('.');
                Constructor.Create_Rule
                  (Non_Terminal => Items (1),
                   Production   => Items (2),
                   Text         => Rule.Text);
             end;
          end loop;
+      end loop;
+
+      for Prio in Self.Priorities.Iterate loop
+         declare
+            Items : League.String_Vectors.Universal_String_Vector;
+         begin
+            Items := Token_Maps.Key (Prio).Split ('.');
+            Constructor.Set_Precedence
+              (Non_Terminal => Items (1),
+               Production   => Items (2),
+               Precedence   => Token_Maps.Element (Prio));
+         end;
       end loop;
 
       --  Free context

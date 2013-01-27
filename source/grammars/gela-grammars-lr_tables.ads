@@ -13,7 +13,7 @@ with Gela.Grammars.LR;
 
 package Gela.Grammars.LR_Tables is
 
-   type Table (<>) is private;
+   type Table (<>) is tagged private;
 
    type Reduce_Iterator is private;
 
@@ -81,6 +81,17 @@ package Gela.Grammars.LR_Tables is
      (Self  : in out Table;
       State : LR.State_Index);
 
+   procedure Remove_Shift
+     (Self  : in out Table;
+      State : LR.State_Index;
+      T     : Terminal_Count);
+
+   procedure Remove_Reduce
+     (Self  : in out Table;
+      State : LR.State_Index;
+      T     : Terminal_Count;
+      Value : Production_Index);
+
 private
 
    type Reduce_Iterator is record
@@ -109,7 +120,7 @@ private
    type Table (Last_State        : LR.State_Index;
                Last_Terminal     : Terminal_Index;
                Last_Non_Terminal : Non_Terminal_Index) is
-   record
+   tagged record
       Reduce_Vector : Reduce_Iterator_Vectors.Vector;
       T_Finish      : Boolean_Array (1 .. Last_State);
       T_Shift  : Terminal_State_Array
