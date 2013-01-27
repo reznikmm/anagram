@@ -44,8 +44,8 @@ Table:
  7  REDU 2 4 Error     SHIFT  5 REDU 2 4 SHIFT  4 REDU 2 4	 0 0
 
 Print Tree:
- 13 alternative exp [ 10 node plus 12 node star ]
- 10 node plus [ 6 node star 7 token 9 node int ]
+ 13 alternative exp [ 11 node plus 12 node star ]
+ 11 node plus [ 6 node star 7 token 9 node int ]
  6 node star [ 2 node int 3 token 5 node int ]
  2 node int [ 1 token ]
  1 token [ ]
@@ -55,6 +55,6 @@ Print Tree:
  7 token [ ]
  9 node int [ 8 token ]
  8 token [ ]
- 12 node star [ 2 node int 3 token 11 node plus ]
- 11 node plus [ 5 node int 7 token 9 node int ]
+ 12 node star [ 2 node int 3 token 10 node plus ]
+ 10 node plus [ 5 node int 7 token 9 node int ]
 

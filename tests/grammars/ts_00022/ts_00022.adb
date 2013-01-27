@@ -17,7 +17,7 @@ with Gela.Grammars.RNGLR;
 
 with Gela.Grammars.AST_Nodes;
 
-procedure Main is
+procedure TS_00022 is
 
    procedure Print_Action
      (Table : Gela.Grammars.LR_Tables.Table;
@@ -203,4 +203,4 @@ begin
       Print_Tree (Printed, Tree, G);
       Tree.Reference (-1);
    end;
-end Main;
+end TS_00022;

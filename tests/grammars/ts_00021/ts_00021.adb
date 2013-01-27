@@ -10,7 +10,7 @@ with Gela.Grammars.LR.Simple;
 
 with Ada.Text_IO;
 
-procedure Main is
+procedure TS_00021 is
 
    procedure Print_Action
      (Table : Gela.Grammars.LR_Tables.Table;
@@ -105,4 +105,4 @@ begin
          Ada.Text_IO.New_Line;
       end loop;
    end;
-end Main;
+end TS_00021;

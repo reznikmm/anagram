@@ -2,7 +2,7 @@
 
 with Ada.Text_IO;
 
-procedure Main is
+procedure TS_00001 is
 begin
    Ada.Text_IO.Put_Line ("OK");
-end Main;
+end TS_00001;

@@ -5,7 +5,7 @@ with Gela.Grammars;
 with Gela.Grammars.Constructors;
 with League.Strings;
 
-procedure Main is
+procedure TS_00004 is
    use Gela.Grammars.Constructors;
    C : Gela.Grammars.Constructors.Constructor;
 begin
@@ -122,4 +122,4 @@ begin
    begin
       Gela.Grammars_Debug.Print (Result);
    end;
-end Main;
+end TS_00004;

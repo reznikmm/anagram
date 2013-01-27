@@ -8,7 +8,7 @@ with League.Strings;
 --  NT2 := /P2/ { /PL1/ T3 }
 --  NT1 := /P1/ [ /OP1/ T2 NT1 ]
 
-procedure Main is
+procedure TS_00005 is
    use Gela.Grammars.Constructors;
    C : Gela.Grammars.Constructors.Constructor;
 begin
@@ -115,4 +115,4 @@ begin
    begin
       Gela.Grammars_Debug.Print (Result);
    end;
-end Main;
+end TS_00005;

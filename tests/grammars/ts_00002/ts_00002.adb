@@ -1,12 +1,13 @@
---  Check extended grammar constructor and debuger output
+--  Check basic grammar constructor and debuger output
 
 with Gela.Grammars_Debug;
 with Gela.Grammars;
 with Gela.Grammars.Constructors;
 with League.Strings;
 
-procedure Main is
+procedure TS_00002 is
    use Gela.Grammars.Constructors;
+
    C : Gela.Grammars.Constructors.Constructor;
 begin
    C.Create_Terminal (League.Strings.To_Universal_String ("T2"));
@@ -36,22 +37,6 @@ begin
         (League.Strings.To_Universal_String ("nt3"),
          League.Strings.To_Universal_String ("NT3"));
 
-      L1 : constant Part := C.Create_List_Reference
-        (League.Strings.To_Universal_String ("L1"),
-         League.Strings.To_Universal_String ("L1"));
-
-      P1 : Production := C.Create_Production
-        (League.Strings.To_Universal_String ("P1"));
-
-      PL : Production_List := C.Create_Production_List;
-   begin
-      P1.Add (NT3);
-      P1.Add (L1);
-      PL.Add (P1);
-      C.Create_Non_Terminal (League.Strings.To_Universal_String ("NT1"), PL);
-   end;
-
-   declare
       NT2 : constant Part := C.Create_Non_Terminal_Reference
         (League.Strings.To_Universal_String ("nt2"),
          League.Strings.To_Universal_String ("NT2"));
@@ -60,15 +45,16 @@ begin
         (League.Strings.To_Universal_String ("t3"),
          League.Strings.To_Universal_String ("T3"));
 
-      PL1 : Production := C.Create_Production
-        (League.Strings.To_Universal_String ("PL1"));
+      P1 : Production := C.Create_Production
+        (League.Strings.To_Universal_String ("P1"));
 
       PL : Production_List := C.Create_Production_List;
    begin
-      PL1.Add (NT2);
-      PL1.Add (T3);
-      PL.Add (PL1);
-      C.Create_List (League.Strings.To_Universal_String ("L1"), PL);
+      P1.Add (NT3);
+      P1.Add (NT2);
+      P1.Add (T3);
+      PL.Add (P1);
+      C.Create_Non_Terminal (League.Strings.To_Universal_String ("NT1"), PL);
    end;
 
    declare
@@ -80,20 +66,13 @@ begin
         (League.Strings.To_Universal_String ("nt1"),
          League.Strings.To_Universal_String ("NT1"));
 
-      OP3 : Production := C.Create_Production
-        (League.Strings.To_Universal_String ("OP3"));
-
       P3 : Production := C.Create_Production
         (League.Strings.To_Universal_String ("P3"));
 
       PL : Production_List := C.Create_Production_List;
    begin
-      OP3.Add (T2);
-      OP3.Add (NT1);
-      PL.Add (OP3);
-      P3.Add (C.Create_Option (League.Strings.To_Universal_String ("O3"), PL));
-
-      PL := C.Create_Production_List;
+      P3.Add (T2);
+      P3.Add (NT1);
       PL.Add (P3);
       C.Create_Non_Terminal (League.Strings.To_Universal_String ("NT3"), PL);
    end;
@@ -103,4 +82,4 @@ begin
    begin
       Gela.Grammars_Debug.Print (Result);
    end;
-end Main;
+end TS_00002;

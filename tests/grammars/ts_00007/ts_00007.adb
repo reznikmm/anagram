@@ -3,9 +3,9 @@
 with Gela.Grammars.Reader;
 with Gela.Grammars_Debug;
 
-procedure Main is
+procedure TS_00007 is
    G : constant Gela.Grammars.Grammar :=
      Gela.Grammars.Reader.Read ("test.ag");
 begin
    Gela.Grammars_Debug.Print (G);
-end Main;
+end TS_00007;

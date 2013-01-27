@@ -6,7 +6,7 @@ with Gela.Grammars.Reader;
 with Gela.Grammars_Recursive_Descent;
 with Gela.Grammars_Convertors;
 
-procedure Main is
+procedure TS_00012 is
    G : constant Gela.Grammars.Grammar :=
      Gela.Grammars.Reader.Read ("test.ag");
 
@@ -17,4 +17,4 @@ procedure Main is
 begin
    Gela.Grammars_Recursive_Descent.Generate (Plain, "-", Ok);
    Ada.Text_IO.Put_Line (Boolean'Image (Ok));
-end Main;
+end TS_00012;
