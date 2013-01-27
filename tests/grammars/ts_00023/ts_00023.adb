@@ -3,7 +3,6 @@
 with Gela.Grammars;
 with Gela.Grammars.Conflicts;
 with Gela.Grammars.Constructors;
-with Gela.Grammars_Convertors;
 with Gela.Grammars_Debug;
 with Gela.Grammars.Reader;
 with Gela.Grammars.LR_Tables;

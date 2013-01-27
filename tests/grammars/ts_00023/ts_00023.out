@@ -1,14 +1,10 @@
-Terminals 5 Non_Terminals 3 Production 6 Parts 12
-Last_State= 12
- 1  Error     SHIFT  3  Error     Error     SHIFT  2  Error    	 4 5 6 0
- 2  Error     SHIFT  3  Error     Error     SHIFT  2  Error    	 7 5 6 0
- 3  REDUCE 6  Error     REDUCE 6  REDUCE 6  Error     REDUCE 6 	 0 0 0 0
- 4  FINISH    Error     SHIFT  8  Error     Error     Error    	 0 0 0 0
- 5  REDUCE 2  Error     REDUCE 2  SHIFT  9  Error     REDUCE 2 	 0 0 0 0
- 6  REDUCE 4  Error     REDUCE 4  REDUCE 4  Error     REDUCE 4 	 0 0 0 0
- 7  Error     Error     SHIFT  8  Error     Error     SHIFT  10	 0 0 0 0
- 8  Error     SHIFT  3  Error     Error     SHIFT  2  Error    	 0 11 6 0
- 9  Error     SHIFT  3  Error     Error     SHIFT  2  Error    	 0 0 12 0
- 10 REDUCE 5  Error     REDUCE 5  REDUCE 5  Error     REDUCE 5 	 0 0 0 0
- 11 REDUCE 1  Error     REDUCE 1  SHIFT  9  Error     REDUCE 1 	 0 0 0 0
- 12 REDUCE 3  Error     REDUCE 3  REDUCE 3  Error     REDUCE 3 	 0 0 0 0
+ 1  Error     SHIFT  3  Error     Error     SHIFT  2  Error    	 4 0
+ 2  Error     SHIFT  3  Error     Error     SHIFT  2  Error    	 5 0
+ 3  REDUCE 4  Error     REDUCE 4  REDUCE 4  Error     REDUCE 4 	 0 0
+ 4  FINISH    Error     SHIFT  7  SHIFT  6  Error     Error    	 0 0
+ 5  Error     Error     SHIFT  7  SHIFT  6  Error     SHIFT  8 	 0 0
+ 6  Error     SHIFT  3  Error     Error     SHIFT  2  Error    	 9 0
+ 7  Error     SHIFT  3  Error     Error     SHIFT  2  Error    	 10 0
+ 8  REDUCE 3  Error     REDUCE 3  REDUCE 3  Error     REDUCE 3 	 0 0
+ 9  REDUCE 2  Error     REDUCE 2  REDUCE 2  Error     REDUCE 2 	 0 0
+ 10 REDUCE 1  Error     REDUCE 1  SHIFT  6  Error     REDUCE 1 	 0 0
