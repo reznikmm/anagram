@@ -7,18 +7,45 @@
 --              Read copyright and license in gela.ads file                 --
 ------------------------------------------------------------------------------
 
+with Gela.Grammars.Lexers;
 with Gela.Grammars.LR_Tables;
-with Gela.Grammars.AST_Nodes;
-package Gela.Grammars.RNGLR is
 
-   type Lexer is interface;
-   function Next (Self : in out Lexer) return Terminal_Count is abstract;
+generic
+   type Node_Access is private;
+
+   Null_Node : in Node_Access;
+
+   type Node_Fabric (<>) is limited private;
+
+   with function New_Token
+     (Self : access Node_Fabric) return Node_Access is <>;
+
+   with function New_Node
+     (Self       : access Node_Fabric;
+      Production : Production_Index) return Node_Access is <>;
+
+   with function New_Alternative
+     (Self : access Node_Fabric;
+      NT   : Non_Terminal_Index) return Node_Access is <>;
+
+   with procedure Set_Child
+     (Self   : access Node_Fabric;
+      Object : Node_Access;
+      Index  : Positive;
+      Value  : Node_Access) is <>;
+
+   with procedure Reference
+     (Self   : access Node_Fabric;
+      Object : Node_Access;
+      Step   : Integer := 1) is <>;
+
+package Gela.Grammars.RNGLR is
 
    procedure Parse
      (G : Grammar;
       T : LR_Tables.Table;
-      F : AST_Nodes.Node_Fabric'Class;
-      L : in out Lexer'Class;
-      Tree : out AST_Nodes.Node_Access);
+      F : access Node_Fabric;
+      L : in out Gela.Grammars.Lexers.Lexer'Class;
+      Tree : out Node_Access);
 
 end Gela.Grammars.RNGLR;

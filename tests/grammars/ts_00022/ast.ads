@@ -1,9 +1,14 @@
-with Gela.Grammars.AST_Nodes;
+with Gela.Grammars;
 
 package AST is
-   type Node_Array is array (1 .. 4) of Gela.Grammars.AST_Nodes.Node_Access;
 
-   type Node is new Gela.Grammars.AST_Nodes.Node with record
+   type Node;
+
+   type Node_Access is access all Node;
+
+   type Node_Array is array (1 .. 4) of Node_Access;
+
+   type Node is record
       Identifier     : Positive;
       Is_Token       : Boolean;
       Is_Alternative : Boolean;
@@ -13,31 +18,32 @@ package AST is
       NT             : Gela.Grammars.Non_Terminal_Index;
    end record;
 
-   overriding procedure Set_Child
-     (Self  : in out Node;
-      Index : Positive;
-      Value : access Gela.Grammars.AST_Nodes.Node'Class);
+   type Node_Fabric is null record;
 
-   overriding procedure Reference
-     (Self : access Node;
-      Step : Integer := 1);
+   function New_Token
+     (Self : access Node_Fabric)
+      return Node_Access;
 
-   type Node_Fabric is
-     new Gela.Grammars.AST_Nodes.Node_Fabric with null record;
-
-   overriding function New_Token
-     (Self : Node_Fabric)
-      return Gela.Grammars.AST_Nodes.Node_Access;
-
-   overriding function New_Node
-     (Self       : Node_Fabric;
+   function New_Node
+     (Self       : access Node_Fabric;
       Production : Gela.Grammars.Production_Index)
-      return Gela.Grammars.AST_Nodes.Node_Access;
+      return Node_Access;
 
-   overriding function New_Alternative
-     (Self : Node_Fabric;
+   function New_Alternative
+     (Self : access Node_Fabric;
       NT   : Gela.Grammars.Non_Terminal_Index)
-      return Gela.Grammars.AST_Nodes.Node_Access;
+      return Node_Access;
+
+   procedure Set_Child
+     (Self    : access Node_Fabric;
+      Object  : Node_Access;
+      Index   : Positive;
+      Value   : Node_Access);
+
+   procedure Reference
+     (Self   : access Node_Fabric;
+      Object : Node_Access;
+      Step   : Integer := 1);
 
    procedure Print (Self : Node; Input : Gela.Grammars.Grammar);
 

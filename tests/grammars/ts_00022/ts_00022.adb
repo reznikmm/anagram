@@ -4,7 +4,7 @@ with Ada.Text_IO;
 with Ada.Containers.Doubly_Linked_Lists;
 with Ada.Wide_Text_IO;
 
-with AST;
+with AST; use AST;
 
 with Gela.Grammars;
 with Gela.Grammars.Constructors;
@@ -14,7 +14,7 @@ with Gela.Grammars.Reader;
 with Gela.Grammars.LR_Tables;
 with Gela.Grammars.LR.LALR;
 with Gela.Grammars.RNGLR;
-
+with Gela.Grammars.Lexers;
 with Gela.Grammars.AST_Nodes;
 
 procedure TS_00022 is
@@ -25,15 +25,18 @@ procedure TS_00022 is
       T     : Gela.Grammars.Terminal_Count);
 
    package Node_Lists is new Ada.Containers.Doubly_Linked_Lists
-     (Gela.Grammars.AST_Nodes.Node_Access, Gela.Grammars.AST_Nodes."=");
+     (AST.Node_Access);
 
    procedure Print_Tree
      (Printed : in out Node_Lists.List;
-      Tree    : Gela.Grammars.AST_Nodes.Node_Access;
+      Tree    : AST.Node_Access;
       Input   : Gela.Grammars.Grammar;
       Prefix  : Wide_Wide_String := "");
 
-   type Lexer is new Gela.Grammars.RNGLR.Lexer with null record;
+   package RNGLR is new Gela.Grammars.RNGLR
+     (AST.Node_Access, null, AST.Node_Fabric);
+
+   type Lexer is new Gela.Grammars.Lexers.Lexer with null record;
    function Next (Self : in out Lexer) return Gela.Grammars.Terminal_Count;
 
    Last : Natural := 0;
@@ -111,12 +114,12 @@ procedure TS_00022 is
 
    procedure Print_Tree
      (Printed : in out Node_Lists.List;
-      Tree    : Gela.Grammars.AST_Nodes.Node_Access;
+      Tree    : AST.Node_Access;
       Input   : Gela.Grammars.Grammar;
       Prefix  : Wide_Wide_String := "")
    is
-      use type Gela.Grammars.AST_Nodes.Node_Access;
-      Node : AST.Node renames AST.Node (Tree.all);
+      use type AST.Node_Access;
+      Node : AST.Node := AST.Node (Tree.all);
    begin
       if Printed.Contains (Tree) then
          return;
@@ -140,7 +143,7 @@ procedure TS_00022 is
       end loop;
    end Print_Tree;
 
-   Fabric : AST.Node_Fabric;
+   Fabric : aliased AST.Node_Fabric;
 
    X : constant Gela.Grammars.Grammar := Gela.Grammars.Reader.Read ("test.ag");
    G : constant Gela.Grammars.Grammar :=
@@ -162,7 +165,7 @@ begin
       use Gela.Grammars.LR;
 
       Table   : constant LR_Tables.Table := LALR.Build (AG, True);
-      Tree    : Gela.Grammars.AST_Nodes.Node_Access;
+      Tree    : AST.Node_Access;
       Printed : Node_Lists.List;
       L       : Lexer;
    begin
@@ -195,12 +198,12 @@ begin
          Ada.Text_IO.New_Line;
       end loop;
 
-      Gela.Grammars.RNGLR.Parse
-        (G => AG, T => Table, L => L, F => Fabric, Tree => Tree);
+      RNGLR.Parse
+        (G => AG, T => Table, L => L, F => Fabric'Access, Tree => Tree);
 
       Ada.Text_IO.New_Line;
       Ada.Text_IO.Put_Line ("Print Tree:");
       Print_Tree (Printed, Tree, G);
-      Tree.Reference (-1);
+      AST.Reference (Fabric'Access, Tree, -1);
    end;
 end TS_00022;

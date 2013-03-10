@@ -9,30 +9,26 @@ package body AST is
    -- Reference --
    ---------------
 
-   overriding procedure Reference
-     (Self : access Node;
-      Step : Integer := 1)
+   procedure Reference
+     (Self   : access Node_Fabric;
+      Object : Node_Access;
+      Step   : Integer := 1)
    is
-      use type Gela.Grammars.AST_Nodes.Node_Access;
-
       procedure Free is new
-        Ada.Unchecked_Deallocation
-          (Gela.Grammars.AST_Nodes.Node'Class,
-           Gela.Grammars.AST_Nodes.Node_Access);
+        Ada.Unchecked_Deallocation (AST.Node, AST.Node_Access);
 
-      Save : Gela.Grammars.AST_Nodes.Node_Access :=
-        Gela.Grammars.AST_Nodes.Node_Access (Self);
+      Save : AST.Node_Access := Object;
    begin
-      if Self.Count = 1 and Step = -1 then
-         for X of Self.Children loop
+      if Object.Count = 1 and Step = -1 then
+         for X of Object.Children loop
             if X /= null then
-               X.Reference (-1);
+               Reference (Self, X, -1);
             end if;
          end loop;
 
          Free (Save);
       else
-         Self.Count := Self.Count + Step;
+         Object.Count := Object.Count + Step;
       end if;
    end Reference;
 
@@ -40,22 +36,23 @@ package body AST is
    -- Set_Child --
    ---------------
 
-   overriding procedure Set_Child
-     (Self  : in out Node;
-      Index : Positive;
-      Value : access Gela.Grammars.AST_Nodes.Node'Class) is
+   procedure Set_Child
+     (Self    : access Node_Fabric;
+      Object  : Node_Access;
+      Index   : Positive;
+      Value   : Node_Access) is
    begin
-      Self.Children (Index) := Gela.Grammars.AST_Nodes.Node_Access (Value);
-      Value.Reference;
+      Object.Children (Index) := Value;
+      Reference(Self, Value);
    end Set_Child;
 
    ---------------
    -- New_Token --
    ---------------
 
-   overriding function New_Token
-     (Self : Node_Fabric)
-      return Gela.Grammars.AST_Nodes.Node_Access
+   function New_Token
+     (Self : access Node_Fabric)
+      return Node_Access
    is
       pragma Unreferenced (Self);
    begin
@@ -71,10 +68,10 @@ package body AST is
    -- New_Node --
    --------------
 
-   overriding function New_Node
-     (Self       : Node_Fabric;
+   function New_Node
+     (Self       : access Node_Fabric;
       Production : Gela.Grammars.Production_Index)
-      return Gela.Grammars.AST_Nodes.Node_Access
+      return Node_Access
    is
       pragma Unreferenced (Self);
    begin
@@ -91,10 +88,10 @@ package body AST is
    -- New_Alternative --
    ---------------------
 
-   overriding function New_Alternative
-     (Self : Node_Fabric;
+   function New_Alternative
+     (Self : access Node_Fabric;
       NT   : Gela.Grammars.Non_Terminal_Index)
-      return Gela.Grammars.AST_Nodes.Node_Access
+      return Node_Access
    is
       pragma Unreferenced (Self);
    begin

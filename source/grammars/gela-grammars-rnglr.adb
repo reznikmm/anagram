@@ -46,7 +46,7 @@ package body Gela.Grammars.RNGLR is
         (Self  : in out GSS;
          From  : in out Node;
          To    : Node;
-         Data  : AST_Nodes.Node_Access);
+         Data  : Node_Access);
       --  Create edge From a node To a node, attach Data to new edge
 
       function New_Node_And_Edge
@@ -54,7 +54,7 @@ package body Gela.Grammars.RNGLR is
          Set   : in out Node_Set;
          State : LR.State_Index;
          To    : Node;
-         Data  : AST_Nodes.Node_Access) return Node;
+         Data  : Node_Access) return Node;
       --  Create node with given State in given node Set, then
       --  create edge from new node To a node, attach Data to new edge
 
@@ -64,7 +64,10 @@ package body Gela.Grammars.RNGLR is
       --  Get node with given State from Set or null if none
       function Is_Null (X : Node_Set) return Boolean;
       --  Check is set is empty
-      procedure Release (Self : in out GSS; X : Node_Set);
+      procedure Release
+        (Self : in out GSS;
+         F    : access Node_Fabric;
+         X    : Node_Set);
       --  Deallocate unused set
 
       function Is_Null (X : Node) return Boolean;
@@ -87,14 +90,14 @@ package body Gela.Grammars.RNGLR is
       --  Go to next edge is a node
       function To_First (X : Edge) return Edge;
       --  Short cut for First (To (X))
-      function Data (X : Edge) return AST_Nodes.Node_Access;
+      function Data (X : Edge) return Node_Access;
       --  Get data attached to edge
 
       procedure Append_Data
         (X    : Edge;
          NT   : Non_Terminal_Count;
-         F    : AST_Nodes.Node_Fabric'Class;
-         Data : AST_Nodes.Node_Access);
+         F    : access Node_Fabric;
+         Data : Node_Access);
       --  Append alternative data to edge X
 
       procedure Release (Self : in out GSS);
@@ -106,7 +109,7 @@ package body Gela.Grammars.RNGLR is
       type Edge is access all Edge_Node;
 
       type Edge_Node is record
-         Data  : AST_Nodes.Node_Access;
+         Data  : Node_Access;
          Count : Positive;
          Up    : Node;
          Next  : Edge;  --  Next in Node
@@ -128,11 +131,14 @@ package body Gela.Grammars.RNGLR is
          Free_Edges : Edge;
       end record;
 
-      procedure Release (Self : in out GSS; X : in out Node);
+      procedure Release
+        (Self : in out GSS;
+         F    : access Node_Fabric;
+         X    : in out Node);
 
       function New_Edge
         (Self : in out GSS;
-         Data  : AST_Nodes.Node_Access;
+         Data  : Node_Access;
          Count : Positive;
          Up    : Node;
          Next  : Edge) return Edge;
@@ -154,7 +160,7 @@ package body Gela.Grammars.RNGLR is
 
       function New_Edge
         (Self : in out GSS;
-         Data  : AST_Nodes.Node_Access;
+         Data  : Node_Access;
          Count : Positive;
          Up    : Node;
          Next  : Edge) return Edge
@@ -213,7 +219,7 @@ package body Gela.Grammars.RNGLR is
          New_Edge : Edge;
          New_Node : Node;
       begin
-         New_Edge := Self.New_Edge (Data  => null,
+         New_Edge := Self.New_Edge (Data  => Null_Node,
                                     Count => 1,
                                     Up    => null,
                                     Next  => null);
@@ -244,7 +250,7 @@ package body Gela.Grammars.RNGLR is
         (Self  : in out GSS;
          From  : in out Node;
          To    : Node;
-         Data  : AST_Nodes.Node_Access) is
+         Data  : Node_Access) is
       begin
          To.Refs := To.Refs + 1;
          From.First := Self.New_Edge (Data  => Data,
@@ -262,7 +268,7 @@ package body Gela.Grammars.RNGLR is
          Set   : in out Node_Set;
          State : LR.State_Index;
          To    : Node;
-         Data  : AST_Nodes.Node_Access) return Node
+         Data  : Node_Access) return Node
       is
          New_Edge : Edge;
       begin
@@ -336,13 +342,17 @@ package body Gela.Grammars.RNGLR is
       -- Release --
       -------------
 
-      procedure Release (Self : in out GSS; X : Node_Set) is
+      procedure Release
+        (Self : in out GSS;
+         F    : access Node_Fabric;
+         X    : Node_Set)
+      is
          Item, Prev : Node := X.First;
       begin
          while Item /= null loop
             Prev := Item;
             Item := Item.Next;
-            Release (Self, Prev);
+            Release (Self, F, Prev);
          end loop;
       end Release;
 
@@ -382,8 +392,11 @@ package body Gela.Grammars.RNGLR is
       -- Release --
       -------------
 
-      procedure Release (Self : in out GSS; X : in out Node) is
-         use type Gela.Grammars.AST_Nodes.Node_Access;
+      procedure Release
+        (Self : in out GSS;
+         F    : access Node_Fabric;
+         X    : in out Node)
+      is
       begin
          if X = null then
             return;
@@ -393,10 +406,10 @@ package body Gela.Grammars.RNGLR is
                Item : Edge := X.First;
             begin
                while Item /= null loop
-                  Release (Self, Item.Up);
+                  Release (Self, F, Item.Up);
 
-                  if Item.Data /= null then
-                     Item.Data.Reference (-1);
+                  if Item.Data /= Null_Node then
+                     Reference (F, Item.Data, -1);
                   end if;
 
                   Prev := Item;
@@ -491,7 +504,7 @@ package body Gela.Grammars.RNGLR is
       -- Data --
       ---------------
 
-      function Data (X : Edge) return AST_Nodes.Node_Access is
+      function Data (X : Edge) return Node_Access is
       begin
          return X.Data;
       end Data;
@@ -503,22 +516,22 @@ package body Gela.Grammars.RNGLR is
       procedure Append_Data
         (X    : Edge;
          NT   : Non_Terminal_Count;
-         F    : AST_Nodes.Node_Fabric'Class;
-         Data : AST_Nodes.Node_Access) is
+         F    : access Node_Fabric;
+         Data : Node_Access) is
       begin
          if X.Count = 1 then
             declare
-               Result : constant AST_Nodes.Node_Access
-                 := F.New_Alternative (NT);
+               Result : constant Node_Access
+                 := New_Alternative (F, NT);
             begin
-               Result.Set_Child (1, X.Data);
-               X.Data.Reference (-1);
-               Result.Set_Child (2, Data);
-               Data.Reference (-1);
+               Set_Child (F, Result, 1, X.Data);
+               Reference (F, X.Data, -1);
+               Set_Child (F, Result, 2, Data);
+               Reference (F, Data, -1);
                X.Data := Result;
             end;
          else
-            X.Data.Set_Child (X.Count + 1, Data);
+            Set_Child (F, X.Data, X.Count + 1, Data);
          end if;
 
          X.Count := X.Count + 1;
@@ -535,9 +548,9 @@ package body Gela.Grammars.RNGLR is
    procedure Parse
      (G : Grammar;
       T : LR_Tables.Table;
-      F : AST_Nodes.Node_Fabric'Class;
-      L : in out Lexer'Class;
-      Tree : out AST_Nodes.Node_Access)
+      F : access Node_Fabric;
+      L : in out Gela.Grammars.Lexers.Lexer'Class;
+      Tree : out Node_Access)
    is
       use type LR.State_Index;
       procedure Reducer;
@@ -556,7 +569,7 @@ package body Gela.Grammars.RNGLR is
 
       procedure Append_R
          (V         : Stacks.Node;
-          Node      : AST_Nodes.Node_Access;
+          Node      : Node_Access;
           Reduction : LR_Tables.Reduce_Iterator;
           M         : Natural;
           List      : in out R_Node_Access);
@@ -570,7 +583,7 @@ package body Gela.Grammars.RNGLR is
 
       type R_Node is record
          V         : Stacks.Node;
-         Node      : AST_Nodes.Node_Access;
+         Node      : Node_Access;
          Reduction : LR_Tables.Reduce_Iterator;
          M         : Natural;
          Next      : R_Node_Access;
@@ -591,7 +604,7 @@ package body Gela.Grammars.RNGLR is
 
       procedure Append_R
          (V         : Stacks.Node;
-          Node      : AST_Nodes.Node_Access;
+          Node      : Node_Access;
           Reduction : LR_Tables.Reduce_Iterator;
           M         : Natural;
           List      : in out R_Node_Access)
@@ -651,7 +664,7 @@ package body Gela.Grammars.RNGLR is
       procedure Reducer is
          function Find (Node : in out Stacks.Node) return Boolean;
          --  Find next node at level Item.M-1 using Path as iteration state
-         function New_Node return AST_Nodes.Node_Access;
+         function New_Node return Node_Access;
          --  Create new node and set children nodes to it
 
          Item   : constant R_Node_Access := R;
@@ -722,8 +735,8 @@ package body Gela.Grammars.RNGLR is
          -- New_Node --
          --------------
 
-         function New_Node return AST_Nodes.Node_Access is
-            Result : constant AST_Nodes.Node_Access := F.New_Node (Prod.Index);
+         function New_Node return Node_Access is
+            Result : constant Node_Access := New_Node (F, Prod.Index);
             Index  : Positive := 1;
          begin
             if Item.M = 0 then
@@ -731,11 +744,11 @@ package body Gela.Grammars.RNGLR is
             end if;
 
             for J in reverse 1 .. Item.M - 1 loop
-               Result.Set_Child (Index, Stacks.Data (Path (J)));
+               Set_Child (F, Result, Index, Stacks.Data (Path (J)));
                Index := Index + 1;
             end loop;
 
-            Result.Set_Child (Index, Item.Node);
+            Set_Child (F, Result, Index, Item.Node);
 
             return Result;
          end New_Node;
@@ -747,7 +760,7 @@ package body Gela.Grammars.RNGLR is
 
          while Find (U) loop
             declare
-               Node : constant AST_Nodes.Node_Access := New_Node;
+               Node : constant Node_Access := New_Node;
                Edge : Graph_Structured_Stacks.Edge;
                K : constant LR.State_Index := Stacks.State (U);
                L : constant LR.State_Index := LR_Tables.Shift (T, K, X);
@@ -808,7 +821,7 @@ package body Gela.Grammars.RNGLR is
                           G.Production (LR_Tables.Production (Z)).First;
 
                         if P = 0 then
-                           Append_R (W, null, Z, 0, R);
+                           Append_R (W, Null_Node, Z, 0, R);
                         elsif Item.M /= 0 then
                            Append_R (U, Node, Z, Positive (P), R);
                         end if;
@@ -832,7 +845,7 @@ package body Gela.Grammars.RNGLR is
          Item : Q_Node_Access := Q;
          Un : Stacks.Node_Set := Stack.New_Node_Set;
          Qn : Q_Node_Access;  --  Q'
-         Node_N : constant AST_Nodes.Node_Access := F.New_Token;  --  Ai
+         Node_N : constant Node_Access := New_Token (F);  --  Ai
          Count  : Positive := 1;  --  Reuse count for Node_N
       begin
          while Item /= null loop
@@ -848,7 +861,7 @@ package body Gela.Grammars.RNGLR is
                      Data  => Node_N);
 
                   if Count > 1 then
-                     Node_N.Reference;
+                     Reference (F, Node_N);
                   end if;
 
                   declare
@@ -875,7 +888,7 @@ package body Gela.Grammars.RNGLR is
                      Data  => Node_N);
 
                   if Count > 1 then
-                     Node_N.Reference;
+                     Reference (F, Node_N);
                   end if;
 
                   declare
@@ -896,7 +909,7 @@ package body Gela.Grammars.RNGLR is
                           G.Production (LR_Tables.Production (Z)).First;
 
                         if P = 0 then
-                           Append_R (W, null, Z, 0, R);
+                           Append_R (W, Null_Node, Z, 0, R);
                         else
                            Append_R (V, Node_N, Z, Positive (P), R);
                         end if;
@@ -919,7 +932,7 @@ package body Gela.Grammars.RNGLR is
          end loop;
 
          Q := Qn;
-         Stack.Release (Ui);
+         Stack.Release (F, Ui);
          Ui := Un;
       end Shifter;
 
@@ -942,7 +955,7 @@ package body Gela.Grammars.RNGLR is
               G.Production (LR_Tables.Production (R1)).First;
 
             if P = 0 then
-               Append_R (V0, null, R1, 0, R);
+               Append_R (V0, Null_Node, R1, 0, R);
             end if;
 
             LR_Tables.Next (T, R1);
@@ -955,7 +968,8 @@ package body Gela.Grammars.RNGLR is
          Ai := An;
 
          if Stacks.Is_Null (Ui) then
-            raise Constraint_Error;
+            Tree := Null_Node;
+            return;
          end if;
 
          while R /= null loop
@@ -976,14 +990,14 @@ package body Gela.Grammars.RNGLR is
          while not Stacks.Is_Null (U) loop
             if LR_Tables.Finish (T, Stacks.State (U)) then
                Tree := Stacks.Data (Stacks.First (U));
-               Tree.Reference;
+               Reference (F, Tree);
                exit;
             end if;
 
             Stacks.Next_In_Set (U);
          end loop;
 
-         Stack.Release (Ui);
+         Stack.Release (F, Ui);
          Stack.Release;
       end;
 
