@@ -36,8 +36,11 @@ generic
 
    with procedure Reference
      (Self   : access Node_Fabric;
-      Object : Node_Access;
-      Step   : Integer := 1) is <>;
+      Object : Node_Access) is <>;
+
+   with procedure Dereference
+     (Self   : access Node_Fabric;
+      Object : in out Node_Access) is <>;
 
 package Gela.Grammars.RNGLR is
 

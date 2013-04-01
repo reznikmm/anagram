@@ -409,7 +409,7 @@ package body Gela.Grammars.RNGLR is
                   Release (Self, F, Item.Up);
 
                   if Item.Data /= Null_Node then
-                     Reference (F, Item.Data, -1);
+                     Dereference (F, Item.Data);
                   end if;
 
                   Prev := Item;
@@ -521,13 +521,14 @@ package body Gela.Grammars.RNGLR is
       begin
          if X.Count = 1 then
             declare
+               Saved  : Node_Access := Data;
                Result : constant Node_Access
                  := New_Alternative (F, NT);
             begin
                Set_Child (F, Result, 1, X.Data);
-               Reference (F, X.Data, -1);
-               Set_Child (F, Result, 2, Data);
-               Reference (F, Data, -1);
+               Dereference (F, X.Data);
+               Set_Child (F, Result, 2, Saved);
+               Dereference (F, Saved);
                X.Data := Result;
             end;
          else
