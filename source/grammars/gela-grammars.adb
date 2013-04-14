@@ -108,6 +108,14 @@ package body Gela.Grammars is
       return Self.First_Rule;
    end First_Rule;
 
+   -----------------
+   -- Has_Default --
+   -----------------
+
+   function Has_Default (Self : Attribute) return Boolean is
+   begin
+      return Self.Has_Default;
+   end Has_Default;
    -----------
    -- Image --
    -----------

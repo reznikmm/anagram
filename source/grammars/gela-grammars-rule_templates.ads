@@ -31,6 +31,14 @@ package Gela.Grammars.Rule_Templates is
      (Self  : Rule_Template;
       Index : Positive) return S.Universal_String;
 
+   function Has_Default
+     (Self  : Rule_Template;
+      Index : Positive) return Boolean;
+
+   function Default
+     (Self  : Rule_Template;
+      Index : Positive) return S.Universal_String;
+
    function Substitute
      (Self  : Rule_Template;
       Values : League.String_Vectors.Universal_String_Vector)
@@ -42,6 +50,7 @@ private
       Text  : S.Universal_String;
       Parts : League.String_Vectors.Universal_String_Vector;
       Attrs : League.String_Vectors.Universal_String_Vector;
+      Defs  : League.String_Vectors.Universal_String_Vector;
    end record;
 
 end Gela.Grammars.Rule_Templates;

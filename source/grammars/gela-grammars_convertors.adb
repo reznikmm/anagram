@@ -12,6 +12,8 @@ with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Ordered_Maps;
 with Gela.Grammars.Constructors;
 with League.Strings;
+with Gela.Grammars.Rule_Templates;
+with League.String_Vectors;
 
 package body Gela.Grammars_Convertors is
 
@@ -26,7 +28,7 @@ package body Gela.Grammars_Convertors is
 
    type Rule_Info is record
       Weight : Natural;
-      Index  : Gela.Grammars.Rule_Index;
+      Text   : League.Strings.Universal_String;
    end record;
 
    type Derived_Production is record
@@ -226,7 +228,9 @@ package body Gela.Grammars_Convertors is
         (Part_Names : String_Sets.Set;
          Attr       : Attribute_Index) return Boolean is
       begin
-         if Input.Attribute (Attr).Is_Left_Hand_Side then
+         if Input.Attribute (Attr).Is_Left_Hand_Side or
+           Input.Attribute (Attr).Has_Default
+         then
             return True;
          end if;
 
@@ -253,6 +257,52 @@ package body Gela.Grammars_Convertors is
          end loop;
       end Copy_Productions;
 
+      function Substitute_Default
+        (Derived : Derived_Production;
+         Rule    : Gela.Grammars.Rule) return S.Universal_String;
+
+      ------------------------
+      -- Substitute_Default --
+      ------------------------
+
+      function Substitute_Default
+        (Derived : Derived_Production;
+         Rule    : Gela.Grammars.Rule) return S.Universal_String
+      is
+         use type S.Universal_String;
+
+         Values : League.String_Vectors.Universal_String_Vector;
+         Text : constant S.Universal_String := Input.Rule (Rule.Index).Text;
+         Template : constant Rule_Templates.Rule_Template :=
+           Rule_Templates.Create (Text);
+         Name : S.Universal_String;
+      begin
+         for J in 1 .. Template.Count loop
+            Name := Template.Part_Name (J);
+
+            if Name = Derived.Non_Terminal or else
+              Derived.Part_Names.Contains (Name)
+            then
+               Name.Prepend ("${");
+               Name.Append (".");
+               Name.Append (Template.Attribute_Name (J));
+
+               if Template.Has_Default (J) then
+                  Name.Append (":");
+                  Name.Append (Template.Default (J));
+               end if;
+
+               Name.Append ("}");
+
+               Values.Append (Name);
+            else
+               Values.Append (Template.Default (J));
+            end if;
+         end loop;
+
+         return Template.Substitute (Values);
+      end Substitute_Default;
+
       ----------------
       -- Copy_Rules --
       ----------------
@@ -264,6 +314,7 @@ package body Gela.Grammars_Convertors is
          Ok     : Boolean := True;
          Weight : Natural;
          Key    : S.Universal_String;
+         Text   : S.Universal_String;
       begin
          for Rule of Input.Rule (Prod.First_Rule .. Prod.Last_Rule) loop
             Ok := Check (Derived.Part_Names, Rule.Result);
@@ -289,12 +340,14 @@ package body Gela.Grammars_Convertors is
                Key.Append (Input.Declaration
                            (Input.Attribute (X).Declaration).Name);
 
+               Text := Substitute_Default (Derived, Rule);
+
                if Map.Contains (Key) then
                   if Map (Key).Weight < Weight then
-                     Map (Key) := (Weight, Rule.Index);
+                     Map (Key) := (Weight, Text);
                   end if;
                else
-                  Map.Insert (Key, (Weight, Rule.Index));
+                  Map.Insert (Key, (Weight, Text));
                end if;
             end if;
          end loop;
@@ -303,7 +356,7 @@ package body Gela.Grammars_Convertors is
             Output.Create_Rule
               (Non_Terminal => Derived.Non_Terminal,
                Production   => Derived.Name,
-               Text         => Input.Rule (Rule_Info.Index).Text);
+               Text         => Rule_Info.Text);
          end loop;
       end Copy_Rules;
 

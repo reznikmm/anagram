@@ -47,11 +47,12 @@ package body Gela.Grammars.Constructors is
       Item   : Rule_Data);
 
    procedure Fill_Attr
-     (Result : in out Grammar;
-      Index  : Attribute_Index;
-      Attr   : Attribute_Declaration;
-      LHS    : Boolean;
-      Part   : Part_Access);
+     (Result  : in out Grammar;
+      Index   : Attribute_Index;
+      Attr    : Attribute_Declaration;
+      LHS     : Boolean;
+      Default : Boolean;
+      Part    : Part_Access);
 
    procedure Join
      (Left  : in out Reference_Maps.Map;
@@ -710,13 +711,20 @@ package body Gela.Grammars.Constructors is
                   Result.Rule (Self.Last_Rule).Result,
                   Attr,
                   LHS,
+                  Template.Has_Default (J),
                   Part);
             else
                raise Constraint_Error;
             end if;
          else
             Self.Last_Attribute := Self.Last_Attribute + 1;
-            Fill_Attr (Result, Self.Last_Attribute, Attr, LHS, Part);
+            Fill_Attr
+              (Result,
+               Self.Last_Attribute,
+               Attr,
+               LHS,
+               Template.Has_Default (J),
+               Part);
          end if;
 
       end loop;
@@ -731,14 +739,16 @@ package body Gela.Grammars.Constructors is
    ---------------
 
    procedure Fill_Attr
-     (Result : in out Grammar;
-      Index  : Attribute_Index;
-      Attr   : Attribute_Declaration;
-      LHS    : Boolean;
-      Part   : Part_Access) is
+     (Result  : in out Grammar;
+      Index   : Attribute_Index;
+      Attr    : Attribute_Declaration;
+      LHS     : Boolean;
+      Default : Boolean;
+      Part    : Part_Access) is
    begin
       Result.Attribute (Index).Index := Index;
       Result.Attribute (Index).Declaration := Attr.Index;
+      Result.Attribute (Index).Has_Default := Default;
 
       if LHS then
          Result.Attribute (Index).Origin := 0;

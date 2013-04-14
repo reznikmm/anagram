@@ -42,7 +42,7 @@ package body Gela.Grammars.Rule_Templates is
      (Text : S.Universal_String)
       return Rule_Template
    is
-      procedure Append (Part, Attr : S.Universal_String);
+      procedure Append (Part, Attr, Def : S.Universal_String);
 
       package String_Sets is new Ada.Containers.Ordered_Sets
         (S.Universal_String, S."<", S."=");
@@ -50,11 +50,13 @@ package body Gela.Grammars.Rule_Templates is
       Ready : String_Sets.Set;
       Parts : League.String_Vectors.Universal_String_Vector;
       Attrs : League.String_Vectors.Universal_String_Vector;
+      Defs  : League.String_Vectors.Universal_String_Vector;
 
-      procedure Append (Part, Attr : S.Universal_String) is
+      procedure Append (Part, Attr, Def : S.Universal_String) is
       begin
          Parts.Append (Part);
          Attrs.Append (Attr);
+         Defs.Append (Def);
       end Append;
 
       Items : constant League.String_Vectors.Universal_String_Vector :=
@@ -64,12 +66,18 @@ package body Gela.Grammars.Rule_Templates is
          declare
             To    : Natural;
             Point : Natural;
+            Colon : Natural;
             Name  : S.Universal_String;
             Item  : constant S.Universal_String := Items.Element (J);
          begin
             if Item.Starts_With ("{") then
                To    := Item.Index ('}');
                Point := Item.Index ('.');
+               Colon := Item.Index (':');
+
+               if Colon = 0 or Colon > To then
+                  Colon := To;
+               end if;
 
                if To > 0 and Point < To then
                   Name := Item.Slice (1, To);
@@ -79,7 +87,8 @@ package body Gela.Grammars.Rule_Templates is
 
                      Append
                        (Part => Item.Slice (2, Point - 1),
-                        Attr => Item.Slice (Point + 1, To - 1));
+                        Attr => Item.Slice (Point + 1, Colon - 1),
+                        Def  => Item.Slice (Colon + 1, To - 1));
                   end if;
                end if;
             end if;
@@ -88,8 +97,31 @@ package body Gela.Grammars.Rule_Templates is
 
       return (Text  => Text,
               Parts => Parts,
-              Attrs => Attrs);
+              Attrs => Attrs,
+              Defs  => Defs);
    end Create;
+
+   -------------
+   -- Default --
+   -------------
+
+   function Default
+     (Self  : Rule_Template;
+      Index : Positive) return S.Universal_String is
+   begin
+      return Self.Defs.Element (Index);
+   end Default;
+
+   -----------------
+   -- Has_Default --
+   -----------------
+
+   function Has_Default
+     (Self  : Rule_Template;
+      Index : Positive) return Boolean is
+   begin
+      return not Self.Default (Index).Is_Empty;
+   end Has_Default;
 
    ---------------
    -- Part_Name --
@@ -132,15 +164,21 @@ package body Gela.Grammars.Rule_Templates is
          declare
             To    : Natural;
             Point : Natural;
+            Colon : Natural;
             Name  : S.Universal_String;
             Item  : S.Universal_String := Items.Element (J);
          begin
             if Item.Starts_With ("{") then
                To    := Item.Index ('}');
                Point := Item.Index ('.');
+               Colon := Item.Index (':');
+
+               if Colon = 0 or Colon > To then
+                  Colon := To;
+               end if;
 
                if To > 0 and Point < To then
-                  Name := Item.Slice (2, To - 1);
+                  Name := Item.Slice (2, Colon - 1);
 
                   Item.Replace (1, To, Map.Element (Name));
 

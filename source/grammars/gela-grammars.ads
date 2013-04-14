@@ -108,6 +108,7 @@ package Gela.Grammars is
 
    type Attribute is tagged private;
 
+   function Has_Default       (Self : Attribute) return Boolean;
    function Is_Left_Hand_Side (Self : Attribute) return Boolean;
    function Index             (Self : Attribute) return Attribute_Index;
    function Origin            (Self : Attribute) return Part_Count;
@@ -236,6 +237,7 @@ private
    type Attribute is tagged record
       Index             : Attribute_Index;
       Origin            : Part_Count;
+      Has_Default       : Boolean;
       Declaration       : Attribute_Declaration_Index;
    end record;
 
