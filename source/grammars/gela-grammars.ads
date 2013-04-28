@@ -10,6 +10,7 @@
 with League.Strings;
 
 package Gela.Grammars is
+   pragma Preelaborate;
    package S renames League.Strings;
 
    type Terminal_Count is new Natural;
@@ -181,6 +182,8 @@ package Gela.Grammars is
       Rule         : Rule_Array         (1 .. Last_Rule);
       With_List    : S.Universal_String;
    end record;
+
+   type Grammar_Access is access all Grammar;
 
 private
 

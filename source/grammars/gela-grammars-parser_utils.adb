@@ -316,8 +316,7 @@ package body Gela.Grammars.Parser_Utils is
                        Constructor.Create_Production (Part.Name);
                      List       : Gela.Grammars.Constructors.Production_List :=
                        Constructor.Create_Production_List;
-                     Option_Name : constant Universal_String :=
-                       Part.Name & "_Option";
+                     Option_Name : constant Universal_String := Part.Name;
                   begin
                      Production.Add
                        (Constructor.Create_Non_Terminal_Reference
@@ -404,7 +403,7 @@ package body Gela.Grammars.Parser_Utils is
               To_Production_List
                 (List_Maps.Element (NT), List_Maps.Key (NT));
          begin
-            Constructor.Create_Non_Terminal
+            Constructor.Create_List
               (List_Maps.Key (NT),
                List);
          end;

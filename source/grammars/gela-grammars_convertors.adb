@@ -201,7 +201,8 @@ package body Gela.Grammars_Convertors is
             end loop;
          end Create_Recursive;
 
-         Result : Constructors.Production := Output.Create_Production (Name);
+         Result       : Constructors.Production :=
+           Output.Create_Production (Name);
       begin
          Create_Recursive (Input.Production (P), Name, Processed);
 
@@ -211,11 +212,16 @@ package body Gela.Grammars_Convertors is
              Index        => P,
              Part_Names   => String_Sets.Empty_Set));
 
-         Copy_Recursive
-           (Input.Production (P),
-            Processed,
-            Result,
-            Derived (Derived.Last_Index));
+         declare
+            Derived_Prod : Derived_Production
+              renames Derived (Derived.Last_Index);
+         begin
+            Copy_Recursive
+              (Input.Production (P),
+               Processed,
+               Result,
+               Derived_Prod);
+         end;
 
          PL.Add (Result);
       end Create_Production;

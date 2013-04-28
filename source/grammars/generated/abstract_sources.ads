@@ -45,6 +45,7 @@
 with Matreshka.Internals.Unicode;
 
 package Abstract_Sources is
+   pragma Preelaborate;
 
    subtype Code_Unit_32 is Matreshka.Internals.Unicode.Code_Unit_32;
 

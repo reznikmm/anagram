@@ -12,8 +12,10 @@ with Ada.Containers.Vectors;
 with Gela.Grammars.LR;
 
 package Gela.Grammars.LR_Tables is
+   pragma Preelaborate;
 
    type Table (<>) is tagged private;
+   type Table_Access is access all Table;
 
    type Reduce_Iterator is private;
 

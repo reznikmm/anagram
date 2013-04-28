@@ -3,6 +3,7 @@ with League.Strings;
 with League.Strings.Cursors.Characters;
 
 package String_Sources is
+   pragma Preelaborate;
 
    type String_Source is new Abstract_Sources.Abstract_Source with private;
 

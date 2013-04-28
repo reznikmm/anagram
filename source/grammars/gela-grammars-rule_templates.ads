@@ -13,6 +13,7 @@
 with League.String_Vectors;
 
 package Gela.Grammars.Rule_Templates is
+   pragma Preelaborate;
 
    type Rule_Template is tagged private;
 

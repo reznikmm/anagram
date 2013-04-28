@@ -8,6 +8,7 @@
 ------------------------------------------------------------------------------
 
 package Gela.Grammars.Tools is
+   pragma Preelaborate;
 
    ε : constant Terminal_Count := 0;
 

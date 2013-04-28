@@ -9,6 +9,7 @@
 --  Simple interface to fetch tokens when parsing
 
 package Gela.Grammars.Lexers is
+   pragma Preelaborate;
 
    type Lexer is limited interface;
 

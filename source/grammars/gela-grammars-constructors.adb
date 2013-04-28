@@ -566,6 +566,8 @@ package body Gela.Grammars.Constructors is
                   P.Denoted_Non_Terminal :=
                     Self.Non_Terminals.Element (Item.Denote).Index;
                   P.Denoted_Terminal := 0;
+                  P.Is_List :=
+                    Self.Non_Terminals.Element (Item.Denote).Is_List;
                else
                   Ada.Wide_Wide_Text_IO.Put_Line
                     ("Not defined: " & Item.Denote.To_Wide_Wide_String);

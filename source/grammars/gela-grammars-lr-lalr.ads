@@ -10,6 +10,7 @@
 with Gela.Grammars.LR_Tables;
 
 package Gela.Grammars.LR.LALR is
+   pragma Preelaborate;
 
    function Build
      (Input        : Grammar;

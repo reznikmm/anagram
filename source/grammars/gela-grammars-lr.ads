@@ -10,6 +10,7 @@
 with Ada.Unchecked_Deallocation;
 
 package Gela.Grammars.LR is
+   pragma Preelaborate;
 
    --  LR item is place of "parsing point" inside production, like this:
    --  E := A . B C
