@@ -74,7 +74,8 @@ package Gela.Grammars.Constructors is
 
    function Create_Production
      (Self   : Constructor'Class;
-      Name   : S.Universal_String)
+      Name   : S.Universal_String;
+      Prec  : Precedence_Value := Undefined_Precedence)
       return Production;
 
    function Create_Production_List

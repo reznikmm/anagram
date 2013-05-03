@@ -352,28 +352,30 @@ package body Gela.Grammars.Parser_Utils is
       begin
          for Production of List.Productions loop
             declare
+               Head : constant League.Strings.Universal_String :=
+                 League.Strings.To_Universal_String ("head");
+               Option_Prod_List : Gela.Grammars.Constructors.Production_List :=
+                 Constructor.Create_Production_List;
+               Option_Prod : Gela.Grammars.Constructors.Production :=
+                 Constructor.Create_Production (Head);
                Item : Gela.Grammars.Constructors.Production :=
                  Constructor.Create_Production (Production.Name);
             begin
+               if not Inside.Is_Empty then
+                  Option_Prod.Add
+                    (Constructor.Create_Non_Terminal_Reference
+                       (Name   => Head,
+                        Denote => Inside));
+                  Option_Prod_List.Add (Option_Prod);
+                  Item.Add
+                    (Constructor.Create_Option
+                       (Name => Head,
+                        List => Option_Prod_List));
+               end if;
+
                To_Production (Production.Data, Item);
                Result.Add (Item);
             end;
-
-            if not Inside.Is_Empty then
-               declare
-                  Item : Gela.Grammars.Constructors.Production :=
-                    Constructor.Create_Production
-                      (Production.Name & "_append");
-               begin
-                  Item.Add
-                    (Constructor.Create_Non_Terminal_Reference
-                       (Name   => League.Strings.To_Universal_String ("head"),
-                        Denote => Inside));
-
-                  To_Production (Production.Data, Item);
-                  Result.Add (Item);
-               end;
-            end if;
          end loop;
 
          return Result;

@@ -357,7 +357,8 @@ package body Gela.Grammars.Constructors is
 
    function Create_Production
      (Self   : Constructor'Class;
-      Name   : S.Universal_String)
+      Name   : S.Universal_String;
+      Prec  : Precedence_Value := Undefined_Precedence)
       return Production
    is
       pragma Unreferenced (Self);
@@ -371,7 +372,7 @@ package body Gela.Grammars.Constructors is
                  Attr_Count  => 0,
                  Prods_Count => 1,
                  Parts_Count => 0,
-                 Precedence  => Undefined_Precedence));
+                 Precedence  => Prec));
    end Create_Production;
 
    ----------------------------

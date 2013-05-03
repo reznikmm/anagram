@@ -186,9 +186,15 @@ package body Gela.Grammars_Convertors is
 
                      for K in Part.First .. Part.Last loop
                         declare
-                           Nested_Name : constant S.Universal_String :=
-                             Name & "." & Input.Production (K).Name;
+                           Nested_Name : S.Universal_String;
                         begin
+                           if Name.Is_Empty then
+                              Nested_Name := Input.Production (K).Name;
+                           else
+                              Nested_Name := Name & "_" &
+                                Input.Production (K).Name;
+                           end if;
+
                            Next (Part.Index) := K;
                            Create_Recursive
                              (Input.Production (K), Nested_Name, Next);
@@ -202,7 +208,7 @@ package body Gela.Grammars_Convertors is
          end Create_Recursive;
 
          Result       : Constructors.Production :=
-           Output.Create_Production (Name);
+           Output.Create_Production (Name, Precedence (Input.Production (P)));
       begin
          Create_Recursive (Input.Production (P), Name, Processed);
 
@@ -368,7 +374,7 @@ package body Gela.Grammars_Convertors is
 
    begin
       for Terminal of Input.Terminal loop
-         Output.Create_Terminal (Terminal.Image);
+         Output.Create_Terminal (Terminal.Image, Precedence (Terminal));
 
          for Declaration of Input.Declaration
            (Terminal.First_Attribute .. Terminal.Last_Attribute)
