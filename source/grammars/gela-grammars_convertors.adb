@@ -188,11 +188,17 @@ package body Gela.Grammars_Convertors is
                         declare
                            Nested_Name : S.Universal_String;
                         begin
-                           if Name.Is_Empty then
-                              Nested_Name := Input.Production (K).Name;
+                           if Input.Production (K).Name.Is_Empty then
+                              Nested_Name := S.To_Universal_String
+                                (Production_Index'Wide_Wide_Image (K));
+                              Nested_Name.Slice (2, Nested_Name.Length);
                            else
+                              Nested_Name := Input.Production (K).Name;
+                           end if;
+
+                           if not Name.Is_Empty then
                               Nested_Name := Name & "_" &
-                                Input.Production (K).Name;
+                                Nested_Name;
                            end if;
 
                            Next (Part.Index) := K;
