@@ -702,6 +702,8 @@ package body Gela.Grammars.Constructors is
                      raise Constraint_Error;
                end case;
             else
+               Ada.Wide_Wide_Text_IO.Put_Line
+                 ("Unknown origin:" & Origin.To_Wide_Wide_String);
                raise Constraint_Error;
             end if;
          end if;
