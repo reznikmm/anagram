@@ -7,7 +7,6 @@
 --              Read copyright and license in gela.ads file                 --
 ------------------------------------------------------------------------------
 
-with Gela.Grammars.Scanner_Types;
 with Gela.Grammars.Scanners;
 
 package body Gela.Grammars.Scanner_Handler is
@@ -21,10 +20,12 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Attributes_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Attributes_Token;
@@ -38,11 +39,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Close_List_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.'}';
@@ -55,11 +58,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Close_Option_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.']';
@@ -72,11 +77,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Close_Part_Name_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.'>';
@@ -89,11 +96,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Close_Production_Name_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.')';
@@ -106,11 +115,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Close_Rule_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Close_Rule_Token;
@@ -123,11 +134,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Colon_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.':';
@@ -140,11 +153,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Comma_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.',';
@@ -157,32 +172,17 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Equal_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Equal_Token;
       Scanner.Set_Start_Condition (Gela.Grammars.Scanner_Types.INITIAL);
    end Equal_Token;
-
-   ---------------
-   -- For_Token --
-   ---------------
-
-   procedure For_Token
-     (Self    : not null access Handler;
-      Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
-      Token   : out Ag_Tokens.Token;
-      Skip    : in out Boolean)
-   is
-      pragma Unreferenced (Self);
-   begin
-      Skip := False;
-      Token := T.For_Token;
-      Scanner.Set_Start_Condition (Gela.Grammars.Scanner_Types.With_Regexp);
-   end For_Token;
 
    ---------------
    --  Get_Line --
@@ -200,11 +200,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Identifier_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Identifier_Token;
@@ -217,11 +219,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Inherited_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Inherited_Token;
@@ -234,11 +238,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Integer_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Integer_Token;
@@ -251,10 +257,12 @@ package body Gela.Grammars.Scanner_Handler is
    procedure New_Line
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Token);
+      pragma Unreferenced (Rule);
    begin
       Self.Line := Self.Line + Scanner.Get_Token_Length;
       Skip := True;
@@ -267,11 +275,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Open_List_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.'{';
@@ -284,11 +294,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Open_Option_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.'[';
@@ -301,11 +313,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Open_Part_Name_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.'<';
@@ -318,11 +332,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Open_Production_Name_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.'(';
@@ -335,10 +351,12 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Open_Rule_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Open_Rule_Token;
@@ -352,11 +370,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Or_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.'|';
@@ -369,11 +389,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Priority_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Priority_Token;
@@ -386,11 +408,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Regexp_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Regexp_Token;
@@ -403,10 +427,12 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Rule_Body_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Rule_Body_Token;
@@ -420,10 +446,12 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Rules_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
+      pragma Unreferenced (Rule);
       pragma Unreferenced (Scanner);
    begin
       Skip := False;
@@ -437,10 +465,12 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Semicolon_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.';';
@@ -454,11 +484,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Synthesized_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Synthesized_Token;
@@ -471,11 +503,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure Token_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.Token_Token;
@@ -488,11 +522,13 @@ package body Gela.Grammars.Scanner_Handler is
    procedure With_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean)
    is
       pragma Unreferenced (Self);
       pragma Unreferenced (Scanner);
+      pragma Unreferenced (Rule);
    begin
       Skip := False;
       Token := T.With_Token;

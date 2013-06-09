@@ -165,7 +165,7 @@ synthesized_attribute :
 
 attr_type : identifier;
 
-rules : Rules_Token For_Token identifier_list ':'
+rules : Rules_Token Identifier_Token identifier_list ':'
  Open_Rule_Token rule_body Close_Rule_Token
 {
   $$ := (Kind => None);

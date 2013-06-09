@@ -9,7 +9,6 @@ attributes              {Attributes_Token}
 Rules                   {Rules_Token}
 Token                   {Token_Token}
 With                    {With_Token}
-for                     {For_Token}
 Priority                {Priority_Token}
 [0-9]+                  {Integer_Token}
 [A-Za-z0-9_.]+          {Identifier_Token}
