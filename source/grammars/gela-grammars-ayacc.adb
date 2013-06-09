@@ -8,6 +8,8 @@
 ------------------------------------------------------------------------------
 
 with Ada.Wide_Wide_Text_IO;
+with Gela.Grammars.Rule_Templates;
+with League.String_Vectors;
 
 package body Gela.Grammars.AYACC is
 
@@ -45,6 +47,9 @@ package body Gela.Grammars.AYACC is
          Put_Line ("%token " & T.Image);
       end loop;
 
+      New_Line;
+      Put_Line ("%start " & Input.Non_Terminal (Input.Root).Name);
+      New_Line;
       Put_Line ("%%");
       New_Line;
 
@@ -55,6 +60,12 @@ package body Gela.Grammars.AYACC is
             declare
                Prod : Production renames Input.Production (P);
             begin
+               if P = NT.First then
+                  Put ("    ");
+               else
+                  Put ("   |");
+               end if;
+
                for Part of Input.Part (Prod.First .. Prod.Last) loop
                   if Part.Is_Terminal_Reference then
                      Put (" " & Input.Terminal (Part.Denote).Image);
@@ -63,14 +74,55 @@ package body Gela.Grammars.AYACC is
                   end if;
                end loop;
 
-               if P = NT.Last then
-                  Put_Line (";");
-               else
-                  Put_Line (" |");
-               end if;
+               New_Line;
+
+               for Rule of Input.Rule (Prod.First_Rule .. Prod.Last_Rule) loop
+                  Put ("{");
+
+                  declare
+                     use Gela.Grammars.Rule_Templates;
+                     Template : constant Rule_Template := Create (Rule.Text);
+                     Values   : League.String_Vectors.Universal_String_Vector;
+                     Name     : League.Strings.Universal_String;
+                     Index    : Positive;
+                  begin
+                     for K in 1 .. Template.Count loop
+                        if Template.Part_Name (K) = NT.Name then
+                           Name := League.Strings.To_Universal_String ("$$");
+                        else
+                           Index := 1;
+                           Name := League.Strings.To_Universal_String ("$err");
+
+                           for Part of Input.Part (Prod.First .. Prod.Last)
+                           loop
+                              if Template.Part_Name (K) = Part.Name then
+                                 declare
+                                    Image : Wide_Wide_String :=
+                                      Positive'Wide_Wide_Image (Index);
+                                 begin
+                                    Image (1) := '$';
+                                    Name := League.Strings.To_Universal_String
+                                      (Image);
+                                    exit;
+                                 end;
+                              end if;
+
+                              Index := Index + 1;
+                           end loop;
+
+                        end if;
+                        Values.Append (Name);
+                     end loop;
+
+                     Put (Template.Substitute (Values));
+                  end;
+
+                  Put_Line ("}");
+               end loop;
             end;
          end loop;
 
+         Put_Line (";");
          New_Line;
       end loop;
 
