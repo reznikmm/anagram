@@ -97,6 +97,12 @@ package body Gela.Grammars.Constructors is
             Self.Data.Parts_Count := Self.Data.Parts_Count + 1;
          when Non_Terminal_Reference | List =>
             if not Item.Data.Name.Is_Empty then
+               if Self.Data.References.Contains (Item.Data.Name) then
+                  Ada.Wide_Wide_Text_IO.Put_Line
+                    ("Duplicated part name: " &
+                       Item.Data.Name.To_Wide_Wide_String);
+               end if;
+
                Self.Data.References.Insert (Item.Data.Name, Item.Data);
             end if;
 
