@@ -13,7 +13,7 @@ Rule:
   Result: LHS.L1s
   Arg: t3.AT3
  2 NT1
-  Production: P1.OP1 ( 2)
+  Production: P1_OP1 ( 2)
     t1 refs T1
     t2 refs T2
     nt2 refs NT2

@@ -18,7 +18,7 @@ Rule:
     t1 refs T
     t2 refs T
   Production: TList ( 3)
-    tlist_Option Option:
+    tlist Option:
   Production: tlist ( 5)
     tlist refs tlist
  End
@@ -32,9 +32,10 @@ Rule:
   Attr: env inherited=TRUE
   Production: T ( 7)
     T refs T
- 3 tlist
+ 3 tlist (List)
   Production: T ( 8)
-    T refs T
-  Production: T_append ( 9)
+    head Option:
+  Production: head ( 9)
     head refs tlist
+ End
     T refs T

@@ -15,7 +15,6 @@ with Gela.Grammars.LR_Tables;
 with Gela.Grammars.LR.LALR;
 with Gela.Grammars.RNGLR;
 with Gela.Grammars.Lexers;
-with Gela.Grammars.AST_Nodes;
 
 procedure TS_00022 is
 
@@ -118,8 +117,7 @@ procedure TS_00022 is
       Input   : Gela.Grammars.Grammar;
       Prefix  : Wide_Wide_String := "")
    is
-      use type AST.Node_Access;
-      Node : AST.Node := AST.Node (Tree.all);
+      Node : constant AST.Node := Tree.all;
    begin
       if Printed.Contains (Tree) then
          return;
@@ -131,7 +129,7 @@ procedure TS_00022 is
       Ada.Wide_Text_IO.Put (" [");
       for Child of Node.Children loop
          if Child /= null then
-            AST.Print (AST.Node (Child.all), Input);
+            AST.Print (Child.all, Input);
          end if;
       end loop;
       Ada.Wide_Text_IO.Put_Line (" ]");
@@ -204,6 +202,6 @@ begin
       Ada.Text_IO.New_Line;
       Ada.Text_IO.Put_Line ("Print Tree:");
       Print_Tree (Printed, Tree, G);
-      AST.Reference (Fabric'Access, Tree, -1);
+      AST.Dereference (Fabric'Access, Tree);
    end;
 end TS_00022;

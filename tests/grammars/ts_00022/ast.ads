@@ -42,8 +42,11 @@ package AST is
 
    procedure Reference
      (Self   : access Node_Fabric;
-      Object : Node_Access;
-      Step   : Integer := 1);
+      Object : Node_Access);
+
+   procedure Dereference
+     (Self   : access Node_Fabric;
+      Object : in out Node_Access);
 
    procedure Print (Self : Node; Input : Gela.Grammars.Grammar);
 

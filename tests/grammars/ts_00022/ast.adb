@@ -9,27 +9,37 @@ package body AST is
    -- Reference --
    ---------------
 
-   procedure Reference
+   procedure Dereference
      (Self   : access Node_Fabric;
-      Object : Node_Access;
-      Step   : Integer := 1)
+      Object : in out Node_Access)
    is
       procedure Free is new
         Ada.Unchecked_Deallocation (AST.Node, AST.Node_Access);
-
-      Save : AST.Node_Access := Object;
    begin
-      if Object.Count = 1 and Step = -1 then
+      if Object.Count = 1 then
          for X of Object.Children loop
             if X /= null then
-               Reference (Self, X, -1);
+               Dereference (Self, X);
             end if;
          end loop;
 
-         Free (Save);
+         Free (Object);
       else
-         Object.Count := Object.Count + Step;
+         Object.Count := Object.Count - 1;
       end if;
+   end Dereference;
+
+   ---------------
+   -- Reference --
+   ---------------
+
+   procedure Reference
+     (Self   : access Node_Fabric;
+      Object : Node_Access)
+   is
+      pragma Unreferenced (Self);
+   begin
+      Object.Count := Object.Count + 1;
    end Reference;
 
    ---------------
