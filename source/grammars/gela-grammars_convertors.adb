@@ -176,16 +176,15 @@ package body Gela.Grammars_Convertors is
             Processed : in out Option_Maps.Map)
          is
             use type S.Universal_String;
-            Next : Option_Maps.Map;
          begin
             for Part of Input.Part (Nested.First .. Nested.Last) loop
                if Part.Is_Option then
                   if not Processed.Contains (Part.Index) then
                      Processed.Insert (Part.Index, 0);
-                     Next := Processed;
 
                      for K in Part.First .. Part.Last loop
                         declare
+                           Next : Option_Maps.Map;
                            Nested_Name : S.Universal_String;
                         begin
                            if Input.Production (K).Name.Is_Empty then
@@ -201,6 +200,7 @@ package body Gela.Grammars_Convertors is
                                 Nested_Name;
                            end if;
 
+                           Next := Processed;
                            Next (Part.Index) := K;
                            Create_Recursive
                              (Input.Production (K), Nested_Name, Next);

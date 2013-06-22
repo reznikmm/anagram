@@ -1,0 +1,7 @@
+Token A;
+Token B;
+Token C;
+Token D;
+Token E;
+
+NT ::= [ A | (e)B [E]] C [ D ];
