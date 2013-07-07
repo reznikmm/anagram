@@ -59,6 +59,7 @@ package body Gela.Grammars.AYACC is
          for P in NT.First .. NT.Last loop
             declare
                Prod : Production renames Input.Production (P);
+               Length : Positive := 4;
             begin
                if P = NT.First then
                   Put ("    ");
@@ -69,8 +70,18 @@ package body Gela.Grammars.AYACC is
                for Part of Input.Part (Prod.First .. Prod.Last) loop
                   if Part.Is_Terminal_Reference then
                      Put (" " & Input.Terminal (Part.Denote).Image);
+                     Length := Length + 1 +
+                       Input.Terminal (Part.Denote).Image.Length;
                   else
                      Put (" " & Input.Non_Terminal (Part.Denote).Name);
+                     Length := Length + 1 +
+                       Input.Non_Terminal (Part.Denote).Name.Length;
+                  end if;
+
+                  if Length > 60 then
+                     New_Line;
+                     Put ("    ");
+                     Length := 4;
                   end if;
                end loop;
 

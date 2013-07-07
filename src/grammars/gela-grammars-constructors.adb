@@ -810,9 +810,14 @@ package body Gela.Grammars.Constructors is
          declare
             X : constant S.Universal_String := Reference_Maps.Key (Pos);
             Y : constant Part_Access := Reference_Maps.Element (Pos);
+            Z : Part_Access;
          begin
             if Left.Contains (X) then
-               if Left.Element (X).Denote /= Y.Denote then
+               Z := Left.Element (X);
+
+               if Z.Kind = Terminal_Reference and Z.Kind = Y.Kind then
+                  null;
+               elsif Z.Denote /= Y.Denote then
                   Ada.Wide_Wide_Text_IO.Put_Line (X.To_Wide_Wide_String);
                   raise Constraint_Error;
                end if;
