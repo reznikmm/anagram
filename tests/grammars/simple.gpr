@@ -1,0 +1,12 @@
+with "gela_grammars";
+
+project simple is
+
+   for Source_Dirs use (external ("SOURCE_DIR"));
+   for Object_Dir use external ("OBJECT_DIR");
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-gnatwae", "-gnat12", "-g");
+   end Compiler;
+
+end simple;

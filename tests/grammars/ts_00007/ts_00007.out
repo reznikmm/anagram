@@ -1,0 +1,41 @@
+Terminals:
+ 1 T
+  Attr: ast inherited=FALSE
+Non Terminals:
+ 1 NT
+  Attr: ast inherited=FALSE
+  Attr: env inherited=TRUE
+  Production: T ( 1)
+    T refs T
+    NT2 refs NT2
+Rule: 
+  Result: LHS.ast
+  Arg: T.ast
+Rule: 
+  Result: NT2.env
+  Arg: LHS.env
+  Production: TT ( 2)
+    t1 refs T
+    t2 refs T
+  Production: TList ( 3)
+    tlist Option:
+  Production: tlist ( 5)
+    tlist refs tlist
+ End
+  Production: TOpt ( 4)
+     Option:
+  Production:  ( 6)
+    T refs T
+    nt2 refs NT
+ End
+ 2 NT2
+  Attr: env inherited=TRUE
+  Production: T ( 7)
+    T refs T
+ 3 tlist (List)
+  Production: T ( 8)
+    head Option:
+  Production: head ( 9)
+    head refs tlist
+ End
+    T refs T
