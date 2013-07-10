@@ -1,0 +1,14 @@
+Token a_id;
+Token b_plus Priority 1 left;
+Token c_star Priority 2 left;
+Token d_open;
+Token e_close;
+
+a_E ::=
+ (plus)   a_E<l> b_plus a_E<r> |
+ (star)   a_E<l> c_star a_E<r> |
+ (br)     d_open a_E e_close |
+ (id)     a_id;
+
+Priority a_E.plus 1 left;
+Priority a_E.star 2 left;

@@ -1,0 +1,29 @@
+Terminals:
+ 1 T1
+ 2 T2
+  Attr: AT2 inherited=FALSE
+ 3 T3
+  Attr: AT3 inherited=FALSE
+Non Terminals:
+ 1 L1
+  Attr: L1s inherited=FALSE
+  Production: PL1 ( 1)
+    t3 refs T3
+Rule: 
+  Result: LHS.L1s
+  Arg: t3.AT3
+ 2 NT1
+  Production: P1_OP1 ( 2)
+    t1 refs T1
+    t2 refs T2
+    nt2 refs NT2
+  Production: P1 ( 3)
+    t1 refs T1
+ 3 NT2
+  Attr: ANT2s inherited=FALSE
+  Production: P2 ( 4)
+    nt1 refs NT1
+    L1 refs L1
+Rule: 
+  Result: LHS.ANT2s
+  Arg: L1.L1s

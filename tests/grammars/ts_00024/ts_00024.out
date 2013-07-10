@@ -1,0 +1,36 @@
+Terminals:
+ 1 A
+ 2 B
+ 3 C
+ 4 D
+ 5 E
+Non Terminals:
+ 1 NT
+  Production: A_D ( 1)
+    A refs A
+    C refs C
+    D refs D
+  Production: A ( 2)
+    A refs A
+    C refs C
+  Production: e_E_D ( 3)
+    B refs B
+    E refs E
+    C refs C
+    D refs D
+  Production: e_E ( 4)
+    B refs B
+    E refs E
+    C refs C
+  Production: e_D ( 5)
+    B refs B
+    C refs C
+    D refs D
+  Production: e ( 6)
+    B refs B
+    C refs C
+  Production: D ( 7)
+    C refs C
+    D refs D
+  Production:  ( 8)
+    C refs C

@@ -1,0 +1,118 @@
+Terminals:
+ 1 Id
+  Attr: ast inherited=FALSE
+ 2 Minus
+ 3 Plus
+  Attr: ast inherited=FALSE
+Non Terminals:
+ 1 E
+  Attr: ast inherited=FALSE
+  Production: E-
+    T refs T
+    E1 refs E1
+Rule: 
+  Result: LHS.ast
+  Arg: T.ast
+  Arg: E1.ast
+ 2 E1
+  Attr: ast inherited=FALSE
+  Production: E1-
+    Plus refs Plus
+    T refs T
+Rule: 
+  Result: LHS.ast
+  Arg: T.ast
+ 3 T
+  Attr: ast inherited=FALSE
+  Production: T-
+    Id refs Id
+Rule: 
+  Result: LHS.ast
+  Arg: Id.ast
+package Tokens is
+
+   type Token is
+     (Id,
+      Minus,
+      Plus);
+
+end Tokens;
+
+with Tokenizers;
+package Aaa is
+
+   type Parser is new Tokenizers.Tokenizer with null record;
+
+   procedure E
+     (Self : in out Parser;
+      ast : in out Integer);
+
+   procedure E1
+     (Self : in out Parser;
+      ast : in out Integer);
+
+   procedure T
+     (Self : in out Parser;
+      ast : in out Integer);
+
+end Aaa;
+with Tokens; use Tokens;
+package body Aaa is
+   procedure E
+     (Self : in out Parser;
+      ast : in out Integer) is
+   begin
+      declare
+         package T is
+            ast : Integer;
+         end T;
+
+         package E1 is
+            ast : Integer;
+         end E1;
+
+      begin
+         Self.T (T.ast);
+         Self.E1 (E1.ast);
+          E.ast := T.ast + E1.ast; 
+      end;
+   end E;
+
+   procedure E1
+     (Self : in out Parser;
+      ast : in out Integer) is
+   begin
+      declare
+         package Plus is
+            ast : Integer;
+         end Plus;
+
+         package T is
+            ast : Integer;
+         end T;
+
+      begin
+         Self.Match (Tokens.Plus);
+         Self.T (T.ast);
+          E1.ast := T.ast; 
+      end;
+   end E1;
+
+   procedure T
+     (Self : in out Parser;
+      ast : in out Integer) is
+   begin
+      declare
+         package Id is
+            ast : Integer;
+         end Id;
+
+      begin
+         Self.Match (Tokens.Id);
+          T.ast := Id.ast; 
+      end;
+   end T;
+
+
+end Aaa;
+TRUE

@@ -1,0 +1,18 @@
+Terminals:
+ 1 T1
+ 2 T2
+ 3 T3
+Non Terminals:
+ 1 NT1
+  Production: P1 ( 1)
+    nt3 refs NT3
+    nt2 refs NT2
+    t3 refs T3
+ 2 NT2
+  Production: P2 ( 2)
+    t1 refs T1
+    nt3 refs NT3
+ 3 NT3
+  Production: P3 ( 3)
+    t2 refs T2
+    nt1 refs NT1
