@@ -1,8 +1,0 @@
-Token int;
-Token plus;
-Token star;
-
-exp ::= int |
- (plus) exp<left> plus exp |
- (star) exp<left> star exp;
-

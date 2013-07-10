@@ -1,3 +1,0 @@
-LL(1) conflict on non-terminal inputfile between productions B and A on : 
- Token_Token
-FALSE

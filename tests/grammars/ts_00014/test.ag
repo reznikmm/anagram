@@ -1,8 +1,0 @@
-Token Token_Token;
-
-inputfile ::= (A) item |
- (B) item inputfile;
-
-item ::= tokenrule;
-
-tokenrule ::= Token_Token;

@@ -1,3 +1,0 @@
-Token Id;
-
-E  ::= E Id;
