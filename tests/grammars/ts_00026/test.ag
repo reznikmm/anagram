@@ -1,0 +1,6 @@
+Token a;
+Token b;
+Token c;
+
+X ::= [a [b] [c]];
+

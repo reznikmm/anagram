@@ -1,0 +1,19 @@
+Terminals:
+ 1 a
+ 2 b
+ 3 c
+Non Terminals:
+ 1 X
+  Production: 2_b_c ( 1)
+    a refs a
+    b refs b
+    c refs c
+  Production: 2_b ( 2)
+    a refs a
+    b refs b
+  Production: 2_c ( 3)
+    a refs a
+    c refs c
+  Production: 2 ( 4)
+    a refs a
+  Production:  ( 5)

@@ -17,12 +17,6 @@ with League.String_Vectors;
 
 package body Gela.Grammars_Convertors is
 
-   package Option_Maps is new Ada.Containers.Ordered_Maps
-     (Gela.Grammars.Part_Index,
-      Gela.Grammars.Production_Count,
-      "<" => Gela.Grammars."<",
-      "=" => Gela.Grammars."=");
-
    package String_Sets is new Ada.Containers.Ordered_Sets
      (League.Strings.Universal_String, League.Strings."<", League.Strings."=");
 
@@ -58,6 +52,8 @@ package body Gela.Grammars_Convertors is
       pragma Unreferenced (Left);
       use Gela.Grammars;
 
+      type Plain_Production is array (Part_Index range <>) of Part_Index;
+
       procedure Copy_Productions
         (PL          : in out Constructors.Production_List;
          NT_Name     : S.Universal_String;
@@ -66,9 +62,7 @@ package body Gela.Grammars_Convertors is
       procedure Create_Production
         (PL        : in out Constructors.Production_List;
          NT_Name   : S.Universal_String;
-         P         : Production_Index;
-         Name      : S.Universal_String;
-         Processed : in out Option_Maps.Map);
+         P         : Production_Index);
 
       procedure Create_Declarations
         (Non_Terminal : S.Universal_String;
@@ -79,6 +73,23 @@ package body Gela.Grammars_Convertors is
       function Check
         (Part_Names : String_Sets.Set;
          Attr       : Attribute_Index) return Boolean;
+
+      procedure Fill_Part_Indexes
+        (Output : out Plain_Production;
+         First  : Part_Index);
+
+      -----------------------
+      -- Fill_Part_Indexes --
+      -----------------------
+
+      procedure Fill_Part_Indexes
+        (Output : out Plain_Production;
+         First  : Part_Index) is
+      begin
+         for J in Output'Range loop
+            Output (J) := First + J - Output'First;
+         end loop;
+      end Fill_Part_Indexes;
 
       Output    : Gela.Grammars.Constructors.Constructor;
       Derived   : Derived_Production_Vectors.Vector;
@@ -107,135 +118,125 @@ package body Gela.Grammars_Convertors is
       procedure Create_Production
         (PL        : in out Constructors.Production_List;
          NT_Name   : S.Universal_String;
-         P         : Production_Index;
-         Name      : S.Universal_String;
-         Processed : in out Option_Maps.Map)
+         P         : Production_Index)
       is
+
          procedure Create_Recursive
-           (Nested    : Production;
-            Name      : S.Universal_String;
-            Processed : in out Option_Maps.Map);
-
-         procedure Copy_Recursive
-           (Nested    : Production;
-            Processed : Option_Maps.Map;
-            Result    : in out Constructors.Production;
-            Derived   : in out Derived_Production);
-
-         --------------------
-         -- Copy_Recursive --
-         --------------------
-
-         procedure Copy_Recursive
-           (Nested    : Production;
-            Processed : Option_Maps.Map;
-            Result    : in out Constructors.Production;
-            Derived   : in out Derived_Production) is
-         begin
-            for Part of Input.Part (Nested.First .. Nested.Last) loop
-               if Part.Is_Terminal_Reference then
-                  Result.Add
-                    (Output.Create_Terminal_Reference
-                       (Name  => Part.Name,
-                        Image => Input.Terminal (Part.Denote).Image));
-
-                  Derived.Part_Names.Insert (Part.Name);
-
-               elsif Part.Is_Non_Terminal_Reference
-                 or Part.Is_List_Reference
-               then
-                  Result.Add
-                    (Output.Create_Non_Terminal_Reference
-                       (Denote => Input.Non_Terminal
-                          (Part.Denote).Name,
-                        Name   => Part.Name));
-
-                  Derived.Part_Names.Insert (Part.Name);
-
-               elsif Part.Is_Option then
-                  if Processed.Contains (Part.Index) and then
-                    Processed (Part.Index) > 0
-                  then
-                     Copy_Recursive
-                       (Input.Production (Processed (Part.Index)),
-                        Processed,
-                        Result,
-                        Derived);
-                  end if;
-               end if;
-            end loop;
-         end Copy_Recursive;
+           (Plain : Plain_Production;
+            Name  : S.Universal_String);
+         --  If Plain has an option - expand it an call again.
+         --  Otherwise create new production
 
          ----------------------
          -- Create_Recursive --
          ----------------------
 
          procedure Create_Recursive
-           (Nested    : Production;
-            Name      : S.Universal_String;
-            Processed : in out Option_Maps.Map)
-         is
-            use type S.Universal_String;
+           (Plain : Plain_Production;
+            Name  : S.Universal_String) is
          begin
-            for Part of Input.Part (Nested.First .. Nested.Last) loop
-               if Part.Is_Option then
-                  if not Processed.Contains (Part.Index) then
-                     Processed.Insert (Part.Index, 0);
+            for J in Plain'Range loop
+               if Input.Part (Plain (J)).Is_Option then
+                  --  Expand option
+                  for K of Input.Production (Input.Part (Plain (J)).First
+                                               .. Input.Part (Plain (J)).Last)
+                  loop
+                     declare
+                        use type S.Universal_String;
 
-                     for K in Part.First .. Part.Last loop
+                        Nested_Name : S.Universal_String := K.Name;
+                        Length : constant Part_Count := K.Last - K.First + 1;
+                     begin
+                        if Nested_Name.Is_Empty then
+                           Nested_Name := S.To_Universal_String
+                             (Production_Index'Wide_Wide_Image (K.Index));
+                           Nested_Name.Slice (2, Nested_Name.Length);
+                        end if;
+
+                        if not Name.Is_Empty then
+                           Nested_Name := Name & "_" & Nested_Name;
+                        end if;
+
                         declare
-                           Next : Option_Maps.Map;
-                           Nested_Name : S.Universal_String;
+                           Next  : Plain_Production
+                             (1 .. Plain'Length - 1 + Length);
+                           Count : constant Part_Count := J - Plain'First;
                         begin
-                           if Input.Production (K).Name.Is_Empty then
-                              Nested_Name := S.To_Universal_String
-                                (Production_Index'Wide_Wide_Image (K));
-                              Nested_Name.Slice (2, Nested_Name.Length);
-                           else
-                              Nested_Name := Input.Production (K).Name;
-                           end if;
-
-                           if not Name.Is_Empty then
-                              Nested_Name := Name & "_" &
-                                Nested_Name;
-                           end if;
-
-                           Next := Processed;
-                           Next (Part.Index) := K;
-                           Create_Recursive
-                             (Input.Production (K), Nested_Name, Next);
-                           Create_Production
-                             (PL, NT_Name, P, Nested_Name, Next);
+                           Next (1 .. Count) := Plain (Plain'First .. J - 1);
+                           Fill_Part_Indexes
+                             (Next (Count + 1 .. Count + Length), K.First);
+                           Next (Count + Length + 1 .. Next'Last) :=
+                             Plain (J + 1 .. Plain'Last);
+                           Create_Recursive (Next, Nested_Name);
                         end;
-                     end loop;
-                  end if;
+                     end;
+                  end loop;
+
+                  --  Strip option away
+                  declare
+                     Next  : Plain_Production (1 .. Plain'Length - 1);
+                     Count : constant Part_Count := J - Plain'First;
+                  begin
+                     Next (1 .. Count) := Plain (Plain'First .. J - 1);
+                     Next (Count + 1 .. Next'Last) :=
+                       Plain (J + 1 .. Plain'Last);
+                     Create_Recursive (Next, Name);
+                  end;
+
+                  return;
                end if;
             end loop;
+
+            Derived.Append
+              ((Non_Terminal => NT_Name,
+                Name         => Name,
+                Index        => P,
+                Part_Names   => String_Sets.Empty_Set));
+
+            declare
+               Result  : Constructors.Production := Output.Create_Production
+                 (Name, Precedence (Input.Production (P)));
+               Derived : Derived_Production
+                 renames Convert.Derived (Convert.Derived.Last_Index);
+            begin
+               for Each of Plain loop
+                  declare
+                     Part : Grammars.Part renames Input.Part (Each);
+                  begin
+                     if Part.Is_Terminal_Reference then
+                        Result.Add
+                          (Output.Create_Terminal_Reference
+                             (Name  => Part.Name,
+                              Image => Input.Terminal (Part.Denote).Image));
+
+                        Derived.Part_Names.Insert (Part.Name);
+
+                     elsif Part.Is_Non_Terminal_Reference
+                       or Part.Is_List_Reference
+                     then
+                        Result.Add
+                          (Output.Create_Non_Terminal_Reference
+                             (Denote => Input.Non_Terminal
+                                (Part.Denote).Name,
+                              Name   => Part.Name));
+
+                        Derived.Part_Names.Insert (Part.Name);
+                     else
+                        raise Program_Error;
+                     end if;
+                  end;
+               end loop;
+
+               PL.Add (Result);
+            end;
          end Create_Recursive;
 
-         Result       : Constructors.Production :=
-           Output.Create_Production (Name, Precedence (Input.Production (P)));
+         Length : constant Part_Count :=
+           Input.Production (P).Last - Input.Production (P).First + 1;
+         Plain  : Plain_Production (1 .. Length);
       begin
-         Create_Recursive (Input.Production (P), Name, Processed);
-
-         Derived.Append
-           ((Non_Terminal => NT_Name,
-             Name         => Name,
-             Index        => P,
-             Part_Names   => String_Sets.Empty_Set));
-
-         declare
-            Derived_Prod : Derived_Production
-              renames Derived (Derived.Last_Index);
-         begin
-            Copy_Recursive
-              (Input.Production (P),
-               Processed,
-               Result,
-               Derived_Prod);
-         end;
-
-         PL.Add (Result);
+         Fill_Part_Indexes (Plain, Input.Production (P).First);
+         Create_Recursive (Plain, Input.Production (P).Name);
       end Create_Production;
 
       -----------
@@ -266,12 +267,7 @@ package body Gela.Grammars_Convertors is
          First, Last : Production_Index) is
       begin
          for P in First .. Last loop
-            declare
-               Processed : Option_Maps.Map := Option_Maps.Empty_Map;
-            begin
-               Create_Production
-                 (PL, NT_Name, P, Input.Production (P).Name, Processed);
-            end;
+            Create_Production (PL, NT_Name, P);
          end loop;
       end Copy_Productions;
 
