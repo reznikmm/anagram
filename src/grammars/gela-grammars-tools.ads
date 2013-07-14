@@ -15,7 +15,7 @@ package Gela.Grammars.Tools is
    type Terminal_Set_Indexed_By_Production is
      array (Production_Index range <>,
             Terminal_Count   range <>)
-     of Boolean;
+     of Boolean with Pack;
 
    type Terminal_Set_Per_Production
      (Last_Terminal   : Terminal_Count;
@@ -28,7 +28,7 @@ package Gela.Grammars.Tools is
    type Terminal_Set_Indexed_By_Non_Terminal is
      array (Non_Terminal_Index range <>,
             Terminal_Count     range <>)
-     of Boolean;
+     of Boolean with Pack;
 
    type Terminal_Set_Per_Non_Terminal
      (Last_Terminal     : Terminal_Count;
