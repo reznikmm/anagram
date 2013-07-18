@@ -1,3 +1,12 @@
+------------------------------------------------------------------------------
+--                        G E L A   G R A M M A R S                         --
+--        Library for dealing with grammars for for Gela project,           --
+--                        a portable Ada compiler                           --
+--                        http://gela.ada-ru.org/                           --
+--                     - - - - - - - - - - - - - - -                        --
+--              Read copyright and license in gela.ads file                 --
+------------------------------------------------------------------------------
+
 with Matreshka.Internals.Unicode;
 
 package body Gela.Grammars.Scanners is
@@ -90,9 +99,9 @@ package body Gela.Grammars.Scanners is
       --    Wide_Wide_Character'Val (Abstract_Sources.End_Of_Data);
 
       Current_State : State := Self.Start;
-      Char : Character_Class;
-      Next_Rule : Scanner_Types.Rule_Index;
-      Skip      : Boolean := True;
+      Char          : Character_Class;
+      Next_Rule     : Scanner_Types.Rule_Index;
+      Skip          : Boolean := True;
    begin
       loop
          if Self.Buffer (Self.Next) = EOF then
