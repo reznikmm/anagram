@@ -37,8 +37,6 @@ package Gela.Grammars.Scanners is
 
    procedure Get_Token (Self : access Scanner'Class; Result : out Token);
 
-   procedure Move_Back (Self : in out Scanner'Class; Count : Positive) is null;
-
    function Get_Text
      (Self : Scanner'Class) return League.Strings.Universal_String;
 
@@ -46,7 +44,7 @@ package Gela.Grammars.Scanners is
    function Get_Token_Position (Self : Scanner'Class) return Positive;
 private
 
-   Buffer_Half_Size : constant := 1024;
+   Buffer_Half_Size : constant := 2048;
 
    subtype Buffer_Index is Positive range 1 .. 2 * Buffer_Half_Size;
 
