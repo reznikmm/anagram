@@ -15,7 +15,7 @@ package body Gela.Grammars.LR.Simple is
    -- Build --
    -----------
 
-   function Build (Input : Grammar) return LR_Tables.Table is
+   function Build (Input : Grammar) return LR_Tables.Table_Access is
       type Non_Terminal_Map is array (Non_Terminal_Index range <>) of Boolean;
 
       procedure Add_Reduces
@@ -32,7 +32,7 @@ package body Gela.Grammars.LR.Simple is
         (Input.Last_Terminal, Input.Last_Non_Terminal);
 
       C          : constant Set_Of_LR_Item_Set_Access := Items (Input);
-      Result     : LR_Tables.Table := LR_Tables.Create
+      Result     : constant LR_Tables.Table_Access := LR_Tables.Create
         (Last_State        => C.Last_State,
          Last_Terminal     => Input.Last_Terminal,
          Last_Non_Terminal => Input.Last_Non_Terminal);
@@ -52,11 +52,11 @@ package body Gela.Grammars.LR.Simple is
       begin
          if Next > P.Last then  --  A := α .
             if NT = Input.Root then  --  S' := S .
-               LR_Tables.Set_Finish (Result, State);
+               LR_Tables.Set_Finish (Result.all, State);
             else
                for T in 0 .. Input.Last_Terminal loop
                   if Follow.Map (NT, T) then
-                     LR_Tables.Set_Reduce (Result, State, T, Prod, P.Last);
+                     LR_Tables.Set_Reduce (Result.all, State, T, Prod, P.Last);
                   end if;
                end loop;
             end if;
@@ -110,7 +110,7 @@ package body Gela.Grammars.LR.Simple is
                Target := C.Go_To (To_Reference (T), State);
 
                if Target /= 0 then
-                  LR_Tables.Set_Shift (Result, State, T, Target);
+                  LR_Tables.Set_Shift (Result.all, State, T, Target);
                end if;
             end loop;
 
@@ -119,7 +119,7 @@ package body Gela.Grammars.LR.Simple is
                Target := C.Go_To (To_Reference (NT), State);
 
                if Target /= 0 then
-                  LR_Tables.Set_Shift (Result, State, NT, Target);
+                  LR_Tables.Set_Shift (Result.all, State, NT, Target);
                end if;
             end loop;
          end;

@@ -59,15 +59,16 @@ package body Gela.Grammars.LR_Tables is
    function Create
      (Last_State        : LR.State_Index;
       Last_Terminal     : Terminal_Index;
-      Last_Non_Terminal : Non_Terminal_Index)
-      return Table is
+      Last_Non_Terminal : Non_Terminal_Index) return Table_Access is
    begin
-      return Result : Table (Last_State, Last_Terminal, Last_Non_Terminal) do
-         Result.T_Shift := (others => (others => 0));
-         Result.T_Finish := (others => False);
-         Result.T_Reduce := (others => (others => 0));
-         Result.NT_Shift := (others => (others => 0));
-      end return;
+      return new Table'(Last_State,
+                        Last_Terminal,
+                        Last_Non_Terminal,
+                        Reduce_Vector => <>,
+                        T_Shift  => (others => (others => 0)),
+                        T_Finish => (others => False),
+                        T_Reduce => (others => (others => 0)),
+                        NT_Shift => (others => (others => 0)));
    end Create;
 
    -----------

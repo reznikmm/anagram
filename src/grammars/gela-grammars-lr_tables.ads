@@ -34,7 +34,7 @@ package Gela.Grammars.LR_Tables is
    function Create
      (Last_State        : LR.State_Index;
       Last_Terminal     : Terminal_Index;
-      Last_Non_Terminal : Non_Terminal_Index) return Table;
+      Last_Non_Terminal : Non_Terminal_Index) return Table_Access;
 
    function Last_State (Self : Table) return LR.State_Index;
 
