@@ -14,7 +14,7 @@ package Gela.Grammars.LR.LALR is
 
    function Build
      (Input        : Grammar;
-      Right_Nulled : Boolean) return LR_Tables.Table;
+      Right_Nulled : Boolean) return LR_Tables.Table_Access;
    --  Build LARL table.
    --  If Right_Nulled then include reduction on LR items in form
    --  A ::= x1 ... xm · B1 ... Bt, where B1 ... Bt => ε. In this case

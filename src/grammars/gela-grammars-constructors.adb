@@ -91,6 +91,14 @@ package body Gela.Grammars.Constructors is
       case Item.Data.Kind is
          when Terminal_Reference =>
             if not Item.Data.Name.Is_Empty then
+               if Self.Data.References.Contains (Item.Data.Name) then
+                  Ada.Wide_Wide_Text_IO.Put_Line
+                    ("Duplicated token name: " &
+                       Item.Data.Name.To_Wide_Wide_String);
+                  Ada.Wide_Wide_Text_IO.Put_Line ("in production name: " &
+                       Self.Data.Name.To_Wide_Wide_String);
+               end if;
+
                Self.Data.References.Insert (Item.Data.Name, Item.Data);
             end if;
 
@@ -702,6 +710,15 @@ package body Gela.Grammars.Constructors is
                        Self.Terminals.Element (Denote).Attr.Element (Name);
                   when Non_Terminal_Reference | List =>
                      Denote := Part.Denote;
+                     if not Self.Non_Terminals.Element (Denote)
+                       .Attr.Contains (Name)
+                     then
+                        Ada.Wide_Wide_Text_IO.Put_Line
+                          ("No attribute '" & Name.To_Wide_Wide_String &
+                             "' in " & Denote.To_Wide_Wide_String);
+                        raise Constraint_Error;
+                     end if;
+
                      Attr :=
                        Self.Non_Terminals.Element (Denote).Attr.Element (Name);
                   when Option =>

@@ -36,7 +36,7 @@ package body Gela.Grammars.LR is
                                      then 2 * Data.Max_States
                                      else Data.Max_States),
                  Max_Items       => (if Data.Max_Items < Last_Item
-                                     then 2 * Data.Max_Items
+                                     then 2 * Last_Item
                                      else Data.Max_Items),
                  First_Reference => Data.First_Reference,
                  Last_Reference  => Data.Last_Reference,

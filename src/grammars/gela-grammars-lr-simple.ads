@@ -11,6 +11,6 @@ with Gela.Grammars.LR_Tables;
 
 package Gela.Grammars.LR.Simple is
 
-   function Build (Input : Grammar) return LR_Tables.Table;
+   function Build (Input : Grammar) return LR_Tables.Table_Access;
 
 end Gela.Grammars.LR.Simple;

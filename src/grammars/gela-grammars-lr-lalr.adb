@@ -19,7 +19,7 @@ package body Gela.Grammars.LR.LALR is
 
    function Build
      (Input        : Grammar;
-      Right_Nulled : Boolean) return LR_Tables.Table
+      Right_Nulled : Boolean) return LR_Tables.Table_Access
    is
       C : Set_Of_LR_Item_Set_Access := Items (Input);
       --  Set of LR(0) items
@@ -360,7 +360,7 @@ package body Gela.Grammars.LR.LALR is
       Look_Aheads : Terminal_Offset_Map := (others => (others => False));
       --  Look ahead terminals for each LR_Item in any state
 
-      Result : LR_Tables.Table := LR_Tables.Create
+      Result : constant LR_Tables.Table_Access := LR_Tables.Create
         (Last_State        => C.Last_State,
          Last_Terminal     => Input.Last_Terminal,
          Last_Non_Terminal => Input.Last_Non_Terminal);
@@ -393,7 +393,7 @@ package body Gela.Grammars.LR.LALR is
                   end if;
 
                   Add_Recuces
-                    (Result, Added, State, Prod, Next, Look_Aheads (J));
+                    (Result.all, Added, State, Prod, Next, Look_Aheads (J));
                end;
             end loop;
 
@@ -402,7 +402,7 @@ package body Gela.Grammars.LR.LALR is
                Target := C.Go_To (To_Reference (T), State);
 
                if Target /= 0 then
-                  LR_Tables.Set_Shift (Result, State, T, Target);
+                  LR_Tables.Set_Shift (Result.all, State, T, Target);
                end if;
             end loop;
 
@@ -411,7 +411,7 @@ package body Gela.Grammars.LR.LALR is
                Target := C.Go_To (To_Reference (NT), State);
 
                if Target /= 0 then
-                  LR_Tables.Set_Shift (Result, State, NT, Target);
+                  LR_Tables.Set_Shift (Result.all, State, NT, Target);
                end if;
             end loop;
          end;
