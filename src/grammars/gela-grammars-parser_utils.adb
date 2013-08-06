@@ -735,13 +735,7 @@ package body Gela.Grammars.Parser_Utils is
    begin
       if Text.Is_Empty then
          if Data.Parts.Last_Index = 1 then
-            declare
-               Part : constant Part_Access := Data.Parts.First_Element.Data;
-            begin
-               if Part.Kind = Reference_Kind then
-                  Text := Part.Reference;
-               end if;
-            end;
+            Text := Data.Parts.First_Element.Name;
          end if;
       end if;
 
