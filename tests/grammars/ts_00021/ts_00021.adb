@@ -77,14 +77,14 @@ begin
    declare
       use Gela.Grammars.LR;
 
-      Table : constant LR_Tables.Table := Simple.Build (AG);
+      Table : LR_Tables.Table_Access := Simple.Build (AG);
    begin
       Ada.Text_IO.Put_Line
-        ("Last_State=" & State_Index'Image (LR_Tables.Last_State (Table)));
+        ("Last_State=" & State_Index'Image (LR_Tables.Last_State (Table.all)));
 
-      Gela.Grammars_Debug.Print_Conflicts (AG, Table);
+      Gela.Grammars_Debug.Print_Conflicts (AG, Table.all);
 
-      for S in 1 .. LR_Tables.Last_State (Table) loop
+      for S in 1 .. LR_Tables.Last_State (Table.all) loop
          Ada.Text_IO.Put (State_Index'Image (S));
 
          if S <= 9 then
@@ -92,17 +92,19 @@ begin
          end if;
 
          for T in 0 .. AG.Last_Terminal loop
-            Print_Action (Table, S, T);
+            Print_Action (Table.all, S, T);
          end loop;
 
          Ada.Text_IO.Put (ASCII.HT);
 
          for NT in 1 .. AG.Last_Non_Terminal loop
             Ada.Text_IO.Put
-              (State_Count'Image (LR_Tables.Shift (Table, S, NT)));
+              (State_Count'Image (LR_Tables.Shift (Table.all, S, NT)));
          end loop;
 
          Ada.Text_IO.New_Line;
       end loop;
+
+      LR_Tables.Free (Table);
    end;
 end TS_00021;

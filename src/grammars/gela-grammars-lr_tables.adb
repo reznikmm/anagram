@@ -1,4 +1,25 @@
+------------------------------------------------------------------------------
+--                        G E L A   G R A M M A R S                         --
+--          Library for dealing with grammars for Gela project,             --
+--                        a portable Ada compiler                           --
+--                        http://gela.ada-ru.org/                           --
+--                     - - - - - - - - - - - - - - -                        --
+--              Read copyright and license in gela.ads file                 --
+------------------------------------------------------------------------------
+
+with Ada.Unchecked_Deallocation;
+
 package body Gela.Grammars.LR_Tables is
+
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Self : in out Table_Access) is
+      procedure Drop is new Ada.Unchecked_Deallocation (Table, Table_Access);
+   begin
+      Drop (Self);
+   end Free;
 
    --------------
    -- Is_Empty --

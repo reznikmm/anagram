@@ -17,6 +17,8 @@ package Gela.Grammars.LR_Tables is
    type Table (<>) is tagged private;
    type Table_Access is access all Table;
 
+   procedure Free (Self : in out Table_Access);
+
    type Reduce_Iterator is private;
 
    function Is_Empty (Self : Reduce_Iterator) return Boolean;
