@@ -52,7 +52,14 @@ package body Gela.Grammars_Convertors is
       pragma Unreferenced (Left);
       use Gela.Grammars;
 
-      type Plain_Production is array (Part_Index range <>) of Part_Index;
+      type Plain_Part is record
+         Source   : Part_Index;
+         Expanded : Boolean := False;
+         --  If Source if list_reference and Expanded = True then Source is
+         --  already expanded, skip it
+      end record;
+
+      type Plain_Production is array (Part_Index range <>) of Plain_Part;
 
       procedure Copy_Productions
         (PL          : in out Constructors.Production_List;
@@ -87,7 +94,8 @@ package body Gela.Grammars_Convertors is
          First  : Part_Index) is
       begin
          for J in Output'Range loop
-            Output (J) := First + J - Output'First;
+            Output (J).Source := First + J - Output'First;
+            Output (J).Expanded := False;
          end loop;
       end Fill_Part_Indexes;
 
@@ -124,7 +132,7 @@ package body Gela.Grammars_Convertors is
          procedure Create_Recursive
            (Plain : Plain_Production;
             Name  : S.Universal_String);
-         --  If Plain has an option - expand it an call again.
+         --  If Plain has an option or list_ref - expand it and call again.
          --  Otherwise create new production
 
          ----------------------
@@ -133,17 +141,37 @@ package body Gela.Grammars_Convertors is
 
          procedure Create_Recursive
            (Plain : Plain_Production;
-            Name  : S.Universal_String) is
+            Name  : S.Universal_String)
+         is
+            use type S.Universal_String;
+
+            procedure Remove_This_Away (J : Part_Index);
+            --  Remove J item from Plain and call Create_Recursive again
+
+            ----------------------
+            -- Remove_This_Away --
+            ----------------------
+
+            procedure Remove_This_Away (J : Part_Index) is
+               Next  : Plain_Production (1 .. Plain'Length - 1);
+               Count : constant Part_Count := J - Plain'First;
+            begin
+               Next (1 .. Count) := Plain (Plain'First .. J - 1);
+               Next (Count + 1 .. Next'Last) :=
+                 Plain (J + 1 .. Plain'Last);
+               Create_Recursive (Next, Name);
+            end Remove_This_Away;
+
+            Source : Part_Index;
          begin
             for J in Plain'Range loop
-               if Input.Part (Plain (J)).Is_Option then
+               Source := Plain (J).Source;
+               if Input.Part (Source).Is_Option then
                   --  Expand option
-                  for K of Input.Production (Input.Part (Plain (J)).First
-                                               .. Input.Part (Plain (J)).Last)
+                  for K of Input.Production (Input.Part (Source).First
+                                               .. Input.Part (Source).Last)
                   loop
                      declare
-                        use type S.Universal_String;
-
                         Nested_Name : S.Universal_String := K.Name;
                         Length : constant Part_Count := K.Last - K.First + 1;
                      begin
@@ -173,16 +201,32 @@ package body Gela.Grammars_Convertors is
                   end loop;
 
                   --  Strip option away
+                  Remove_This_Away (J);
+
+                  return;
+               elsif Input.Part (Source).Is_List_Reference
+                 and not Plain (J).Expanded
+               then
+                  --  Mark list ref as expanded an try again
                   declare
-                     Next  : Plain_Production (1 .. Plain'Length - 1);
-                     Count : constant Part_Count := J - Plain'First;
+                     Next        : Plain_Production := Plain;
+                     Nested_Name : S.Universal_String :=
+                       Input.Part (Source).Name;
                   begin
-                     Next (1 .. Count) := Plain (Plain'First .. J - 1);
-                     Next (Count + 1 .. Next'Last) :=
-                       Plain (J + 1 .. Plain'Last);
-                     Create_Recursive (Next, Name);
+                     if Nested_Name.Is_Empty then
+                        raise Constraint_Error;
+                     end if;
+
+                     if not Name.Is_Empty then
+                        Nested_Name := Name & "_" & Nested_Name;
+                     end if;
+
+                     Next (J).Expanded := True;
+                     Create_Recursive (Next, Nested_Name);
                   end;
 
+                  --  Strip away list reference away
+                  Remove_This_Away (J);
                   return;
                end if;
             end loop;
@@ -201,7 +245,7 @@ package body Gela.Grammars_Convertors is
             begin
                for Each of Plain loop
                   declare
-                     Part : Grammars.Part renames Input.Part (Each);
+                     Part : Grammars.Part renames Input.Part (Each.Source);
                   begin
                      if Part.Is_Terminal_Reference then
                         Result.Add
@@ -631,6 +675,11 @@ package body Gela.Grammars_Convertors is
               (PL,
                Non_Terminal.First,
                Non_Terminal.Last);
+
+            if Non_Terminal.Is_List then
+               PL.Add (Output.Create_Production
+                         (Name => S.To_Universal_String ("empty_list")));
+            end if;
 
             Output.Create_Non_Terminal (Non_Terminal.Name, PL);
 

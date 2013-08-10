@@ -18,24 +18,18 @@ Rule:
     t1 refs T
     t2 refs T
   Production: TList ( 3)
-    tlist Option:
-  Production: tlist ( 5)
-    tlist refs tlist
- End
+    tlist List:tlist
   Production: TOpt ( 4)
      Option:
-  Production:  ( 6)
+  Production:  ( 5)
     T refs T
     nt2 refs NT
  End
  2 NT2
   Attr: env inherited=TRUE
-  Production: T ( 7)
+  Production: T ( 6)
     T refs T
  3 tlist (List)
-  Production: T ( 8)
-    head Option:
-  Production: head ( 9)
-    head refs tlist
- End
+  Production: T ( 7)
+    head List:tlist
     T refs T

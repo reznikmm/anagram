@@ -21,9 +21,11 @@ Rule:
     t1 refs T1
  3 NT2
   Attr: ANT2s inherited=FALSE
-  Production: P2 ( 4)
+  Production: P2_L1 ( 4)
     nt1 refs NT1
     L1 refs L1
 Rule: 
   Result: LHS.ANT2s
   Arg: L1.L1s
+  Production: P2 ( 5)
+    nt1 refs NT1
