@@ -309,22 +309,9 @@ package body Gela.Grammars.Parser_Utils is
                           (Part.Name, Part.Data.Reference));
                   end if;
                when List_Reference_Kind =>
-                  declare
-                     use League.Strings;
-
-                     Production : Gela.Grammars.Constructors.Production :=
-                       Constructor.Create_Production (Part.Name);
-                     List       : Gela.Grammars.Constructors.Production_List :=
-                       Constructor.Create_Production_List;
-                     Option_Name : constant Universal_String := Part.Name;
-                  begin
-                     Production.Add
-                       (Constructor.Create_Non_Terminal_Reference
-                          (Part.Name, Part.Data.Reference));
-                     List.Add (Production);
-                     Result.Add
-                       (Constructor.Create_Option (Option_Name, List));
-                  end;
+                  Result.Add
+                    (Constructor.Create_List_Reference
+                       (Part.Name, Part.Data.Reference));
                when others =>
                   declare
                      List : Gela.Grammars.Constructors.Production_List :=
@@ -354,23 +341,14 @@ package body Gela.Grammars.Parser_Utils is
             declare
                Head : constant League.Strings.Universal_String :=
                  League.Strings.To_Universal_String ("head");
-               Option_Prod_List : Gela.Grammars.Constructors.Production_List :=
-                 Constructor.Create_Production_List;
-               Option_Prod : Gela.Grammars.Constructors.Production :=
-                 Constructor.Create_Production (Head);
                Item : Gela.Grammars.Constructors.Production :=
                  Constructor.Create_Production (Production.Name);
             begin
                if not Inside.Is_Empty then
-                  Option_Prod.Add
-                    (Constructor.Create_Non_Terminal_Reference
-                       (Name   => Head,
-                        Denote => Inside));
-                  Option_Prod_List.Add (Option_Prod);
                   Item.Add
-                    (Constructor.Create_Option
+                    (Constructor.Create_List_Reference
                        (Name => Head,
-                        List => Option_Prod_List));
+                        Denote => Inside));
                end if;
 
                To_Production (Production.Data, Item);
