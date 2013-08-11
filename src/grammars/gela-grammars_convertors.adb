@@ -40,6 +40,11 @@ package body Gela.Grammars_Convertors is
       Rule_Info,
       League.Strings."<");
 
+   procedure Create_Declarations
+     (Input  : Gela.Grammars.Grammar;
+      Output : in out Gela.Grammars.Constructors.Constructor;
+      NT     : Gela.Grammars.Non_Terminal);
+
    -------------
    -- Convert --
    -------------
@@ -71,10 +76,6 @@ package body Gela.Grammars_Convertors is
          NT_Name   : S.Universal_String;
          P         : Production_Index);
 
-      procedure Create_Declarations
-        (Non_Terminal : S.Universal_String;
-         First, Last  : Attribute_Declaration_Count);
-
       procedure Copy_Rules (Derived : Derived_Production);
 
       function Check
@@ -101,23 +102,6 @@ package body Gela.Grammars_Convertors is
 
       Output    : Gela.Grammars.Constructors.Constructor;
       Derived   : Derived_Production_Vectors.Vector;
-
-      -------------------------
-      -- Create_Declarations --
-      -------------------------
-
-      procedure Create_Declarations
-        (Non_Terminal : S.Universal_String;
-         First, Last  : Attribute_Declaration_Count) is
-      begin
-         for Declaration of Input.Declaration (First .. Last) loop
-            Output.Create_Attribute_Declaration
-              (Non_Terminal => Non_Terminal,
-               Name         => Declaration.Name,
-               Type_Name    => Declaration.Type_Name,
-               Is_Inherited => Declaration.Is_Inherited);
-         end loop;
-      end Create_Declarations;
 
       -----------------------
       -- Create_Production --
@@ -444,10 +428,7 @@ package body Gela.Grammars_Convertors is
 
             Output.Create_Non_Terminal (Non_Terminal.Name, PL);
 
-            Create_Declarations
-              (Non_Terminal.Name,
-               Non_Terminal.First_Attribute,
-               Non_Terminal.Last_Attribute);
+            Create_Declarations (Input, Output, Non_Terminal);
          end;
       end loop;
 
@@ -683,13 +664,40 @@ package body Gela.Grammars_Convertors is
 
             Output.Create_Non_Terminal (Non_Terminal.Name, PL);
 
---              Create_Declarations
---                (Non_Terminal.Name,
---                 Non_Terminal.First_Attribute,
---                 Non_Terminal.Last_Attribute);
+            Create_Declarations (Input, Output, Non_Terminal);
          end;
       end loop;
+
+      for R of Input.Rule loop
+         declare
+            Prod : Production renames Input.Production (R.Parent);
+            NT   : Non_Terminal renames Input.Non_Terminal (Prod.Parent);
+         begin
+            Output.Create_Rule (NT.Name, Prod.Name, R.Text);
+         end;
+      end loop;
+
       return Output.Complete;
    end Convert_With_Empty;
+
+   -------------------------
+   -- Create_Declarations --
+   -------------------------
+
+   procedure Create_Declarations
+     (Input  : Gela.Grammars.Grammar;
+      Output : in out Gela.Grammars.Constructors.Constructor;
+      NT     : Gela.Grammars.Non_Terminal) is
+   begin
+      for Declaration of Input.Declaration
+        (NT.First_Attribute .. NT.Last_Attribute)
+      loop
+         Output.Create_Attribute_Declaration
+           (Non_Terminal => NT.Name,
+            Name         => Declaration.Name,
+            Type_Name    => Declaration.Type_Name,
+            Is_Inherited => Declaration.Is_Inherited);
+      end loop;
+   end Create_Declarations;
 
 end Gela.Grammars_Convertors;
