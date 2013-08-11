@@ -1,0 +1,17 @@
+addop.plus_token 1 eval:  ${addop.operation} := ${addop.mode}); 
+assignemnt. 1 eval:  ${name.env} ::= inherited; 
+assignemnt. 1 descent: name 1
+assignemnt. 1 eval:  ${expression.postmode} ::= ${name.primode}; 
+assignemnt. 1 eval:  ${expression.env} ::= inherited; 
+assignemnt. 1 descent: expression 1
+assignemnt. 1 eval:  ${name.postmode} ::= ${name.primode}; 
+expression. 1 eval:  ${left.env} := ${expression.env}); 
+expression. 1 eval:  ${right.env} := ${expression.env}); 
+expression. 1 descent: left 1
+expression. 1 descent: right 1
+expression. 1 eval:  ${addop.mode} ::= ${left.primode} + ${right.primode}; 
+expression. 1 eval:  ${right.postmode} := ${left.primode} + ${right.primode}; 
+expression. 1 descent: addop 1
+expression. 1 eval:  ${left.postmode} := ${left.primode} + ${right.primode}; 
+expression. 1 eval:  ${expression.primode} ::= ${left.primode} + ${right.primode}; 
+name.id_token 1 eval:  ${name.primode} := get_type (${name.env}, ${id_token.symbol}); 

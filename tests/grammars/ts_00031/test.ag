@@ -1,0 +1,63 @@
+Token is_token;
+Token plus_token;
+Token id_token;
+
+assignemnt ::= name is_token expression;
+expression ::= name <left> addop name <right>;
+addop ::= plus_token;
+name ::= id_token;
+
+Inherited attributes
+name, expression : Integer : env;
+
+Inherited attributes
+name, expression : Integer : postmode;
+
+Synthesized attributes
+name, expression : Integer : primode;
+
+Synthesized attributes
+id_token : Integer : symbol;
+
+Inherited attributes
+addop : Integer : mode;
+
+Synthesized attributes
+addop : Integer : operation;
+
+Rules for name.id_token :
+(. ${name.primode} := get_type (${name.env}, ${id_token.symbol}); .)
+
+Rules for addop.plus_token :
+(. ${addop.operation} := ${addop.mode}); .)
+
+Rules for expression. :
+(. ${left.env} := ${expression.env}); .)
+
+Rules for expression. :
+(. ${right.env} := ${expression.env}); .)
+
+Rules for expression. :
+(. ${left.postmode} := ${left.primode} + ${right.primode}; .)
+
+Rules for expression. :
+(. ${right.postmode} := ${left.primode} + ${right.primode}; .)
+
+Rules for expression. :
+(. ${expression.primode} ::= ${left.primode} + ${right.primode}; .)
+
+Rules for expression. :
+(. ${addop.mode} ::= ${left.primode} + ${right.primode}; .)
+
+Rules for assignemnt. :
+(. ${name.env} ::= inherited; .)
+
+Rules for assignemnt. :
+(. ${expression.env} ::= inherited; .)
+
+Rules for assignemnt. :
+(. ${name.postmode} ::= ${name.primode}; .)
+
+Rules for assignemnt. :
+(. ${expression.postmode} ::= ${name.primode}; .)
+
