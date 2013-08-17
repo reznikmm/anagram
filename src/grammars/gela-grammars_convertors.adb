@@ -45,6 +45,9 @@ package body Gela.Grammars_Convertors is
       Output : in out Gela.Grammars.Constructors.Constructor;
       NT     : Gela.Grammars.Non_Terminal);
 
+   Empty_List_Name : constant League.Strings.Universal_String :=
+     League.Strings.To_Universal_String ("empty_list");
+
    -------------
    -- Convert --
    -------------
@@ -472,6 +475,8 @@ package body Gela.Grammars_Convertors is
          "<" => Less,
          "=" => League.Strings."=");
 
+      function Is_LHS_Only (R : Gela.Grammars.Rule) return Boolean;
+
       Output    : Gela.Grammars.Constructors.Constructor;
       Options   : Opt_Map.Map;
 
@@ -556,6 +561,25 @@ package body Gela.Grammars_Convertors is
          end;
       end Create_Option;
 
+      -----------------
+      -- Is_LHS_Only --
+      -----------------
+
+      function Is_LHS_Only (R : Gela.Grammars.Rule) return Boolean is
+      begin
+         if not Input.Attribute (R.Result).Is_Left_Hand_Side then
+            return False;
+         end if;
+
+         for J in R.First_Argument .. R.Last_Argument loop
+            if not Input.Attribute (J).Is_Left_Hand_Side then
+               return False;
+            end if;
+         end loop;
+
+         return True;
+      end Is_LHS_Only;
+
       ----------
       -- Less --
       ----------
@@ -634,6 +658,10 @@ package body Gela.Grammars_Convertors is
          return Less (Left, Right) = '<';
       end Less;
 
+      Has_Non_Empty_Rule  : array (Input.Declaration'Range) of Boolean :=
+        (others => False);
+      Empty_Rule : array (Input.Rule'Range) of Boolean := (others => False);
+
    begin
       for Terminal of Input.Terminal loop
          Output.Create_Terminal (Terminal.Image);
@@ -659,7 +687,7 @@ package body Gela.Grammars_Convertors is
 
             if Non_Terminal.Is_List then
                PL.Add (Output.Create_Production
-                         (Name => S.To_Universal_String ("empty_list")));
+                         (Name => Empty_List_Name));
             end if;
 
             Output.Create_Non_Terminal (Non_Terminal.Name, PL);
@@ -673,7 +701,32 @@ package body Gela.Grammars_Convertors is
             Prod : Production renames Input.Production (R.Parent);
             NT   : Non_Terminal renames Input.Non_Terminal (Prod.Parent);
          begin
-            Output.Create_Rule (NT.Name, Prod.Name, R.Text);
+            if NT.Is_List then
+               if Is_LHS_Only (R) then
+                  Empty_Rule (R.Index) := True;
+               else
+                  Has_Non_Empty_Rule
+                    (Input.Attribute (R.Result).Declaration) := True;
+               end if;
+            end if;
+         end;
+      end loop;
+
+      for R of Input.Rule loop
+         declare
+            Prod : Production renames Input.Production (R.Parent);
+            NT   : Non_Terminal renames Input.Non_Terminal (Prod.Parent);
+            Attr : Attribute renames Input.Attribute (R.Result);
+         begin
+            if not (NT.Is_List and Empty_Rule (R.Index)
+                    and Has_Non_Empty_Rule (Attr.Declaration))
+            then
+               Output.Create_Rule (NT.Name, Prod.Name, R.Text);
+            end if;
+
+            if NT.Is_List and Empty_Rule (R.Index) then
+               Output.Create_Rule (NT.Name, Empty_List_Name, R.Text);
+            end if;
          end;
       end loop;
 

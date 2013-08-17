@@ -540,11 +540,11 @@ package body Gela.Grammars.Ordered is
      (Partitions : Partition_Array;
       Attr       : Attribute_Declaration_Index) return Natural
    is
-      Partition : constant Partition_Index := Partitions (Attr);
+      Pass   : constant Partition_Index := (Partitions (Attr) + 1) / 2;
       Result : Natural := 0;
    begin
       for J of Partitions loop
-         if (J mod 2 = 1) and J <= Partition then
+         if (J + 1) / 2 <= Pass then
             Result := Result + 1;
          end if;
       end loop;
