@@ -404,6 +404,15 @@ package body Gela.Grammars is
       return Self.Parent;
    end Parent;
 
+   ------------
+   -- Parent --
+   ------------
+
+   function Parent (Self : Attribute) return Rule_Index is
+   begin
+      return Self.Parent;
+   end Parent;
+
    ----------------
    -- Precedence --
    ----------------
