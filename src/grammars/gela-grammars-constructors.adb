@@ -52,7 +52,8 @@ package body Gela.Grammars.Constructors is
       Attr    : Attribute_Declaration;
       LHS     : Boolean;
       Default : Boolean;
-      Part    : Part_Access);
+      Part    : Part_Access;
+      Rule    : Rule_Index);
 
    procedure Join
      (Left  : in out Reference_Maps.Map;
@@ -740,7 +741,8 @@ package body Gela.Grammars.Constructors is
                   Attr,
                   LHS,
                   Template.Has_Default (J),
-                  Part);
+                  Part,
+                  Self.Last_Rule);
             else
                raise Constraint_Error;
             end if;
@@ -752,7 +754,8 @@ package body Gela.Grammars.Constructors is
                Attr,
                LHS,
                Template.Has_Default (J),
-               Part);
+               Part,
+               Self.Last_Rule);
          end if;
 
       end loop;
@@ -772,11 +775,13 @@ package body Gela.Grammars.Constructors is
       Attr    : Attribute_Declaration;
       LHS     : Boolean;
       Default : Boolean;
-      Part    : Part_Access) is
+      Part    : Part_Access;
+      Rule    : Rule_Index) is
    begin
       Result.Attribute (Index).Index := Index;
       Result.Attribute (Index).Declaration := Attr.Index;
       Result.Attribute (Index).Has_Default := Default;
+      Result.Attribute (Index).Parent := Rule;
 
       if LHS then
          Result.Attribute (Index).Origin := 0;
