@@ -16,6 +16,10 @@ package body Gela.Grammars.Ordered is
 
    type Graph_Array is array (Production_Index range <>) of Gela.Graphs.Graph;
 
+   ---------
+   -- "<" --
+   ---------
+
    function "<" (Left, Right : Key) return Boolean is
    begin
       return Left.Prod < Right.Prod or
@@ -297,135 +301,152 @@ package body Gela.Grammars.Ordered is
          Total_Order : out Order_Maps.Map)
       is
 
-         procedure To_Part
-           (J    : Node_Index;
-            Part : out Part_Count;
-            Attr : out Attribute_Declaration_Index);
+         function Has_Depend (J : Node_Index) return Boolean;
+         --  there is AO depend on J
+         function Has_Depend_On_Partition (J : Node_Index) return Boolean;
+         --  there is AO depend on any AO of part+partition of J
+         procedure Mark_All_Synt (J : Node_Index);
+         --  mark all synt AO of part+partition of J as processed
 
-         -------------
-         -- To_Part --
-         -------------
+         Mark   : array (1 .. G.Size) of Boolean := (others => False);
+         --  if AO is processed
+         Map    : array (1 .. G.Size) of Rule_Count := (others => 0);
+         --  Map from AO to corresponding rule
+         Part   : array (1 .. G.Size) of Part_Count;
+         --  Map from AO to corresponding part or 0 in LHS
+         Attr   : array (1 .. G.Size) of Attribute_Declaration_Index;
+         --  Map from AO to corresponding attr declaration
 
-         procedure To_Part
-           (J    : Node_Index;
-            Part : out Part_Count;
-            Attr : out Attribute_Declaration_Index)
-         is
-            Count : constant Attribute_Declaration_Index :=
-              Attribute_Declaration_Index (J);
+         ----------------
+         -- Has_Depend --
+         ----------------
+
+         function Has_Depend (J : Node_Index) return Boolean is
          begin
-            Part := 0;
-            Attr := 1;
-            for K in P.First .. P.Last loop
-               if Count <= Offset (K) then
-                  return;
-               elsif Input.Part (K).Is_Non_Terminal_Reference then
-                  declare
-                     NT : Non_Terminal renames
-                       Input.Non_Terminal (Input.Part (K).Denote);
-                  begin
-                     Part := K;
-                     Attr := NT.First_Attribute + Count - Offset (K) - 1;
-                  end;
+            for K in 1 .. G.Size loop
+               if Edge (G, J, K) and not Mark (K) then
+                  return True;
                end if;
             end loop;
-         end To_Part;
 
-         Pass   : Positive := 1;
-         Part   : Partition_Index := 1;
-         Mark   : array (1 .. G.Size) of Boolean := (others => False);
-         Map    : array (1 .. G.Size) of Rule_Count := (others => 0);
-         Depend : Boolean;
-         Again  : Boolean := True;
-         Last   : Natural := Natural (G.Size) + 1;
+            return False;
+         end Has_Depend;
+
+         -----------------------------
+         -- Has_Depend_On_Partition --
+         -----------------------------
+
+         function Has_Depend_On_Partition (J : Node_Index) return Boolean is
+         begin
+            --  search over all attribute occurences (AO)
+            for K in 1 .. G.Size loop
+               --  the same part and the same partition
+               if Part (J) = Part (K) and then
+                 Partitions (Attr (J)) = Partitions (Attr (K)) and then
+                 Has_Depend (K)
+               then
+                  return True;
+               end if;
+            end loop;
+
+            return False;
+         end Has_Depend_On_Partition;
+
+         --------------
+         -- Mark_All --
+         --------------
+
+         procedure Mark_All_Synt (J : Node_Index) is
+         begin
+            --  search over all attribute occurences (AO)
+            for K in 1 .. G.Size loop
+               --  not marked and no rule (synt attr of part)
+               --  the same part and the same partition
+               if not Mark (K) and Map (K) = 0 and
+                 Part (J) = Part (K) and
+                 Partitions (Attr (J)) = Partitions (Attr (K))
+               then
+                  Mark (K) := True;
+               end if;
+            end loop;
+         end Mark_All_Synt;
+
+         Pass     : Positive := 1;
+         Max_Pass : Positive;
+         Again    : Boolean := True;
+         Last     : Natural := Natural (G.Size) + 1;
       begin
+         --  Fill Map attr occurence to rule index
          for R of Input.Rule (P.First_Rule .. P.Last_Rule) loop
             Map (To_Index (R.Result, P)) := R.Index;
          end loop;
 
-         --  Calculate total pass count and corresponding partition
-         for D in N.First_Attribute .. N.Last_Attribute loop
-            if Partitions (D) mod 2 = 1 then
-               declare
-                  New_Pass : constant Positive := To_Pass
-                    (Partitions (N.First_Attribute .. N.Last_Attribute), D);
-               begin
-                  if New_Pass >= Pass then
-                     Pass := New_Pass;
-                     Part := Partitions (D);
-                  end if;
-               end;
-            end if;
-         end loop;
+         --  Fill Attr and Part arrays
+         declare
+            Index : Node_Index := 1;
+         begin
+            for D in N.First_Attribute .. N.Last_Attribute loop
+               Part (Index) := 0;
+               Attr (Index) := D;
+               Index := Index + 1;
+            end loop;
+            for Pr of Input.Part (P.First .. P.Last) loop
+               if Pr.Is_Non_Terminal_Reference then
+                  declare
+                     NT : Non_Terminal renames Input.Non_Terminal (Pr.Denote);
+                  begin
+                     for D in NT.First_Attribute .. NT.Last_Attribute loop
+                        Part (Index) := Pr.Index;
+                        Attr (Index) := D;
+                        Index := Index + 1;
+                     end loop;
+                  end;
+               end if;
+            end loop;
+         end;
 
+         --  Calculate total pass count
          for D in N.First_Attribute .. N.Last_Attribute loop
-            if Partitions (D) = Part then
-               declare
-                  Index : constant Node_Index :=
-                    Node_Index (D - N.First_Attribute + 1);
-               begin
-                  Mark (Index) := True;
-                  Total_Order.Insert
-                    ((P.Index, Pass, Last), (Evaluate_Rule, Map (Index)));
-                  Last := Last - 1;
-               end;
-            end if;
+            Pass := Positive'Max (Pass, Positive (Partitions (D) + 1) / 2);
          end loop;
+         Max_Pass := Pass;
 
          while Again loop
             Again := False;
 
+            --  search over all attribute occurences (AO)
             for J in 1 .. G.Size loop
-               if not Mark (J) then
-                  Depend := True;
-
-                  for K in 1 .. G.Size loop
-                     if Edge (G, J, K) and not Mark (K) then
-                        Depend := False;
-                        exit;
-                     end if;
-                  end loop;
-
-                  if Depend then
-                     if Map (J) = 0 then
-                        declare
-                           Part : Part_Count;
-                           Attr : Attribute_Declaration_Index;
-                        begin
-                           To_Part (J, Part, Attr);
-
-                           if Part /= 0  then
-                              Total_Order.Insert
-                                ((P.Index, Pass, Last),
-                                 (Descent, Part, To_Pass (Part, Attr)));
-                           end if;
-                        end;
-                     else
-                        declare
-                           R : Rule renames Input.Rule (Map (J));
-                           A : Attribute renames Input.Attribute (R.Result);
-                        begin
-                           if A.Is_Left_Hand_Side and
-                             Partitions (A.Declaration) /= Part
-                           then
-                              Pass := Pass - 1;
-                              Part := Partitions (A.Declaration);
-                           end if;
-
-                           Total_Order.Insert
-                             ((P.Index, Pass, Last),
-                              (Evaluate_Rule, R.Index));
-                        end;
+               --  if AO has't processed yet and there is no (unprocessed) AO
+               --  depended on it
+               if not Mark (J) and then not Has_Depend (J) then
+                  --  if we have rule for AO:
+                  --  (synt attr of NT or inherited attr of part)
+                  if Map (J) /= 0 then
+                     --  if synt attr of NT then correct pass
+                     if Part (J) = 0 then
+                        --  Pass counted in reverse direction of partition
+                        Pass := Max_Pass + 1 -
+                          Positive (Partitions (Attr (J)) + 1) / 2;
                      end if;
 
-                     Mark (J) := True;
-                     Last := Last - 1;
-                     Again := True;
+                     Total_Order.Insert
+                       ((P.Index, Pass, Last),
+                        (Evaluate_Rule, Map (J)));
+                  elsif Part (J) /= 0 and not Has_Depend_On_Partition (J) then
+                     --  synt attr of Part (J)
+                     --  and no dependency on others synt AO-s of partition
+                     Total_Order.Insert
+                       ((P.Index, Pass, Last),
+                        (Descent, Part (J), To_Pass (Part (J), Attr (J))));
+                     Mark_All_Synt (J);
                   end if;
+
+                  Mark (J) := True;
+                  Last := Last - 1;
+                  Again := True;
                end if;
             end loop;
          end loop;
-
       end Set_Total_Order;
 
       --------------
@@ -516,10 +537,12 @@ package body Gela.Grammars.Ordered is
          Assign_Partition (NT);
       end loop;
 
+      for P of Input.Production loop
+         DS_To_DP (P, Induced_DP (P.Index));
+      end loop;
+
       for N of Input.Non_Terminal loop
          for P of Input.Production (N.First .. N.Last) loop
-            DS_To_DP (P, Induced_DP (P.Index));
-
             if Has_Self_Cycles (Induced_DP (P.Index)) then
                Found := False;
                return;
