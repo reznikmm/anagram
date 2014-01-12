@@ -1,5 +1,5 @@
 with "gela_common";
-with "league";
+with "matreshka/league";
 
 project Gela_Grammars is
 
