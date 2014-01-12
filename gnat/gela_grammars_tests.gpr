@@ -17,7 +17,7 @@ project Gela_Grammars_Tests is
       "../tests/grammars/ts_00022", "../tests/grammars/ts_00023",
       "../tests/grammars/ts_00024", "../tests/grammars/ts_00031");
 
-   for Object_Dir use Gela_Common.Build & "/gela_grammars";
+   for Object_Dir use Gela_Common.Build & "/tests/grammars";
 
    package Compiler is
       for Default_Switches ("ada") use Gela_Common.Check_Ada_Switches;
