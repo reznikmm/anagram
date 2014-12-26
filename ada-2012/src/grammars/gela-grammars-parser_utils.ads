@@ -176,7 +176,8 @@ package Gela.Grammars.Parser_Utils is
 
    procedure Complete
      (Self        : in out Context_Node;
-      Constructor : in out Gela.Grammars.Constructors.Constructor);
+      Constructor : in out Gela.Grammars.Constructors.Constructor;
+      Tail_List   : Boolean := False);
 
 private
 

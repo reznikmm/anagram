@@ -216,7 +216,8 @@ with Gela.Grammars.Constructors;
 
    procedure Read
      (Self : in out Parser;
-      Text : League.Strings.Universal_String);
+      Text : League.Strings.Universal_String;
+      Tail_List : Boolean := False);
 
    function Grammar (Self : in out Parser) return Gela.Grammars.Grammar;
 
@@ -242,7 +243,8 @@ with Gela.Grammars.Parser_Utils;
 
    procedure Read
      (Self : in out Parser;
-      Text : League.Strings.Universal_String)
+      Text : League.Strings.Universal_String;
+      Tail_List : Boolean := False)
    is
       Scanner     : aliased Gela.Grammars.Scanners.Scanner;
       Handler     : aliased Gela.Grammars.Scanner_Handler.Handler;
@@ -269,5 +271,5 @@ with Gela.Grammars.Parser_Utils;
       Scanner.Set_Source (Source'Unchecked_Access);
       Scanner.Set_Handler (Handler'Unchecked_Access);
       YYParse;
-      Context.Complete (Self.Constructor);
+      Context.Complete (Self.Constructor, Tail_List);
    end Read;

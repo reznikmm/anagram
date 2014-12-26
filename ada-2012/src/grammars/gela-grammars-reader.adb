@@ -46,10 +46,13 @@ package body Gela.Grammars.Reader is
       return Decoder.Decode (Data (1 .. Last));
    end Read_File;
 
-   function Read (File_Name : String) return Grammar is
+   function Read
+     (File_Name : String;
+      Tail_List : Boolean := False) return Grammar
+   is
       Parser : Ag.Parser;
    begin
-      Parser.Read (Read_File (File_Name));
+      Parser.Read (Read_File (File_Name), Tail_List);
       return Parser.Grammar;
    end Read;
 

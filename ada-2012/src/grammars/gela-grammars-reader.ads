@@ -9,6 +9,12 @@
 
 package Gela.Grammars.Reader is
 
-   function Read (File_Name : String) return Gela.Grammars.Grammar;
+   function Read
+     (File_Name : String;
+      Tail_List : Boolean := False) return Gela.Grammars.Grammar;
+   --  If Tail_List is False then a list expanded as
+   --  LIST ::= [LIST] <head> Item
+   --  If Tail_List is True then a list expanded as
+   --  LIST ::= Item [LIST] <tail>
 
 end Gela.Grammars.Reader;

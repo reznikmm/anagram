@@ -276,7 +276,8 @@ package body Gela.Grammars.Parser_Utils is
 
    procedure Complete
      (Self        : in out Context_Node;
-      Constructor : in out Gela.Grammars.Constructors.Constructor)
+      Constructor : in out Gela.Grammars.Constructors.Constructor;
+      Tail_List   : Boolean := False)
    is
       function To_Production_List
         (List   : Production_List_Access;
@@ -287,6 +288,12 @@ package body Gela.Grammars.Parser_Utils is
       procedure To_Production
         (Production : Production_Access;
          Result : in out Gela.Grammars.Constructors.Production);
+
+      Head : constant League.Strings.Universal_String :=
+        League.Strings.To_Universal_String ("head");
+
+      Tail : constant League.Strings.Universal_String :=
+        League.Strings.To_Universal_String ("tail");
 
       -------------------
       -- To_Production --
@@ -339,12 +346,10 @@ package body Gela.Grammars.Parser_Utils is
       begin
          for Production of List.Productions loop
             declare
-               Head : constant League.Strings.Universal_String :=
-                 League.Strings.To_Universal_String ("head");
                Item : Gela.Grammars.Constructors.Production :=
                  Constructor.Create_Production (Production.Name);
             begin
-               if not Inside.Is_Empty then
+               if not Tail_List and then not Inside.Is_Empty then
                   Item.Add
                     (Constructor.Create_List_Reference
                        (Name => Head,
@@ -352,6 +357,14 @@ package body Gela.Grammars.Parser_Utils is
                end if;
 
                To_Production (Production.Data, Item);
+
+               if Tail_List and then not Inside.Is_Empty then
+                  Item.Add
+                    (Constructor.Create_List_Reference
+                       (Name => Tail,
+                        Denote => Inside));
+               end if;
+
                Result.Add (Item);
             end;
          end loop;

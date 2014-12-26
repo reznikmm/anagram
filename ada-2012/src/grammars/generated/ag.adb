@@ -22,7 +22,8 @@ package body Ag is
 
    procedure Read
      (Self : in out Parser;
-      Text : League.Strings.Universal_String)
+      Text : League.Strings.Universal_String;
+      Tail_List : Boolean := False)
    is
       Scanner     : aliased Gela.Grammars.Scanners.Scanner;
       Handler     : aliased Gela.Grammars.Scanner_Handler.Handler;
@@ -470,6 +471,6 @@ end yyparse;
       Scanner.Set_Source (Source'Unchecked_Access);
       Scanner.Set_Handler (Handler'Unchecked_Access);
       YYParse;
-      Context.Complete (Self.Constructor);
+      Context.Complete (Self.Constructor, Tail_List);
    end Read;
 end Ag;

@@ -8,7 +8,8 @@ package Ag is
 
    procedure Read
      (Self : in out Parser;
-      Text : League.Strings.Universal_String);
+      Text : League.Strings.Universal_String;
+      Tail_List : Boolean := False);
 
    function Grammar (Self : in out Parser) return Gela.Grammars.Grammar;
 
