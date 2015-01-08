@@ -28,6 +28,7 @@ procedure TS_00023 is
    is
       use Gela.Grammars.LR_Tables;
       use type Gela.Grammars.Terminal_Count;
+      use type Gela.Grammars.Production_Count;
       use type Gela.Grammars.LR.State_Count;
 
       S : constant Gela.Grammars.LR.State_Count :=
@@ -42,14 +43,18 @@ procedure TS_00023 is
          Ada.Text_IO.Put ("SHIFT ");
          Ada.Text_IO.Put (Gela.Grammars.LR.State_Count'Image (S));
 
-         Ada.Text_IO.Put (' ');
+         if S in 1 .. 9 then
+            Ada.Text_IO.Put (' ');
+         end if;
       elsif not Is_Empty (R) then
          Ada.Text_IO.Put ("REDUCE");
 
          Ada.Text_IO.Put
            (Gela.Grammars.Production_Index'Image (Production (R)));
 
-         Ada.Text_IO.Put (' ');
+         if Production (R) <= 9 then
+            Ada.Text_IO.Put (' ');
+         end if;
       else
          Ada.Text_IO.Put ("Error    ");
       end if;
