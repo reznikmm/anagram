@@ -42,18 +42,14 @@ procedure TS_00021 is
          Ada.Text_IO.Put ("SHIFT ");
          Ada.Text_IO.Put (Gela.Grammars.LR.State_Count'Image (S));
 
-         if S in 1 .. 9 then
-            Ada.Text_IO.Put (' ');
-         end if;
+         Ada.Text_IO.Put (' ');
       elsif not Is_Empty (R) then
          Ada.Text_IO.Put ("REDUCE");
 
          Ada.Text_IO.Put
            (Gela.Grammars.Production_Index'Image (Production (R)));
 
-         if Production (R) in 1 .. 9 then
-            Ada.Text_IO.Put (' ');
-         end if;
+         Ada.Text_IO.Put (' ');
       else
          Ada.Text_IO.Put ("Error    ");
       end if;
