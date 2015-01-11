@@ -10,7 +10,7 @@ project Gela_Common is
      ("-gnat12", "-gnatW8", "-g");
 
    Check_Ada_Switches := Default_Ada_Switches &
-     ("-gnatVa", "-gnatwea", "-gnaty");
+     ("-gnatVa", "-gnatwea", "-gnaty", "-gnata");
 
    package Compiler is
       for Default_Switches ("ada") use Check_Ada_Switches;
