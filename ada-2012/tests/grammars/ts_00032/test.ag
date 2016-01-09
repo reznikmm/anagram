@@ -1,0 +1,14 @@
+Token a_id;
+Token b_eq;
+Token c_star;
+
+a_S ::=
+ (plus)   b_L b_eq c_R |
+ (single) c_R;
+
+b_L ::=
+ (star)   c_star c_R |
+ (single) a_id;
+
+c_R ::=
+ (single) b_L;

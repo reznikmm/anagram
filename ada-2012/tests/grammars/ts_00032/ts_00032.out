@@ -1,0 +1,12 @@
+Terminals 3 Non_Terminals 3 Production 5 Parts 8
+Last_State= 10
+ 1  Error     SHIFT  3  Error     SHIFT  2 	 4 5 6 0
+ 2  Error     SHIFT  3  Error     SHIFT  2 	 0 7 8 0
+ 3  REDUCE 4  Error     REDUCE 4  Error    	 0 0 0 0
+ 4  FINISH    Error     Error     Error    	 0 0 0 0
+ 5  REDUCE 5  Error     SHIFT  9  Error    	 0 0 0 0
+ 6  REDUCE 2  Error     Error     Error    	 0 0 0 0
+ 7  REDUCE 5  Error     REDUCE 5  Error    	 0 0 0 0
+ 8  REDUCE 3  Error     REDUCE 3  Error    	 0 0 0 0
+ 9  Error     SHIFT  3  Error     SHIFT  2 	 0 7 10 0
+ 10 REDUCE 1  Error     Error     Error    	 0 0 0 0

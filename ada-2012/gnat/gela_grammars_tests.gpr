@@ -6,7 +6,8 @@ project Gela_Grammars_Tests is
    for Main use
      ("ts_00001", "ts_00002", "ts_00003", "ts_00004", "ts_00005",
       "ts_00006", "ts_00007", "ts_00012", "ts_00014", "ts_00021",
-      "ts_00022", "ts_00023", "ts_00024", "ts_00026", "ts_00031");
+      "ts_00022", "ts_00023", "ts_00024", "ts_00026", "ts_00031",
+      "ts_00032");
 
    for Source_Dirs use
      ("../tests/grammars/ts_00001", "../tests/grammars/ts_00002",
@@ -16,7 +17,7 @@ project Gela_Grammars_Tests is
       "../tests/grammars/ts_00014", "../tests/grammars/ts_00021",
       "../tests/grammars/ts_00022", "../tests/grammars/ts_00023",
       "../tests/grammars/ts_00024", "../tests/grammars/ts_00026",
-      "../tests/grammars/ts_00031");
+      "../tests/grammars/ts_00031", "../tests/grammars/ts_00032");
 
    for Object_Dir use Gela_Common.Build & "/tests/grammars";
 
