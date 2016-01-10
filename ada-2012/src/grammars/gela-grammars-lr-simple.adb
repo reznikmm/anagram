@@ -31,6 +31,12 @@ package body Gela.Grammars.LR.Simple is
       Follow : Tools.Terminal_Set_Per_Non_Terminal
         (Input.Last_Terminal, Input.Last_Non_Terminal);
 
+      First_NT  : Tools.Non_Terminal_Set_Per_Non_Terminal
+        (Input.Last_Non_Terminal);
+
+      Follow_NT : Tools.Non_Terminal_Set_Per_Non_Terminal
+        (Input.Last_Non_Terminal);
+
       C          : constant Set_Of_LR_Item_Set_Access := Items (Input);
       Result     : constant LR_Tables.Table_Access := LR_Tables.Create
         (Last_State        => C.Last_State,
@@ -59,6 +65,12 @@ package body Gela.Grammars.LR.Simple is
                      LR_Tables.Set_Reduce (Result.all, State, T, Prod, P.Last);
                   end if;
                end loop;
+
+               for J in 1 .. Input.Last_Non_Terminal loop
+                  if Follow_NT.Map (NT, J) then
+                     LR_Tables.Set_Reduce (Result.all, State, J, Prod, P.Last);
+                  end if;
+               end loop;
             end if;
          elsif Input.Part (Next).Is_Non_Terminal_Reference then
             --  A := α . B β
@@ -79,8 +91,8 @@ package body Gela.Grammars.LR.Simple is
       end Add_Reduces;
 
    begin
-      Tools.Get_First (Input, First);
-      Tools.Get_Follow (Input, First, Follow);
+      Tools.Get_First (Input, First, First_NT);
+      Tools.Get_Follow (Input, First, First_NT, Follow, Follow_NT);
 
       for State in 1 .. C.Last_State loop
          declare

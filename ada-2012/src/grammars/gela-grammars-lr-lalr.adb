@@ -24,22 +24,29 @@ package body Gela.Grammars.LR.LALR is
       C : Set_Of_LR_Item_Set_Access := Items (Input);
       --  Set of LR(0) items
 
-      type Terminal_Set is array (0 .. Input.Last_Terminal) of Boolean
-        with Pack;
+      Min_Reference : constant Reference := To_Reference (Input.Last_Terminal);
+      Max_Reference : constant Reference :=
+        To_Reference (Input.Last_Non_Terminal);
+      subtype Ref is Reference range Min_Reference .. Max_Reference;
 
-      type Terminal_Offset_Map is array (1 .. C.Last_Item) of Terminal_Set;
+      type Reference_Set is array (Ref) of Boolean with Pack;
+
+      type Lookahead_Set is array (1 .. C.Last_Item) of Reference_Set;
       --  Set of terminal for each LR_Item in any State
 
       type Offset_Set is array (1 .. C.Last_Item) of Boolean with Pack;
       --  Set of unconsidered LR_Items
 
+      type Reference_Set_Indexed_By_Non_Terminal is
+        array (Non_Terminal_Index range <>) of Reference_Set;
+
       procedure Add_Recuces
         (Result : in out LR_Tables.Table;
-         Added  : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
+         Added  : in out Reference_Set_Indexed_By_Non_Terminal;
          State  : State_Index;
          Prod   : Production_Index;
          Next   : Part_Index;
-         LA     : Terminal_Set);
+         LA     : Reference_Set);
       --  Add reduce of Prod to Result using LA look ahead set and
       --  reduces of transitive closure of LR-item.
 
@@ -49,18 +56,18 @@ package body Gela.Grammars.LR.LALR is
          Offset  : in out LR_Item_Index);
       --  Look for next unconsidered LR_Item and it's State
 
-      procedure Fill_Look_Aheads (Look_Aheads : in out Terminal_Offset_Map);
+      procedure Fill_Look_Aheads (Look_Aheads : in out Lookahead_Set);
       --  Fill Look_Aheads table
 
       function Get_First
         (From, To : Part_Index;     --  This is β
-         Default  : Terminal_Set)   --  This is a
-         return Terminal_Set;       --  This is FIRST (βa)
+         Default  : Reference_Set)   --  This is a
+         return Reference_Set;       --  This is FIRST (βa)
 
       function Check_Added
-        (Added  : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
+        (Added  : in out Reference_Set_Indexed_By_Non_Terminal;
          Index  : Non_Terminal_Index;
-         Set    : in out Terminal_Set) return Boolean;
+         Set    : in out Reference_Set) return Boolean;
       --  Check if some of Set not in Added (Index) yet.
       --  Then let "Added := Added or Set" and "Set := Set - Added"
 
@@ -72,11 +79,11 @@ package body Gela.Grammars.LR.LALR is
 
       procedure Add_Recuces
         (Result : in out LR_Tables.Table;
-         Added  : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
+         Added  : in out Reference_Set_Indexed_By_Non_Terminal;
          State  : State_Index;
          Prod   : Production_Index;
          Next   : Part_Index;
-         LA     : Terminal_Set)
+         LA     : Reference_Set)
       is
          P  : Production renames Input.Production (Prod);
          NT : constant Non_Terminal_Index := P.Parent;
@@ -86,16 +93,28 @@ package body Gela.Grammars.LR.LALR is
                LR_Tables.Set_Finish (Result, State);
             else
                for T in 0 .. Input.Last_Terminal loop
-                  if LA (T) then
+                  if LA (To_Reference (T)) then
                      LR_Tables.Set_Reduce (Result, State, T, Prod, P.Last);
+                  end if;
+               end loop;
+               --  The same for non-terminals
+               for NT in 1 .. Input.Last_Non_Terminal loop
+                  if LA (To_Reference (NT)) then
+                     LR_Tables.Set_Reduce (Result, State, NT, Prod, P.Last);
                   end if;
                end loop;
             end if;
          elsif Input.Part (Next).Is_Non_Terminal_Reference then
             if Is_Right_Nulled (Next, P.Last) then
                for T in 0 .. Input.Last_Terminal loop
-                  if LA (T) then
+                  if LA (To_Reference (T)) then
                      LR_Tables.Set_Reduce (Result, State, T, Prod, Next - 1);
+                  end if;
+               end loop;
+               --  The same for non-terminals
+               for NT in 1 .. Input.Last_Non_Terminal loop
+                  if LA (To_Reference (NT)) then
+                     LR_Tables.Set_Reduce (Result, State, NT, Prod, P.Last);
                   end if;
                end loop;
             end if;
@@ -103,7 +122,7 @@ package body Gela.Grammars.LR.LALR is
             --  A := α . B β
             --  Add closure of kernel item
             declare
-               Set : Terminal_Set :=
+               Set : Reference_Set :=
                  Get_First (Next + 1, P.Last, LA);
                B : Non_Terminal renames
                  Input.Non_Terminal (Input.Part (Next).Denote);
@@ -128,38 +147,32 @@ package body Gela.Grammars.LR.LALR is
       -----------------
 
       function Check_Added
-        (Added  : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
+        (Added  : in out Reference_Set_Indexed_By_Non_Terminal;
          Index  : Non_Terminal_Index;
-         Set    : in out Terminal_Set) return Boolean
-      is
-         Result : Boolean := False;
+         Set    : in out Reference_Set) return Boolean is
       begin
-         for J in Set'Range loop
-            if Set (J) then
-               if Added (Index, J) then
-                  Set (J) := False;
-               else
-                  Added (Index, J) := True;
-                  Result := True;
-               end if;
-            end if;
-         end loop;
+         Set := Set and not Added (Index);
 
-         return Result;
+         if Set = (Ref => False) then
+            return False;
+         else
+            Added (Index) := Added (Index) or Set;
+            return True;
+         end if;
       end Check_Added;
 
       ----------------------
       -- Fill_Look_Aheads --
       ----------------------
 
-      procedure Fill_Look_Aheads (Look_Aheads : in out Terminal_Offset_Map) is
+      procedure Fill_Look_Aheads (Look_Aheads : in out Lookahead_Set) is
 
          procedure Add
-           (Added      : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
+           (Added      : in out Reference_Set_Indexed_By_Non_Terminal;
             State      : State_Index;
             Prod       : Production_Index;
             Next       : Part_Index;
-            Look_Ahead : Terminal_Set);
+            Look_Ahead : Reference_Set);
 
          Source_State  : LR.State_Index := 1;
          Source_Index  : LR_Item_Index := 1;
@@ -172,15 +185,15 @@ package body Gela.Grammars.LR.LALR is
          ---------
 
          procedure Add
-           (Added      : in out Tools.Terminal_Set_Indexed_By_Non_Terminal;
+           (Added      : in out Reference_Set_Indexed_By_Non_Terminal;
             State      : State_Index;
             Prod       : Production_Index;
             Next       : Part_Index;
-            Look_Ahead : Terminal_Set)
+            Look_Ahead : Reference_Set)
          is
             P   : Production renames Input.Production (Prod);
             R   : Reference;
-            Old : Terminal_Set;
+            Old : Reference_Set;
             Target_State  : LR.State_Index;
             Target_Index  : LR_Item_Index := LR_Item_Index'Last;
          begin
@@ -216,7 +229,7 @@ package body Gela.Grammars.LR.LALR is
             if Input.Part (Next).Is_Non_Terminal_Reference then
                --  Add closure of kernel item
                declare
-                  Set : Terminal_Set :=
+                  Set : Reference_Set :=
                     Get_First (Next + 1, P.Last, Look_Ahead);
                   B : Non_Terminal renames
                     Input.Non_Terminal (Input.Part (Next).Denote);
@@ -242,9 +255,8 @@ package body Gela.Grammars.LR.LALR is
 
          while To_Do_Count > 0 loop
             declare
-               Added : Tools.Terminal_Set_Indexed_By_Non_Terminal :=
-                 (1 .. Input.Last_Non_Terminal =>
-                    (0 .. Input.Last_Terminal => False));
+               Added : Reference_Set_Indexed_By_Non_Terminal :=
+                 (1 .. Input.Last_Non_Terminal => (Ref => False));
             begin
                Next_To_Do_Item (To_Do, Source_State, Source_Index);
                To_Do (Source_Index) := False;
@@ -277,25 +289,41 @@ package body Gela.Grammars.LR.LALR is
         (Input.Last_Terminal, Input.Last_Non_Terminal);
       --  FIRST (A) for each non-terminal A
 
+      First_NT  : Tools.Non_Terminal_Set_Per_Non_Terminal
+        (Input.Last_Non_Terminal);
+
       ---------------
       -- Get_First --
       ---------------
 
       function Get_First
-        (From, To : Part_Index;     --  This is β
-         Default  : Terminal_Set)   --  This is a
-         return Terminal_Set        --  This is FIRST (βa)
+        (From, To : Part_Index;      --  This is β
+         Default  : Reference_Set)   --  This is a
+         return Reference_Set        --  This is FIRST (βa)
       is
-         Result : Terminal_Set := (others => False);
+         Result : Reference_Set := (others => False);
+         T  : Terminal_Index;
+         NT : Non_Terminal_Index;
       begin
          for P of Input.Part (From .. To) loop
             if P.Is_Terminal_Reference then
-               Result (P.Denote) := True;
+               T := P.Denote;
+               Result (To_Reference (T)) := True;
                return Result;
             else  --  non terminal reference X
+               NT := P.Denote;
+               Result (To_Reference (NT)) := True;
+
                for T in 1 .. Input.Last_Terminal loop
                   if First.Map (P.Denote, T) then  --  Append FIRST(X)
-                     Result (T) := True;
+                     Result (To_Reference (T)) := True;
+                  end if;
+               end loop;
+
+               --  The same for non-terminal
+               for NT in 1 .. Input.Last_Non_Terminal loop
+                  if First_NT.Map (P.Denote, NT) then  --  Append FIRST(X)
+                     Result (To_Reference (NT)) := True;
                   end if;
                end loop;
 
@@ -357,7 +385,7 @@ package body Gela.Grammars.LR.LALR is
          end loop;
       end Next_To_Do_Item;
 
-      Look_Aheads : Terminal_Offset_Map := (others => (others => False));
+      Look_Aheads : Lookahead_Set := (others => (others => False));
       --  Look ahead terminals for each LR_Item in any state
 
       Result : constant LR_Tables.Table_Access := LR_Tables.Create
@@ -367,7 +395,7 @@ package body Gela.Grammars.LR.LALR is
 
 
    begin
-      Tools.Get_First (Input, First);
+      Tools.Get_First (Input, First, First_NT);
 
       Fill_Look_Aheads (Look_Aheads);
 
@@ -375,9 +403,8 @@ package body Gela.Grammars.LR.LALR is
          declare
             Target  : State_Count;
             Set     : constant LR_Item_Set := To_Set (C, State);
-            Added   : Tools.Terminal_Set_Indexed_By_Non_Terminal :=
-              (1 .. Input.Last_Non_Terminal =>
-                 (0 .. Input.Last_Terminal => False));
+            Added   : Reference_Set_Indexed_By_Non_Terminal :=
+              (1 .. Input.Last_Non_Terminal => (Ref => False));
          begin
             for J in Set'Range loop
                declare

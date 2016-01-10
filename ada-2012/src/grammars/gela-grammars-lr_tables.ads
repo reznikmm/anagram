@@ -96,6 +96,20 @@ package Gela.Grammars.LR_Tables is
       T     : Terminal_Count;
       Value : Production_Index);
 
+   --  Extension of Table to support incremental parsing
+
+   procedure Set_Reduce
+     (Self  : in out Table;
+      State : LR.State_Index;
+      NT    : Non_Terminal_Index;
+      Value : Production_Index;
+      Part  : Part_Count := 0);
+
+   function Reduce
+     (Self  : Table;
+      State : LR.State_Index;
+      NT    : Non_Terminal_Index) return Reduce_Iterator;
+
 private
 
    type Reduce_Iterator is record
@@ -117,6 +131,10 @@ private
      (LR.State_Index range <>,
       Terminal_Count range <>) of Natural;
 
+   type Non_Terminal_Natural_Array is array
+     (LR.State_Index range <>,
+      Non_Terminal_Index range <>) of Natural;
+
    type Non_Terminal_State_Array is array
      (LR.State_Index range <>,
       Non_Terminal_Index range <>) of LR.State_Count;
@@ -132,6 +150,8 @@ private
       T_Reduce : Terminal_Natural_Array
         (1 .. Last_State, End_Of_File .. Last_Terminal);
       NT_Shift : Non_Terminal_State_Array
+        (1 .. Last_State, 1 .. Last_Non_Terminal);
+      NT_Reduce : Non_Terminal_Natural_Array
         (1 .. Last_State, 1 .. Last_Non_Terminal);
    end record;
 

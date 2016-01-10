@@ -39,12 +39,13 @@ package Gela.Grammars.LR is
 
    type Reference is new Integer;
    --  Represent both terminal or non-terminal symbol.
-   --  Encode terminal reference as (-Terminal_Index) and non-termianl as
+   --  Encode terminal reference as (-Terminal_Index) and non-terminal as
    --  (Non_Terminal_Index)
 
-   function To_Reference (T  : Terminal_Index) return Reference;
+   function To_Reference (T  : Terminal_Count) return Reference;
    function To_Reference (NT : Non_Terminal_Index) return Reference;
    function To_Reference (P : Part) return Reference;
+   pragma Inline (To_Reference);
 
    type Go_To_Array is array (Reference range <>, State_Index range <>)
      of State_Count;

@@ -286,9 +286,9 @@ package body Gela.Grammars.LR is
    -- To_Reference --
    ------------------
 
-   function To_Reference (T  : Terminal_Index) return Reference is
+   function To_Reference (T  : Terminal_Count) return Reference is
    begin
-      return Reference (1 - T);
+      return -Reference (T);
    end To_Reference;
 
    ------------------

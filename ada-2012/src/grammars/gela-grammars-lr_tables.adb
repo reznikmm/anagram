@@ -86,10 +86,11 @@ package body Gela.Grammars.LR_Tables is
                         Last_Terminal,
                         Last_Non_Terminal,
                         Reduce_Vector => <>,
-                        T_Shift  => (others => (others => 0)),
-                        T_Finish => (others => False),
-                        T_Reduce => (others => (others => 0)),
-                        NT_Shift => (others => (others => 0)));
+                        T_Shift   => (others => (others => 0)),
+                        T_Finish  => (others => False),
+                        T_Reduce  => (others => (others => 0)),
+                        NT_Shift  => (others => (others => 0)),
+                        NT_Reduce => (others => (others => 0)));
    end Create;
 
    -----------
@@ -129,6 +130,24 @@ package body Gela.Grammars.LR_Tables is
       return Reduce_Iterator
    is
       Index : constant Natural := Self.T_Reduce (State, T);
+   begin
+      if Index = 0 then
+         return (0, 0, 0);
+      else
+         return Self.Reduce_Vector (Index);
+      end if;
+   end Reduce;
+
+   ------------
+   -- Reduce --
+   ------------
+
+   function Reduce
+     (Self  : Table;
+      State : LR.State_Index;
+      NT    : Non_Terminal_Index) return Reduce_Iterator
+   is
+      Index : constant Natural := Self.NT_Reduce (State, NT);
    begin
       if Index = 0 then
          return (0, 0, 0);
@@ -230,6 +249,24 @@ package body Gela.Grammars.LR_Tables is
    begin
       Self.Reduce_Vector.Append (Item);
       Self.T_Reduce (State, T) := Self.Reduce_Vector.Last_Index;
+   end Set_Reduce;
+
+   ----------------
+   -- Set_Reduce --
+   ----------------
+
+   procedure Set_Reduce
+     (Self  : in out Table;
+      State : LR.State_Index;
+      NT    : Non_Terminal_Index;
+      Value : Production_Index;
+      Part  : Part_Count := 0)
+   is
+      Item : constant Reduce_Iterator :=
+        (Value, Part, Self.NT_Reduce (State, NT));
+   begin
+      Self.Reduce_Vector.Append (Item);
+      Self.NT_Reduce (State, NT) := Self.Reduce_Vector.Last_Index;
    end Set_Reduce;
 
    ----------------
