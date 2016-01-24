@@ -8,7 +8,7 @@
 ------------------------------------------------------------------------------
 --  Rule_Template stores text to evaluate attributes like this:
 --
---  ${LHS.Value} := ${Part1,Attr1} + ${Part2.Attr2};
+--  ${LHS.Value} := ${Part1.Attr1} + ${Part2.Attr2:1234};
 
 with League.String_Vectors;
 

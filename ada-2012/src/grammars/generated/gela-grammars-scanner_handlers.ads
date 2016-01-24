@@ -27,6 +27,13 @@ package Gela.Grammars.Scanner_Handlers is
       Token   : out Ag_Tokens.Token;
       Skip    : in out Boolean) is abstract;
 
+   procedure Local_Token
+     (Self    : not null access Handler;
+      Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;
+      Rule    : Gela.Grammars.Scanner_Types.Rule_Index;
+      Token   : out Ag_Tokens.Token;
+      Skip    : in out Boolean) is abstract;
+
    procedure Attributes_Token
      (Self    : not null access Handler;
       Scanner : not null access Gela.Grammars.Scanners.Scanner'Class;

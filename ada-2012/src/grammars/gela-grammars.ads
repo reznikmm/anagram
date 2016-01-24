@@ -75,6 +75,14 @@ package Gela.Grammars is
    function Last_Rule  (Self : Production) return Rule_Count;
    function Parent (Self : Production) return Non_Terminal_Count;
 
+   function First_Attribute
+     (Self : Production)
+     return Attribute_Declaration_Index;
+
+   function Last_Attribute
+     (Self : Production)
+     return Attribute_Declaration_Count;
+
    type Part is tagged private;
    function Name  (Self : Part) return S.Universal_String;
    function Index (Self : Part) return Part_Index;
@@ -94,6 +102,8 @@ package Gela.Grammars is
    type Attribute_Declaration is tagged private;
 
    function Is_Inherited (Self : Attribute_Declaration) return Boolean;
+   function Is_Synthesized (Self : Attribute_Declaration) return Boolean;
+   function Is_Local (Self : Attribute_Declaration) return Boolean;
 
    function Name
      (Self : Attribute_Declaration)
@@ -111,6 +121,7 @@ package Gela.Grammars is
 
    function Has_Default       (Self : Attribute) return Boolean;
    function Is_Left_Hand_Side (Self : Attribute) return Boolean;
+   --  Attribute occurence for Non_Termilan itself or local attribute
    function Index             (Self : Attribute) return Attribute_Index;
    function Parent            (Self : Attribute) return Rule_Index;
    function Origin            (Self : Attribute) return Part_Count;
@@ -215,6 +226,8 @@ private
       Last_Rule  : Rule_Count := 0;
       Parent     : Non_Terminal_Count;
       Precedence : Precedence_Value;
+      First_Attribute : Attribute_Declaration_Index := 1;
+      Last_Attribute  : Attribute_Declaration_Count := 0;
    end record;
 
    type Part is tagged record
@@ -231,11 +244,13 @@ private
       Last  : Production_Count;
    end record;
 
+   type Attribute_Kind is (Local, Inherited, Synthesized);
+
    type Attribute_Declaration is tagged record
       Name         : S.Universal_String;
       Type_Name    : S.Universal_String;
       Index        : Attribute_Declaration_Index;
-      Is_Inherited : Boolean;
+      Kind         : Attribute_Kind;
    end record;
 
    type Attribute is tagged record

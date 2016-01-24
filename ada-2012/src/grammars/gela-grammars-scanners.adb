@@ -12,6 +12,8 @@ with Matreshka.Internals.Unicode;
 package body Gela.Grammars.Scanners is
 
    package Tables is
+      subtype Rule_Index is Scanner_Types.Rule_Index;
+
       function To_Class (Value : Matreshka.Internals.Unicode.Code_Point)
         return Character_Class;
       pragma Inline (To_Class);
@@ -19,7 +21,7 @@ package body Gela.Grammars.Scanners is
       function Switch (S : State; Class : Character_Class) return State;
       pragma Inline (Switch);
 
-      function Rule (S : State) return Scanner_Types.Rule_Index;
+      function Rule (S : State) return Rule_Index;
       pragma Inline (Rule);
    end Tables;
 

@@ -71,6 +71,11 @@ package body Gela.Grammars.Constructors is
       List   : Production_List_Access;
       Parent : Non_Terminal_Count);
 
+   function Get_Production
+     (Self         : in out Constructor'Class;
+      Non_Terminal : S.Universal_String;
+      Production   : S.Universal_String) return Production_Access;
+
    procedure Free is new Ada.Unchecked_Deallocation
      (Production_List_Node, Production_List_Access);
 
@@ -216,7 +221,8 @@ package body Gela.Grammars.Constructors is
       Name         : S.Universal_String;
       Type_Name    : S.Universal_String)
    is
-      Next : constant Attribute_Declaration := (999, Name, False, Type_Name);
+      Next : constant Attribute_Declaration :=
+        (999, Name, Synthesized, Type_Name);
    begin
       if Self.Terminals (Terminal).Attr.Contains (Name) then
          raise Constraint_Error;
@@ -237,8 +243,10 @@ package body Gela.Grammars.Constructors is
       Is_Inherited : Boolean;
       Type_Name    : S.Universal_String)
    is
+      Map  : constant array (Boolean) of Attribute_Kind :=
+        (True => Inherited, False => Synthesized);
       Next : constant Attribute_Declaration :=
-        (999, Name, Is_Inherited, Type_Name);
+        (999, Name, Map (Is_Inherited), Type_Name);
    begin
       if Self.Non_Terminals (Non_Terminal).Attr.Contains (Name) then
          raise Constraint_Error;
@@ -290,6 +298,29 @@ package body Gela.Grammars.Constructors is
    begin
       return (Data => new Part_Node'(Next));
    end Create_List_Reference;
+
+   ----------------------------
+   -- Create_Local_Attribute --
+   ----------------------------
+
+   procedure Create_Local_Attribute
+     (Self         : in out Constructor;
+      Non_Terminal : S.Universal_String;
+      Production   : S.Universal_String;
+      Name         : S.Universal_String;
+      Type_Name    : S.Universal_String)
+   is
+      Next : constant Attribute_Declaration := (999, Name, Local, Type_Name);
+      Prod : constant Production_Access :=
+        Get_Production (Self, Non_Terminal, Production);
+   begin
+      if Prod.Attr.Contains (Name) then
+         raise Constraint_Error;
+      end if;
+
+      Prod.Attr.Insert (Name, Next);
+      Self.Last_Declaration := Self.Last_Declaration + 1;
+   end Create_Local_Attribute;
 
    -------------------------
    -- Create_Non_Terminal --
@@ -387,7 +418,8 @@ package body Gela.Grammars.Constructors is
                  Attr_Count  => 0,
                  Prods_Count => 1,
                  Parts_Count => 0,
-                 Precedence  => Prec));
+                 Precedence  => Prec,
+                 Attr        => Attribute_Declaration_Maps.Empty_Map));
    end Create_Production;
 
    ----------------------------
@@ -509,8 +541,7 @@ package body Gela.Grammars.Constructors is
            Item.Type_Name;
          Result.Declaration (Self.Last_Declaration).Index :=
            Self.Last_Declaration;
-         Result.Declaration (Self.Last_Declaration).Is_Inherited :=
-           Item.Is_Inherited;
+         Result.Declaration (Self.Last_Declaration).Kind := Item.Kind;
       end loop;
    end Fill_Attr_Declarations;
 
@@ -618,10 +649,20 @@ package body Gela.Grammars.Constructors is
            P.Parts.Last_Index;
          Result.Production (Self.Last_Production).Parent := Parent;
          Result.Production (Self.Last_Production).Precedence := P.Precedence;
+         Result.Production (Self.Last_Production).First_Attribute :=
+           Self.Last_Declaration + 1;
+         Result.Production (Self.Last_Production).Last_Attribute :=
+           Self.Last_Declaration +
+             Attribute_Declaration_Count (P.Attr.Length);
 
          for Part of P.Parts loop
             Fill_Part (Self, Result, Part, Self.Last_Production);
          end loop;
+
+         if Parent /= 0 then
+            Fill_Attr_Declarations
+              (Self, Result, Result.Non_Terminal (Parent).Name, P.Attr);
+         end if;
       end loop;
 
       for P of List.Productions loop
@@ -670,14 +711,15 @@ package body Gela.Grammars.Constructors is
       Item   : Rule_Data)
    is
       use type S.Universal_String;
-      LHS      : Boolean;
-      Part     : Part_Access;
-      Attr     : Attribute_Declaration;
-      Name     : S.Universal_String;
-      Origin   : S.Universal_String;
-      Denote   : S.Universal_String;
-      LHS_Attr : Natural := 0;
-      Template : constant Rule_Templates.Rule_Template :=
+      LHS       : Boolean;
+      No_Origin : Boolean;  --  Attr in form ${Attr} which means local attr
+      Part      : Part_Access;
+      Attr      : Attribute_Declaration;
+      Name      : S.Universal_String;
+      Origin    : S.Universal_String;
+      Denote    : S.Universal_String;
+      LHS_Attr  : Natural := 0;
+      Template  : constant Rule_Templates.Rule_Template :=
         Rule_Templates.Create (Item.Text);
    begin
       Self.Last_Rule := Self.Last_Rule + 1;
@@ -697,42 +739,57 @@ package body Gela.Grammars.Constructors is
 
          LHS := Item.Non_Terminal = Origin;
 
+         No_Origin := Origin.Is_Empty;
+
+         if Origin.Is_Empty then
+            Origin := Item.Production.Name;
+         end if;
+
          if LHS then
             Denote := Item.Non_Terminal;
             Attr := Self.Non_Terminals.Element (Denote).Attr.Element (Name);
-         else
-            if Item.Production.References.Contains (Origin) then
-               Part := Item.Production.References.Element (Origin);
+         elsif Item.Production.References.Contains (Origin) then
+            Part := Item.Production.References.Element (Origin);
 
-               case Part.Kind is
-                  when Terminal_Reference =>
-                     Denote := Part.Image;
-                     Attr :=
-                       Self.Terminals.Element (Denote).Attr.Element (Name);
-                  when Non_Terminal_Reference | List =>
-                     Denote := Part.Denote;
-                     if not Self.Non_Terminals.Element (Denote)
-                       .Attr.Contains (Name)
-                     then
-                        Ada.Wide_Wide_Text_IO.Put_Line
-                          ("No attribute '" & Name.To_Wide_Wide_String &
-                             "' in " & Denote.To_Wide_Wide_String);
-                        raise Constraint_Error;
-                     end if;
+            case Part.Kind is
+               when Terminal_Reference =>
+                  Denote := Part.Image;
+                  Attr :=
+                    Self.Terminals.Element (Denote).Attr.Element (Name);
+               when Non_Terminal_Reference | List =>
+                  Denote := Part.Denote;
 
+                  if Self.Non_Terminals.Element (Denote)
+                    .Attr.Contains (Name)
+                  then
                      Attr :=
                        Self.Non_Terminals.Element (Denote).Attr.Element (Name);
-                  when Option =>
+                  elsif Origin = Item.Production.Name then
+                     Attr := Get_Production (Self, Item.Non_Terminal, Origin)
+                       .Attr.Element (Name);
+                  else
+                     Ada.Wide_Wide_Text_IO.Put_Line
+                       ("No attribute '" & Name.To_Wide_Wide_String &
+                          "' in " & Denote.To_Wide_Wide_String);
                      raise Constraint_Error;
-               end case;
-            else
-               Ada.Wide_Wide_Text_IO.Put_Line
-                 ("Unknown origin:" & Origin.To_Wide_Wide_String);
-               raise Constraint_Error;
-            end if;
+                  end if;
+
+               when Option =>
+                  raise Constraint_Error;
+            end case;
+         elsif Origin = Item.Production.Name then
+            Attr := Get_Production (Self, Item.Non_Terminal, Origin)
+              .Attr.Element (Name);
+         else
+            Ada.Wide_Wide_Text_IO.Put_Line
+              ("Unknown origin:" & Origin.To_Wide_Wide_String);
+            raise Constraint_Error;
          end if;
 
-         if LHS xor Attr.Is_Inherited then
+         if (LHS and Attr.Kind = Synthesized) or
+           (No_Origin and Attr.Kind = Local) or
+           (not LHS and not No_Origin and Attr.Kind = Inherited)
+         then
             if LHS_Attr = 0 then
                LHS_Attr := J;
                Fill_Attr
@@ -783,7 +840,7 @@ package body Gela.Grammars.Constructors is
       Result.Attribute (Index).Has_Default := Default;
       Result.Attribute (Index).Parent := Rule;
 
-      if LHS then
+      if LHS or Attr.Kind = Local then
          Result.Attribute (Index).Origin := 0;
       else
          Result.Attribute (Index).Origin := Part.Index;
@@ -816,6 +873,29 @@ package body Gela.Grammars.Constructors is
          Last_Terminal := Last_Terminal + 1;
       end loop;
    end Fill_Terminals;
+
+   --------------------
+   -- Get_Production --
+   --------------------
+
+   function Get_Production
+     (Self         : in out Constructor'Class;
+      Non_Terminal : S.Universal_String;
+      Production   : S.Universal_String) return Production_Access
+   is
+      use type S.Universal_String;
+
+      List : constant Production_List_Access :=
+        Self.Non_Terminals.Element (Non_Terminal).List;
+   begin
+      for Prod of List.Productions loop
+         if Prod.Name = Production then
+            return Prod;
+         end if;
+      end loop;
+
+      return null;
+   end Get_Production;
 
    ----------
    -- Join --
@@ -860,22 +940,10 @@ package body Gela.Grammars.Constructors is
      (Self         : in out Constructor;
       Non_Terminal : S.Universal_String;
       Production   : S.Universal_String;
-      Precedence   : Precedence_Value)
-   is
-      use type S.Universal_String;
-
-      List     : Production_List_Access;
+      Precedence   : Precedence_Value) is
    begin
-      List := Self.Non_Terminals.Element (Non_Terminal).List;
-
-      for Prod of List.Productions loop
-         if Prod.Name = Production then
-            Prod.Precedence := Precedence;
-            return;
-         end if;
-      end loop;
-
-      raise Constraint_Error;
+      Get_Production (Self, Non_Terminal, Production).all.Precedence :=
+        Precedence;
    end Set_Precedence;
 
    ------------------
@@ -925,7 +993,9 @@ package body Gela.Grammars.Constructors is
                   Last => Result.Last_Part,
                   First_Rule => 1,
                   Last_Rule => 0,
-                  Precedence => Undefined_Precedence);
+                  Precedence => Undefined_Precedence,
+                  First_Attribute => 1,
+                  Last_Attribute  => 0);
          end;
 
          Result.Part (Input.Part'Range) := Input.Part;

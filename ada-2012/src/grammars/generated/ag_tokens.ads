@@ -37,15 +37,15 @@ package Ag_Tokens is
     YYLVal, YYVal : YYSType; 
     type Token is
         (End_Of_Input, Error, Equal_Token, Inherited_Token,
-         Synthesized_Token, Attributes_Token, Rules_Token,
-         Priority_Token, Identifier_Token, Integer_Token,
-         Token_Token, Open_Rule_Token, Rule_Body_Token,
-         Close_Rule_Token, For_Token, With_Token,
-         Regexp_Token, ';', '|',
-         '(', ')', '<',
-         '>', '{', '}',
-         '[', ']', ':',
-         ',' );
+         Synthesized_Token, Local_Token, Attributes_Token,
+         Rules_Token, Priority_Token, Identifier_Token,
+         Integer_Token, Token_Token, Open_Rule_Token,
+         Rule_Body_Token, Close_Rule_Token, For_Token,
+         With_Token, Regexp_Token, ';',
+         '|', '(', ')',
+         '<', '>', '{',
+         '}', '[', ']',
+         ':', ',' );
 
     Syntax_Error : exception;
 

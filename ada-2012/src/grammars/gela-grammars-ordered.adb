@@ -43,12 +43,14 @@ package body Gela.Grammars.Ordered is
 
       procedure Add_Production (P : Production; G : in out Graph);
       --  Initialize graph G with attribute dependencies of P
-      procedure DP_To_DS (P : Production; G : in out Graph);
+      procedure DP_To_DS (P : Production; G : Graph);
       --  Copy dependencies from production P to each symbol referenced there
       procedure DS_To_DP (P : Production; G : in out Graph);
       --  Copy dependencies to production P from each symbol referenced there
       procedure Assign_Partition (NT : Non_Terminal);
       --  Assign Partitions for each attribute of NT and fix dependency graph
+      procedure Assign_Local (P : Production);
+      --  Assign Partitions for each local attribute of P
       function To_Index
         (X : Attribute_Index; P : Production) return Node_Index;
       --  Find (per production) attribute index
@@ -72,6 +74,8 @@ package body Gela.Grammars.Ordered is
 
       Offset : array (Input.Part'Range) of Attribute_Declaration_Count;
       --  Map between part index and (per production) attribute index
+      Local : array (Input.Production'Range) of Attribute_Declaration_Count;
+      --  The same for local (per production) attribute index
 
       --------------------
       -- Add_Production --
@@ -92,6 +96,9 @@ package body Gela.Grammars.Ordered is
               Input.Non_Terminal (P.Parent).Last_Attribute -
               Input.Non_Terminal (P.Parent).First_Attribute + 1;
          begin
+            Local (P.Index) := Count;
+            Count := Count + P.Last_Attribute - P.First_Attribute + 1;
+
             for Part of Input.Part (P.First .. P.Last) loop
                Offset (Part.Index) := Count;
 
@@ -143,6 +150,45 @@ package body Gela.Grammars.Ordered is
 
          Path_Closure (G);
       end Add_Production;
+
+      ------------------
+      -- Assign_Local --
+      ------------------
+
+      procedure Assign_Local (P : Production) is
+         Part       : Partition_Array renames
+           Partitions (P.First_Attribute .. P.Last_Attribute);
+         Unassigned : Natural := Part'Length;
+         Decl       : Attribute_Declaration_Index;
+         Arg        : Attribute_Declaration_Index;
+         Min_Part   : Partition_Count;
+      begin
+         while Unassigned > 0 loop
+            for Rule of Input.Rule (P.First_Rule .. P.Last_Rule) loop
+               Decl := Input.Attribute (Rule.Result).Declaration;
+
+               if Decl in Part'Range and then Part (Decl) = 0 then
+                  Min_Part := 0;
+
+                  for A in Rule.First_Argument .. Rule.Last_Argument loop
+                     Arg := Input.Attribute (A).Declaration;
+
+                     if Partitions (Arg) = 0 then
+                        Min_Part := 0;
+                        exit;
+                     elsif Min_Part = 0 or Min_Part > Partitions (Arg) then
+                        Min_Part := Partitions (Arg);
+                     end if;
+                  end loop;
+
+                  if Min_Part > 0 then
+                     Part (Decl) := Min_Part;
+                     Unassigned := Unassigned - 1;
+                  end if;
+               end if;
+            end loop;
+         end loop;
+      end Assign_Local;
 
       ----------------------
       -- Assign_Partition --
@@ -227,7 +273,7 @@ package body Gela.Grammars.Ordered is
       -- DP_To_DS --
       --------------
 
-      procedure DP_To_DS (P : Production; G : in out Graph) is
+      procedure DP_To_DS (P : Production; G : Graph) is
          procedure Each_NT (NT : Non_Terminal_Index);
          Offset : Node_Count := 0;
 
@@ -244,6 +290,9 @@ package body Gela.Grammars.Ordered is
 
       begin
          Each_NT (P.Parent);
+         --  Skip local attributes
+         Offset := Offset
+           + Node_Count (P.Last_Attribute - P.First_Attribute + 1);
 
          for Part of Input.Part (P.First .. P.Last) loop
             if Part.Is_Non_Terminal_Reference then
@@ -278,6 +327,9 @@ package body Gela.Grammars.Ordered is
 
       begin
          Each_NT (P.Parent);
+         --  Skip local attributes
+         Offset := Offset
+           + Node_Count (P.Last_Attribute - P.First_Attribute + 1);
 
          for Part of Input.Part (P.First .. P.Last) loop
             if Part.Is_Non_Terminal_Reference then
@@ -390,6 +442,11 @@ package body Gela.Grammars.Ordered is
                Attr (Index) := D;
                Index := Index + 1;
             end loop;
+            for D in P.First_Attribute .. P.Last_Attribute loop
+               Part (Index) := 0;
+               Attr (Index) := D;
+               Index := Index + 1;
+            end loop;
             for Pr of Input.Part (P.First .. P.Last) loop
                if Pr.Is_Non_Terminal_Reference then
                   declare
@@ -459,9 +516,13 @@ package body Gela.Grammars.Ordered is
          NT     : Non_Terminal_Index;
          Result : Attribute_Declaration_Count;
          Origin : constant Part_Count := Input.Attribute (X).Origin;
+         Decl   : constant Attribute_Declaration_Index :=
+           Input.Attribute (X).Declaration;
       begin
-         if Input.Attribute (X).Is_Left_Hand_Side then
-            Result := Input.Attribute (X).Declaration -
+         if Input.Declaration (Decl).Is_Local then
+            Result := Local (P.Index) + Decl - P.First_Attribute + 1;
+         elsif Input.Attribute (X).Is_Left_Hand_Side then
+            Result := Decl -
               Input.Non_Terminal (P.Parent).First_Attribute + 1;
          else
             declare
@@ -469,7 +530,7 @@ package body Gela.Grammars.Ordered is
             begin
                if Part.Is_Non_Terminal_Reference then
                   NT := Part.Denote;
-                  Result := Input.Attribute (X).Declaration -
+                  Result := Decl -
                     Input.Non_Terminal (NT).First_Attribute + 1;
                end if;
 
@@ -535,6 +596,10 @@ package body Gela.Grammars.Ordered is
 
       for NT of Input.Non_Terminal loop
          Assign_Partition (NT);
+      end loop;
+
+      for P of Input.Production loop
+         Assign_Local (P);
       end loop;
 
       for P of Input.Production loop

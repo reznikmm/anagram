@@ -5,6 +5,7 @@
 "::="                   {Equal_Token}
 Inherited               {Inherited_Token}
 Synthesized             {Synthesized_Token}
+Local                   {Local_Token}
 attributes              {Attributes_Token}
 Rules                   {Rules_Token}
 Token                   {Token_Token}

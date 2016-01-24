@@ -303,82 +303,82 @@ begin
 
                 case yy.rule_id is
 
-when 11 =>
---# line 70 "../ag.y"
+when 12 =>
+--# line 72 "../ag.y"
  Context.Add_Token (YY.Value_Stack (YY.TOS -  1).Image); 
 
-when 12 =>
---# line 73 "../ag.y"
+when 13 =>
+--# line 75 "../ag.y"
  Context.Add_Token (YY.Value_Stack (YY.TOS -  4).Image, YY.Value_Stack (YY.TOS -  2).Image, YY.Value_Stack (YY.TOS -  1).Image); 
 
-when 13 =>
---# line 77 "../ag.y"
+when 14 =>
+--# line 79 "../ag.y"
  Context.Add_With (YY.Value_Stack (YY.TOS -  1).Image); 
 
-when 14 =>
---# line 81 "../ag.y"
+when 15 =>
+--# line 83 "../ag.y"
 
   Context.Add_Non_Terminal (YY.Value_Stack (YY.TOS -  3).Image, YY.Value_Stack (YY.TOS -  1).Production_List);
 
 
-when 15 =>
---# line 87 "../ag.y"
+when 16 =>
+--# line 89 "../ag.y"
 
  YYVal := (Production_List,
         Context.New_Production_List (YY.Value_Stack (YY.TOS).Named_Production));
 
 
-when 16 =>
---# line 93 "../ag.y"
+when 17 =>
+--# line 95 "../ag.y"
 
  YYVal := (Production_List,
         Context.Add_Production (YY.Value_Stack (YY.TOS -  2).Production_List, YY.Value_Stack (YY.TOS).Named_Production));
 
 
-when 17 =>
---# line 100 "../ag.y"
+when 18 =>
+--# line 102 "../ag.y"
 
   YYVal := (Named_Production,
          Context.To_Named_Production (YY.Value_Stack (YY.TOS).Production, YY.Value_Stack (YY.TOS -  2).Image));
 
 
-when 18 =>
---# line 106 "../ag.y"
+when 19 =>
+--# line 108 "../ag.y"
 
   YYVal := (Named_Production,
          Context.To_Named_Production (YY.Value_Stack (YY.TOS).Production));
 
 
-when 19 =>
---# line 113 "../ag.y"
+when 20 =>
+--# line 115 "../ag.y"
  YYVal := (Production, Context.New_Production (YY.Value_Stack (YY.TOS).Named_Part));
 
-when 20 =>
---# line 116 "../ag.y"
+when 21 =>
+--# line 118 "../ag.y"
  YYVal := (Production, Context.Add_Part (YY.Value_Stack (YY.TOS -  1).Production, YY.Value_Stack (YY.TOS).Named_Part));
 
-when 21 =>
---# line 120 "../ag.y"
+when 22 =>
+--# line 122 "../ag.y"
  YYVal := (Named_Part, Context.To_Named_Part (YY.Value_Stack (YY.TOS).Part)); 
 
-when 22 =>
---# line 123 "../ag.y"
+when 23 =>
+--# line 125 "../ag.y"
  YYVal := (Named_Part, Context.To_Named_Part (YY.Value_Stack (YY.TOS -  3).Part, YY.Value_Stack (YY.TOS -  1).Image)); 
 
-when 23 =>
---# line 127 "../ag.y"
+when 24 =>
+--# line 129 "../ag.y"
  YYVal := (Part, Context.Add_Reference (YY.Value_Stack (YY.TOS).Image)); 
 
-when 24 =>
---# line 130 "../ag.y"
+when 25 =>
+--# line 132 "../ag.y"
  YYVal := (Part, Context.Add_List (YY.Value_Stack (YY.TOS -  1).Production_List)); 
 
-when 25 =>
---# line 133 "../ag.y"
+when 26 =>
+--# line 135 "../ag.y"
  YYVal := (Part, Context.Add_Option ( YY.Value_Stack (YY.TOS -  1).Production_List)); 
 
-when 28 =>
---# line 146 "../ag.y"
+when 30 =>
+--# line 152 "../ag.y"
 
   YYVal := (Kind => None);
   Context.Add_Inherited_Attr
@@ -387,8 +387,8 @@ when 28 =>
     Names  => YY.Value_Stack (YY.TOS -  1).Vector);
 
 
-when 29 =>
---# line 157 "../ag.y"
+when 31 =>
+--# line 163 "../ag.y"
 
   YYVal := (Kind => None);
   Context.Add_Synthesized_Attr
@@ -397,43 +397,53 @@ when 29 =>
     Names  => YY.Value_Stack (YY.TOS -  1).Vector);
 
 
-when 31 =>
---# line 170 "../ag.y"
+when 32 =>
+--# line 174 "../ag.y"
 
   YYVal := (Kind => None);
-  Context.Add_Rule (YY.Value_Stack (YY.TOS -  4).Vector, YY.Value_Stack (YY.TOS -  1).Image);
-
-
-when 32 =>
---# line 177 "../ag.y"
- YYVal := (Image, Scanner.Get_Text); 
-
-when 33 =>
---# line 181 "../ag.y"
-
-  Context.Add_Priority (YY.Value_Stack (YY.TOS -  3).Image, YY.Value_Stack (YY.TOS -  2).Image, YY.Value_Stack (YY.TOS -  1).Image);
+  Context.Add_Local_Attr
+   (Target => YY.Value_Stack (YY.TOS -  5).Vector,
+    Tipe   => YY.Value_Stack (YY.TOS -  3).Image,
+    Names  => YY.Value_Stack (YY.TOS -  1).Vector);
 
 
 when 34 =>
 --# line 187 "../ag.y"
 
+  YYVal := (Kind => None);
+  Context.Add_Rule (YY.Value_Stack (YY.TOS -  4).Vector, YY.Value_Stack (YY.TOS -  1).Image);
+
+
+when 35 =>
+--# line 194 "../ag.y"
+ YYVal := (Image, Scanner.Get_Text); 
+
+when 36 =>
+--# line 198 "../ag.y"
+
+  Context.Add_Priority (YY.Value_Stack (YY.TOS -  3).Image, YY.Value_Stack (YY.TOS -  2).Image, YY.Value_Stack (YY.TOS -  1).Image);
+
+
+when 37 =>
+--# line 204 "../ag.y"
+
    YYVal := (Vector, League.String_Vectors.Empty_Universal_String_Vector);
    YYVal.Vector.Append (YY.Value_Stack (YY.TOS).Image);
 
 
-when 35 =>
---# line 193 "../ag.y"
+when 38 =>
+--# line 210 "../ag.y"
 
    YYVal :=(Vector, YY.Value_Stack (YY.TOS -  2).Vector);
    YYVal.Vector.Append (YY.Value_Stack (YY.TOS).Image);
 
 
-when 36 =>
---# line 200 "../ag.y"
+when 39 =>
+--# line 217 "../ag.y"
  YYVal := (Image, Scanner.Get_Text); 
 
-when 37 =>
---# line 204 "../ag.y"
+when 40 =>
+--# line 221 "../ag.y"
  YYVal := (Image, Scanner.Get_Text); 
 
                     when others => null;

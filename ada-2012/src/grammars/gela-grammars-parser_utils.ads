@@ -163,6 +163,12 @@ package Gela.Grammars.Parser_Utils is
       Names  : League.String_Vectors.Universal_String_Vector;
       Tipe   : League.Strings.Universal_String);
 
+   procedure Add_Local_Attr
+     (Self   : in out Context_Node;
+      Target : League.String_Vectors.Universal_String_Vector;
+      Names  : League.String_Vectors.Universal_String_Vector;
+      Tipe   : League.Strings.Universal_String);
+
    procedure Add_Rule
      (Self   : in out Context_Node;
       Target : League.String_Vectors.Universal_String_Vector;
@@ -232,6 +238,7 @@ private
       Prod_Lists      : Production_List_Maps.Map;
       Inherited       : Attribute_Declaration_Lists.List;
       Synthesized     : Attribute_Declaration_Lists.List;
+      Local           : Attribute_Declaration_Lists.List;
       List_Parts      : List_Part_Maps.Map;
       Option_Parts    : List_Part_Maps.Map;
       Reference_Parts : Reference_Part_Maps.Map;

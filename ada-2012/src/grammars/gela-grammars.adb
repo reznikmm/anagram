@@ -79,10 +79,8 @@ package body Gela.Grammars is
    -- First_Attribute --
    ---------------------
 
-   function First_Attribute
-     (Self : Terminal)
-      return Attribute_Declaration_Index
-   is
+   function First_Attribute (Self : Terminal)
+      return Attribute_Declaration_Index is
    begin
       return Self.First_Attribute;
    end First_Attribute;
@@ -91,10 +89,18 @@ package body Gela.Grammars is
    -- First_Attribute --
    ---------------------
 
-   function First_Attribute
-     (Self : Non_Terminal)
-      return Attribute_Declaration_Index
-   is
+   function First_Attribute (Self : Non_Terminal)
+      return Attribute_Declaration_Index is
+   begin
+      return Self.First_Attribute;
+   end First_Attribute;
+
+   ---------------------
+   -- First_Attribute --
+   ---------------------
+
+   function First_Attribute (Self : Production)
+      return Attribute_Declaration_Index is
    begin
       return Self.First_Attribute;
    end First_Attribute;
@@ -198,12 +204,9 @@ package body Gela.Grammars is
    -- Is_Inherited --
    ------------------
 
-   function Is_Inherited
-     (Self : Attribute_Declaration)
-      return Boolean
-   is
+   function Is_Inherited (Self : Attribute_Declaration) return Boolean is
    begin
-      return Self.Is_Inherited;
+      return Self.Kind = Inherited;
    end Is_Inherited;
 
    -----------------------
@@ -214,6 +217,15 @@ package body Gela.Grammars is
    begin
       return Self.Origin = 0;
    end Is_Left_Hand_Side;
+
+   --------------
+   -- Is_Local --
+   --------------
+
+   function Is_Local (Self : Attribute_Declaration) return Boolean is
+   begin
+      return Self.Kind = Local;
+   end Is_Local;
 
    -------------
    -- Is_List --
@@ -250,6 +262,15 @@ package body Gela.Grammars is
    begin
       return Self.Is_Option;
    end Is_Option;
+
+   --------------------
+   -- Is_Synthesized --
+   --------------------
+
+   function Is_Synthesized (Self : Attribute_Declaration) return Boolean is
+   begin
+      return Self.Kind = Synthesized;
+   end Is_Synthesized;
 
    ---------------------------
    -- Is_Terminal_Reference --
@@ -300,10 +321,8 @@ package body Gela.Grammars is
    -- Last_Attribute --
    --------------------
 
-   function Last_Attribute
-     (Self : Terminal)
-      return Attribute_Declaration_Count
-   is
+   function Last_Attribute (Self : Terminal)
+      return Attribute_Declaration_Count is
    begin
       return Self.Last_Attribute;
    end Last_Attribute;
@@ -312,10 +331,18 @@ package body Gela.Grammars is
    -- Last_Attribute --
    --------------------
 
-   function Last_Attribute
-     (Self : Non_Terminal)
-      return Attribute_Declaration_Count
-   is
+   function Last_Attribute (Self : Non_Terminal)
+      return Attribute_Declaration_Count is
+   begin
+      return Self.Last_Attribute;
+   end Last_Attribute;
+
+   --------------------
+   -- Last_Attribute --
+   --------------------
+
+   function Last_Attribute (Self : Production)
+      return Attribute_Declaration_Count is
    begin
       return Self.Last_Attribute;
    end Last_Attribute;

@@ -1,0 +1,43 @@
+Token id_token;
+
+A ::= B;
+B ::= C;
+C ::= name;
+name ::= id_token;
+
+Inherited attributes
+B, C : Integer : env;
+
+Synthesized attributes
+C, B, A : Integer : value;
+
+Synthesized attributes
+name : Integer : symbol;
+
+Synthesized attributes
+id_token : Integer : symbol;
+
+Local attributes
+B.C : Integer : tmp;
+
+Rules for name.id_token :
+(. ${name.symbol} := ${id_token.symbol}; .)
+
+Rules for C.name :
+(. ${C.value} := ${name.symbol} + ${C.env}; .)
+
+Rules for A.B :
+(. ${A.value} := ${B.value}; .)
+
+Rules for A.B :
+(. ${B.env} := 1; .)
+
+Rules for B.C :
+(. ${C.env} := ${B.env}; .)
+
+Rules for B.C :
+(. ${B.value} := ${C.tmp}; .)
+
+Rules for B.C :
+(. ${tmp} := ${C.value}; .)
+

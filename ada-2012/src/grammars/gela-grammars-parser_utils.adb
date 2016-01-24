@@ -55,6 +55,19 @@ package body Gela.Grammars.Parser_Utils is
       Self.Inherited.Append ((Target, Names, Tipe));
    end Add_Inherited_Attr;
 
+   --------------------
+   -- Add_Local_Attr --
+   --------------------
+
+   procedure Add_Local_Attr
+     (Self   : in out Context_Node;
+      Target : League.String_Vectors.Universal_String_Vector;
+      Names  : League.String_Vectors.Universal_String_Vector;
+      Tipe   : League.Strings.Universal_String) is
+   begin
+      Self.Local.Append ((Target, Names, Tipe));
+   end Add_Local_Attr;
+
    --------------
    -- Add_List --
    --------------
@@ -430,6 +443,23 @@ package body Gela.Grammars.Parser_Utils is
                      Type_Name    => Attr.Tipe);
                end if;
             end loop;
+         end loop;
+      end loop;
+
+      for Attr of Self.Local loop
+         for Target in 1 .. Attr.Target.Length loop
+            declare
+               Items : League.String_Vectors.Universal_String_Vector;
+            begin
+               Items := Attr.Target (Target).Split ('.');
+               for Name in 1 .. Attr.Names.Length loop
+                  Constructor.Create_Local_Attribute
+                    (Non_Terminal => Items (1),
+                     Production   => Items (2),
+                     Name         => Attr.Names (Name),
+                     Type_Name    => Attr.Tipe);
+               end loop;
+            end;
          end loop;
       end loop;
 

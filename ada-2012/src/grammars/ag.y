@@ -1,6 +1,7 @@
 %token Equal_Token --  '::='
 %token Inherited_Token
 %token Synthesized_Token
+%token Local_Token
 %token Attributes_Token
 %token Rules_Token
 %token Priority_Token
@@ -62,6 +63,7 @@ item :
  syntax_rule |
  inherited_attributes |
  synthesized_attributes |
+ local_attributes |
  priority |
  rules
 ;
@@ -141,6 +143,10 @@ synthesized_attributes :
  Synthesized_Token Attributes_Token synthesized_attribute
 ;
 
+local_attributes :
+ Local_Token Attributes_Token local_attribute
+;
+
 inherited_attribute :
   identifier_list ':' attr_type ':' identifier_list ';'
 {
@@ -157,6 +163,17 @@ synthesized_attribute :
 {
   $$ := (Kind => None);
   Context.Add_Synthesized_Attr
+   (Target => $1.Vector,
+    Tipe   => $3.Image,
+    Names  => $5.Vector);
+}
+;
+
+local_attribute :
+  identifier_list ':' attr_type ':' identifier_list ';'
+{
+  $$ := (Kind => None);
+  Context.Add_Local_Attr
    (Target => $1.Vector,
     Tipe   => $3.Image,
     Names  => $5.Vector);

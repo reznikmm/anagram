@@ -48,6 +48,13 @@ package Gela.Grammars.Constructors is
       Is_Inherited : Boolean;
       Type_Name    : S.Universal_String);
 
+   procedure Create_Local_Attribute
+     (Self         : in out Constructor;
+      Non_Terminal : S.Universal_String;
+      Production   : S.Universal_String;
+      Name         : S.Universal_String;
+      Type_Name    : S.Universal_String);
+
    function Create_Terminal_Reference
      (Self  : Constructor'Class;
       Name  : S.Universal_String;
@@ -75,7 +82,7 @@ package Gela.Grammars.Constructors is
    function Create_Production
      (Self   : Constructor'Class;
       Name   : S.Universal_String;
-      Prec  : Precedence_Value := Undefined_Precedence)
+      Prec   : Precedence_Value := Undefined_Precedence)
       return Production;
 
    function Create_Production_List
@@ -162,6 +169,16 @@ private
 
    package Rule_Vectors is new Ada.Containers.Vectors (Rule_Index, Rule_Data);
 
+   type Attribute_Declaration is record
+      Index        : Attribute_Declaration_Index;
+      Name         : S.Universal_String;
+      Kind         : Attribute_Kind;
+      Type_Name    : S.Universal_String;
+   end record;
+
+   package Attribute_Declaration_Maps is new Ada.Containers.Ordered_Maps
+     (S.Universal_String, Attribute_Declaration, S."<");
+
    type Production_Node is record
       Index       : Production_Index;
       Name        : S.Universal_String;
@@ -172,6 +189,7 @@ private
       Prods_Count : Production_Count := 0;
       Parts_Count : Part_Count := 0;
       Precedence  : Precedence_Value;
+      Attr        : Attribute_Declaration_Maps.Map;
    end record;
 
    function Equal_Name (Left, Right : Production_Access) return Boolean;
@@ -186,16 +204,6 @@ private
       Prods_Count : Production_Count := 0;
       Parts_Count : Part_Count := 0;
    end record;
-
-   type Attribute_Declaration is record
-      Index        : Attribute_Declaration_Index;
-      Name         : S.Universal_String;
-      Is_Inherited : Boolean;
-      Type_Name    : S.Universal_String;
-   end record;
-
-   package Attribute_Declaration_Maps is new Ada.Containers.Ordered_Maps
-     (S.Universal_String, Attribute_Declaration, S."<");
 
    type Terminal is record
       Index : Terminal_Index;

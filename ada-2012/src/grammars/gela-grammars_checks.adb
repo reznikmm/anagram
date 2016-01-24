@@ -97,6 +97,12 @@ package body Gela.Grammars_Checks is
          RHS   : Boolean := True)
         return Boolean;
 
+      function Check_Local
+        (NT    : Non_Terminal_Index;
+         Prod  : Production_Index;
+         Count : Count_Array)
+        return Boolean;
+
       -----------------
       -- Check_Count --
       -----------------
@@ -171,6 +177,48 @@ package body Gela.Grammars_Checks is
          return Result;
       end Check_Count;
 
+      -----------------
+      -- Check_Local --
+      -----------------
+
+      function Check_Local
+        (NT    : Non_Terminal_Index;
+         Prod  : Production_Index;
+         Count : Count_Array) return Boolean
+      is
+         Result : Boolean := True;
+         From   : constant Attribute_Declaration_Index :=
+           Self.Production (Prod).First_Attribute;
+         To     : constant Attribute_Declaration_Count :=
+           Self.Production (Prod).Last_Attribute;
+      begin
+         for Decl in From .. To loop
+            if Count (Count'First + Decl - From) = 0 then
+               if Verbose then
+                  Ada.Wide_Wide_Text_IO.Put_Line
+                    ("Not Well Formed: no rule for local attribute " &
+                       Self.Non_Terminal (NT).Name.To_Wide_Wide_String & "." &
+                       Self.Production (Prod).Name.To_Wide_Wide_String & " " &
+                       Self.Declaration (Decl).Name.To_Wide_Wide_String);
+               end if;
+
+               Result := False;
+            elsif Count (Count'First + Decl - From) > 1 then
+               if Verbose then
+                  Ada.Wide_Wide_Text_IO.Put_Line
+                    ("Not Well Formed: not unique rule for local attribute " &
+                       Self.Non_Terminal (NT).Name.To_Wide_Wide_String & "." &
+                       Self.Production (Prod).Name.To_Wide_Wide_String & " " &
+                       Self.Declaration (Decl).Name.To_Wide_Wide_String);
+               end if;
+
+               Result := False;
+            end if;
+         end loop;
+
+         return Result;
+      end Check_Local;
+
       -----------
       -- Check --
       -----------
@@ -186,9 +234,15 @@ package body Gela.Grammars_Checks is
          First  : array (From .. To) of Attribute_Declaration_Index;
          Offset : array (From .. To) of Attribute_Declaration_Count;
 
-         Total  : Attribute_Declaration_Count :=
+         LHS    : constant Attribute_Declaration_Count :=
            Self.Non_Terminal (NT).Last_Attribute -
            Self.Non_Terminal (NT).First_Attribute + 1;
+
+         Local  : constant Attribute_Declaration_Count :=
+           Self.Production (P).Last_Attribute -
+           Self.Production (P).First_Attribute + 1;
+
+         Total  : Attribute_Declaration_Count := LHS + Local;
       begin
          --  Fill Offset and First arrays
          for J in Offset'Range loop
@@ -217,13 +271,19 @@ package body Gela.Grammars_Checks is
             for R in From .. To loop
                declare
                   Result : constant Attribute_Index := Self.Rule (R).Result;
+                  Decl   : constant Attribute_Declaration_Index :=
+                    Self.Attribute (Result).Declaration;
                begin
-                  if Self.Attribute (Result).Is_Left_Hand_Side then
-                     Index := Self.Attribute (Result).Declaration -
+                  if Self.Declaration (Decl).Is_Local then
+                     Index := LHS +
+                       Decl -
+                       Self.Production (P).First_Attribute + 1;
+                  elsif Self.Attribute (Result).Is_Left_Hand_Side then
+                     Index := Decl -
                        Self.Non_Terminal (NT).First_Attribute + 1;
                   else
                      Index := Offset (Self.Attribute (Result).Origin) +
-                       Self.Attribute (Result).Declaration -
+                       Decl -
                        First (Self.Attribute (Result).Origin);
                   end if;
 
@@ -244,6 +304,10 @@ package body Gela.Grammars_Checks is
             end loop;
 
             if not Check_Count (NT, NT, Count, P, RHS => False) then
+               Result := False;
+            end if;
+
+            if not Check_Local (NT, P, Count (LHS + 1 .. LHS + Local)) then
                Result := False;
             end if;
          end;

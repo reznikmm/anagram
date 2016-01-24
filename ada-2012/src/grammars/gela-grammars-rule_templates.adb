@@ -85,10 +85,17 @@ package body Gela.Grammars.Rule_Templates is
                   if not Ready.Contains (Name) then
                      Ready.Insert (Name);
 
-                     Append
-                       (Part => Item.Slice (2, Point - 1),
-                        Attr => Item.Slice (Point + 1, Colon - 1),
-                        Def  => Item.Slice (Colon + 1, To - 1));
+                     if Point = 0 then
+                        Append
+                          (Part => League.Strings.Empty_Universal_String,
+                           Attr => Item.Slice (2, Colon - 1),
+                           Def  => Item.Slice (Colon + 1, To - 1));
+                     else
+                        Append
+                          (Part => Item.Slice (2, Point - 1),
+                           Attr => Item.Slice (Point + 1, Colon - 1),
+                           Def  => Item.Slice (Colon + 1, To - 1));
+                     end if;
                   end if;
                end if;
             end if;

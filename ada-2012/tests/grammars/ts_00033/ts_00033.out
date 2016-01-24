@@ -1,0 +1,10 @@
+A.B 1 eval:  ${B.env} := 1; 
+A.B 1 descent: B 1
+A.B 1 eval:  ${A.value} := ${B.value}; 
+B.C 1 eval:  ${C.env} := ${B.env}; 
+B.C 1 descent: C 1
+B.C 1 eval:  ${tmp} := ${C.value}; 
+B.C 1 eval:  ${B.value} := ${C.tmp}; 
+C.name 1 descent: name 1
+C.name 1 eval:  ${C.value} := ${name.symbol} + ${C.env}; 
+name.id_token 1 eval:  ${name.symbol} := ${id_token.symbol}; 
