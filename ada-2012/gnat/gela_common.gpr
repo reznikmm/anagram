@@ -1,4 +1,4 @@
-with "matreshka/league";
+with "matreshka_league";
 
 project Gela_Common is
 
