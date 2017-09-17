@@ -441,7 +441,6 @@ package body Gela.Grammars.RNGLR is
       --------------
 
       function Get_Edge (From, To : Node) return Edge is
-         use type LR.State_Index;
          Item : Edge := First (From);
       begin
          while Item /= null loop

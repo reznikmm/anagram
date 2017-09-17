@@ -613,8 +613,6 @@ package body Gela.Grammars.Parser_Utils is
       Item : Named_Part)
       return Production_Access
    is
-      use type Named_Part_Vectors.Vector;
-
       V : constant Named_Part_Vectors.Vector :=
         Named_Part_Vectors.To_Vector (Item, 1);
    begin
@@ -634,8 +632,6 @@ package body Gela.Grammars.Parser_Utils is
       Item : Named_Production)
       return Production_List_Access
    is
-      use type Named_Production_Vectors.Vector;
-
       V : constant Named_Production_Vectors.Vector :=
         Named_Production_Vectors.To_Vector (Item, 1);
    begin
@@ -655,8 +651,6 @@ package body Gela.Grammars.Parser_Utils is
       Item : Production_Access)
       return Production_List_Access
    is
-      use type Named_Production_Vectors.Vector;
-
       V : constant Named_Production_Vectors.Vector :=
         Named_Production_Vectors.To_Vector
           ((Name => League.Strings.Empty_Universal_String,
