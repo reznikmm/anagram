@@ -48,6 +48,9 @@ make  %{?_smp_mflags} GPRBUILD_FLAGS="%Gnatmake_optflags"
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot} LIBDIR=%{_libdir} PREFIX=%{_prefix} GPRDIR=%{_gprdir} BINDIR=%{_bindir}
 
+%check
+make  %{?_smp_mflags} GPRBUILD_FLAGS="%Gnatmake_optflags" check
+
 %post     -p /sbin/ldconfig
 %postun   -p /sbin/ldconfig
 
