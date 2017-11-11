@@ -1,0 +1,28 @@
+with "anagram";
+
+project Anagram_Tests is
+
+   for Main use
+     ("ts_00001", "ts_00002", "ts_00003", "ts_00004", "ts_00005",
+      "ts_00006", "ts_00007", "ts_00012", "ts_00014", "ts_00021",
+      "ts_00022", "ts_00023", "ts_00024", "ts_00026", "ts_00031",
+      "ts_00032", "ts_00033");
+
+   for Source_Dirs use
+     ("../tests/ts_00001", "../tests/ts_00002",
+      "../tests/ts_00003", "../tests/ts_00004",
+      "../tests/ts_00005", "../tests/ts_00006",
+      "../tests/ts_00007", "../tests/ts_00012",
+      "../tests/ts_00014", "../tests/ts_00021",
+      "../tests/ts_00022", "../tests/ts_00023",
+      "../tests/ts_00024", "../tests/ts_00026",
+      "../tests/ts_00031", "../tests/ts_00032",
+      "../tests/ts_00033");
+
+   for Object_Dir use "../.objs/tests";
+
+   package Compiler is
+      for Default_Switches ("ada") use Anagram.Check_Ada_Switches;
+   end Compiler;
+
+end Anagram_Tests;

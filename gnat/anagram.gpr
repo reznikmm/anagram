@@ -1,0 +1,29 @@
+with "matreshka_league";
+
+library project Anagram is
+
+   Version := "0.1";
+
+   for Source_Dirs use ("../sources", "../sources/generated");
+   for Object_Dir use "../.objs";
+   for Library_Kind use "dynamic";
+   for Library_Name use "anagram";
+   for Library_Dir use "../.libs";
+   for Library_ALI_Dir use "../.libs";
+   for Library_Version use "libanagram.so." & Version;
+
+   Default_Ada_Switches :=
+     ("-gnat12", "-gnatW8", "-g");
+
+   Check_Ada_Switches := Default_Ada_Switches &
+     ("-gnatVa", "-gnatwea", "-gnaty", "-gnata");
+
+   package Compiler is
+      for Default_Switches ("ada") use Check_Ada_Switches;
+      for Switches ("ag.adb") use Default_Ada_Switches;
+      for Switches ("ag-goto_table.ads") use Default_Ada_Switches;
+      for Switches ("ag-shift_reduce.ads") use Default_Ada_Switches;
+      for Switches ("ag_tokens.ads") use Default_Ada_Switches;
+   end Compiler;
+
+end Anagram;
