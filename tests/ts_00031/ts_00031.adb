@@ -1,15 +1,15 @@
 --  Check Ordered AG
-with Gela.Grammars.Reader;
-with Gela.Grammars.Ordered;
+with Anagram.Grammars.Reader;
+with Anagram.Grammars.Ordered;
 with Ada.Wide_Wide_Text_IO;
 
 procedure TS_00031 is
-   G : constant Gela.Grammars.Grammar :=
-     Gela.Grammars.Reader.Read ("test.ag");
-   Order  : Gela.Grammars.Ordered.Order_Maps.Map;
-   Partitions : Gela.Grammars.Ordered.Partition_Array (G.Declaration'Range);
+   G : constant Anagram.Grammars.Grammar :=
+     Anagram.Grammars.Reader.Read ("test.ag");
+   Order  : Anagram.Grammars.Ordered.Order_Maps.Map;
+   Partitions : Anagram.Grammars.Ordered.Partition_Array (G.Declaration'Range);
 
-   use Gela.Grammars;
+   use Anagram.Grammars;
 
 
    Found : Boolean;
@@ -17,7 +17,7 @@ begin
    Ordered.Find_Order (G, Found, Partitions, Order);
 
    declare
-      use Gela.Grammars.Ordered.Order_Maps;
+      use Anagram.Grammars.Ordered.Order_Maps;
       Pos : Cursor := Order.First;
    begin
       while Has_Element (Pos) loop

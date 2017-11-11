@@ -1,16 +1,16 @@
 --  Check extended attributed grammar constructor and debuger output
 
-with Gela.Grammars_Debug;
-with Gela.Grammars;
-with Gela.Grammars.Constructors;
+with Anagram.Grammars_Debug;
+with Anagram.Grammars;
+with Anagram.Grammars.Constructors;
 with League.Strings;
 
 --  NT2 := /P2/ { /PL1/ T3 }
 --  NT1 := /P1/ [ /OP1/ T2 NT1 ]
 
 procedure TS_00005 is
-   use Gela.Grammars.Constructors;
-   C : Gela.Grammars.Constructors.Constructor;
+   use Anagram.Grammars.Constructors;
+   C : Anagram.Grammars.Constructors.Constructor;
 begin
    C.Create_Terminal (League.Strings.To_Universal_String ("T2"));
    C.Create_Terminal (League.Strings.To_Universal_String ("T1"));
@@ -111,8 +111,8 @@ begin
       League.Strings.To_Universal_String ("${NT2.ANT2s} := F (${L1.L1s})"));
 
    declare
-      Result : constant Gela.Grammars.Grammar := C.Complete;
+      Result : constant Anagram.Grammars.Grammar := C.Complete;
    begin
-      Gela.Grammars_Debug.Print (Result);
+      Anagram.Grammars_Debug.Print (Result);
    end;
 end TS_00005;

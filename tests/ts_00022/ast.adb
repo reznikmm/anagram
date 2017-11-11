@@ -80,7 +80,7 @@ package body AST is
 
    function New_Node
      (Self       : access Node_Fabric;
-      Production : Gela.Grammars.Production_Index)
+      Production : Anagram.Grammars.Production_Index)
       return Node_Access
    is
       pragma Unreferenced (Self);
@@ -100,7 +100,7 @@ package body AST is
 
    function New_Alternative
      (Self : access Node_Fabric;
-      NT   : Gela.Grammars.Non_Terminal_Index)
+      NT   : Anagram.Grammars.Non_Terminal_Index)
       return Node_Access
    is
       pragma Unreferenced (Self);
@@ -118,7 +118,7 @@ package body AST is
    -- Print --
    -----------
 
-   procedure Print (Self : Node; Input : Gela.Grammars.Grammar) is
+   procedure Print (Self : Node; Input : Anagram.Grammars.Grammar) is
    begin
       Ada.Wide_Wide_Text_IO.Put (Integer'Wide_Wide_Image (Self.Identifier));
       if Self.Is_Token then

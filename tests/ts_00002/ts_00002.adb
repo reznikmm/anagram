@@ -1,14 +1,14 @@
 --  Check basic grammar constructor and debuger output
 
-with Gela.Grammars_Debug;
-with Gela.Grammars;
-with Gela.Grammars.Constructors;
+with Anagram.Grammars_Debug;
+with Anagram.Grammars;
+with Anagram.Grammars.Constructors;
 with League.Strings;
 
 procedure TS_00002 is
-   use Gela.Grammars.Constructors;
+   use Anagram.Grammars.Constructors;
 
-   C : Gela.Grammars.Constructors.Constructor;
+   C : Anagram.Grammars.Constructors.Constructor;
 begin
    C.Create_Terminal (League.Strings.To_Universal_String ("T2"));
    C.Create_Terminal (League.Strings.To_Universal_String ("T1"));
@@ -78,8 +78,8 @@ begin
    end;
 
    declare
-      Result : constant Gela.Grammars.Grammar := C.Complete;
+      Result : constant Anagram.Grammars.Grammar := C.Complete;
    begin
-      Gela.Grammars_Debug.Print (Result);
+      Anagram.Grammars_Debug.Print (Result);
    end;
 end TS_00002;

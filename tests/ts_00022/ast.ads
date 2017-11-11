@@ -1,4 +1,4 @@
-with Gela.Grammars;
+with Anagram.Grammars;
 
 package AST is
 
@@ -14,8 +14,8 @@ package AST is
       Is_Alternative : Boolean;
       Children       : Node_Array;
       Count          : Positive;
-      Prod           : Gela.Grammars.Production_Index;
-      NT             : Gela.Grammars.Non_Terminal_Index;
+      Prod           : Anagram.Grammars.Production_Index;
+      NT             : Anagram.Grammars.Non_Terminal_Index;
    end record;
 
    type Node_Fabric is null record;
@@ -26,12 +26,12 @@ package AST is
 
    function New_Node
      (Self       : access Node_Fabric;
-      Production : Gela.Grammars.Production_Index)
+      Production : Anagram.Grammars.Production_Index)
       return Node_Access;
 
    function New_Alternative
      (Self : access Node_Fabric;
-      NT   : Gela.Grammars.Non_Terminal_Index)
+      NT   : Anagram.Grammars.Non_Terminal_Index)
       return Node_Access;
 
    procedure Set_Child
@@ -48,6 +48,6 @@ package AST is
      (Self   : access Node_Fabric;
       Object : in out Node_Access);
 
-   procedure Print (Self : Node; Input : Gela.Grammars.Grammar);
+   procedure Print (Self : Node; Input : Anagram.Grammars.Grammar);
 
 end AST;

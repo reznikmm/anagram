@@ -19,9 +19,9 @@
 %with League.String_Vectors;
 %with Ada.Containers.Vectors;
 %with Ada.Containers.Ordered_Maps;
-%with Gela.Grammars.Parser_Utils;
+%with Anagram.Grammars.Parser_Utils;
 {
-   package PU renames Gela.Grammars.Parser_Utils;
+   package PU renames Anagram.Grammars.Parser_Utils;
 
    type Value_Kinds is
      (None, Image, Vector,
@@ -225,7 +225,7 @@ integer : Integer_Token
 %%
 -- 1
 with League.Strings;
-with Gela.Grammars.Constructors;
+with Anagram.Grammars.Constructors;
 
 ##
 
@@ -236,26 +236,26 @@ with Gela.Grammars.Constructors;
       Text : League.Strings.Universal_String;
       Tail_List : Boolean := False);
 
-   function Grammar (Self : in out Parser) return Gela.Grammars.Grammar;
+   function Grammar (Self : in out Parser) return Anagram.Grammars.Grammar;
 
 private
 
    type Parser is tagged limited record
-      Constructor : Gela.Grammars.Constructors.Constructor;
+      Constructor : Anagram.Grammars.Constructors.Constructor;
    end record;
 -- 2
 ##
 with Ada.Wide_Wide_Text_Io;
 with String_Sources;
-with Gela.Grammars.Scanners;
-with Gela.Grammars.Scanner_Handler;
+with Anagram.Grammars.Scanners;
+with Anagram.Grammars.Scanner_Handler;
 with League.String_Vectors;
-with Gela.Grammars.Parser_Utils;
+with Anagram.Grammars.Parser_Utils;
 -- 3
 ##
-   function Grammar (Self : in out Parser) return Gela.Grammars.Grammar is
+   function Grammar (Self : in out Parser) return Anagram.Grammars.Grammar is
    begin
-      return Gela.Grammars.Constructors.Complete (Self.Constructor);
+      return Anagram.Grammars.Constructors.Complete (Self.Constructor);
    end Grammar;
 
    procedure Read
@@ -263,8 +263,8 @@ with Gela.Grammars.Parser_Utils;
       Text : League.Strings.Universal_String;
       Tail_List : Boolean := False)
    is
-      Scanner     : aliased Gela.Grammars.Scanners.Scanner;
-      Handler     : aliased Gela.Grammars.Scanner_Handler.Handler;
+      Scanner     : aliased Anagram.Grammars.Scanners.Scanner;
+      Handler     : aliased Anagram.Grammars.Scanner_Handler.Handler;
       Context     : PU.Context_Node;
 
       procedure yyerror (X : Wide_Wide_String) is

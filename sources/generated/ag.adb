@@ -1,9 +1,9 @@
 with Ada.Wide_Wide_Text_Io;
 with String_Sources;
-with Gela.Grammars.Scanners;
-with Gela.Grammars.Scanner_Handler;
+with Anagram.Grammars.Scanners;
+with Anagram.Grammars.Scanner_Handler;
 with League.String_Vectors;
-with Gela.Grammars.Parser_Utils;
+with Anagram.Grammars.Parser_Utils;
 -- 3
 with Ag.Goto_Table;
 use  Ag.Goto_Table;
@@ -15,9 +15,9 @@ use  Ag.Shift_Reduce;
 package body Ag is
    package Ag_Goto renames Ag.Goto_Table;
    package Ag_Shift_Reduce  renames Ag.Shift_Reduce;
-   function Grammar (Self : in out Parser) return Gela.Grammars.Grammar is
+   function Grammar (Self : in out Parser) return Anagram.Grammars.Grammar is
    begin
-      return Gela.Grammars.Constructors.Complete (Self.Constructor);
+      return Anagram.Grammars.Constructors.Complete (Self.Constructor);
    end Grammar;
 
    procedure Read
@@ -25,8 +25,8 @@ package body Ag is
       Text : League.Strings.Universal_String;
       Tail_List : Boolean := False)
    is
-      Scanner     : aliased Gela.Grammars.Scanners.Scanner;
-      Handler     : aliased Gela.Grammars.Scanner_Handler.Handler;
+      Scanner     : aliased Anagram.Grammars.Scanners.Scanner;
+      Handler     : aliased Anagram.Grammars.Scanner_Handler.Handler;
       Context     : PU.Context_Node;
 
       procedure yyerror (X : Wide_Wide_String) is

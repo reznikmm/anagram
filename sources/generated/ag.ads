@@ -1,6 +1,6 @@
 -- 1
 with League.Strings;
-with Gela.Grammars.Constructors;
+with Anagram.Grammars.Constructors;
 
 package Ag is
 
@@ -11,12 +11,12 @@ package Ag is
       Text : League.Strings.Universal_String;
       Tail_List : Boolean := False);
 
-   function Grammar (Self : in out Parser) return Gela.Grammars.Grammar;
+   function Grammar (Self : in out Parser) return Anagram.Grammars.Grammar;
 
 private
 
    type Parser is tagged limited record
-      Constructor : Gela.Grammars.Constructors.Constructor;
+      Constructor : Anagram.Grammars.Constructors.Constructor;
    end record;
 -- 2
 end Ag;

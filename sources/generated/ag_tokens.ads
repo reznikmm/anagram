@@ -2,11 +2,11 @@ with  League.Strings;
 with  League.String_Vectors;
 with  Ada.Containers.Vectors;
 with  Ada.Containers.Ordered_Maps;
-with  Gela.Grammars.Parser_Utils;
+with  Anagram.Grammars.Parser_Utils;
 package Ag_Tokens is
 
 
-   package PU renames Gela.Grammars.Parser_Utils;
+   package PU renames Anagram.Grammars.Parser_Utils;
 
    type Value_Kinds is
      (None, Image, Vector,

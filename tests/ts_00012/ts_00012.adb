@@ -2,19 +2,19 @@
 
 with Ada.Text_IO;
 
-with Gela.Grammars.Reader;
-with Gela.Grammars_Recursive_Descent;
-with Gela.Grammars_Convertors;
+with Anagram.Grammars.Reader;
+with Anagram.Grammars_Recursive_Descent;
+with Anagram.Grammars_Convertors;
 
 procedure TS_00012 is
-   G : constant Gela.Grammars.Grammar :=
-     Gela.Grammars.Reader.Read ("test.ag");
+   G : constant Anagram.Grammars.Grammar :=
+     Anagram.Grammars.Reader.Read ("test.ag");
 
-   Plain : constant Gela.Grammars.Grammar :=
-     Gela.Grammars_Convertors.Convert (G, Left => False);
+   Plain : constant Anagram.Grammars.Grammar :=
+     Anagram.Grammars_Convertors.Convert (G, Left => False);
 
    Ok : Boolean;
 begin
-   Gela.Grammars_Recursive_Descent.Generate (Plain, "-", Ok);
+   Anagram.Grammars_Recursive_Descent.Generate (Plain, "-", Ok);
    Ada.Text_IO.Put_Line (Boolean'Image (Ok));
 end TS_00012;

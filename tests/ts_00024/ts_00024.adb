@@ -1,14 +1,14 @@
 --  Check EBNF expansion for [a | b] c [d]
 
-with Gela.Grammars_Convertors;
-with Gela.Grammars.Reader;
-with Gela.Grammars_Debug;
+with Anagram.Grammars_Convertors;
+with Anagram.Grammars.Reader;
+with Anagram.Grammars_Debug;
 
 procedure TS_00024 is
-   G : constant Gela.Grammars.Grammar :=
-     Gela.Grammars.Reader.Read ("test.ag");
-   Plain    : constant Gela.Grammars.Grammar :=
-     Gela.Grammars_Convertors.Convert (G, Left => False);
+   G : constant Anagram.Grammars.Grammar :=
+     Anagram.Grammars.Reader.Read ("test.ag");
+   Plain    : constant Anagram.Grammars.Grammar :=
+     Anagram.Grammars_Convertors.Convert (G, Left => False);
 begin
-   Gela.Grammars_Debug.Print (Plain);
+   Anagram.Grammars_Debug.Print (Plain);
 end TS_00024;
