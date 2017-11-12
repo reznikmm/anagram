@@ -1,3 +1,9 @@
+--  Copyright (c) 2010-2017 Maxim Reznik <reznikmm@gmail.com>
+--
+--  SPDX-License-Identifier: MIT
+--  License-Filename: LICENSE
+-------------------------------------------------------------
+
 with Abstract_Sources;
 with League.Strings;
 with League.Strings.Cursors.Characters;
