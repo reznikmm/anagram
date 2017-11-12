@@ -246,7 +246,7 @@ private
 -- 2
 ##
 with Ada.Wide_Wide_Text_Io;
-with String_Sources;
+with Anagram.String_Sources;
 with Anagram.Grammars.Scanners;
 with Anagram.Grammars.Scanner_Handler;
 with League.String_Vectors;
@@ -282,7 +282,7 @@ with Anagram.Grammars.Parser_Utils;
 
 ##
 
-      Source   : aliased String_Sources.String_Source;
+      Source   : aliased Anagram.String_Sources.String_Source;
    begin
       Source.Create (Text);
       Scanner.Set_Source (Source'Unchecked_Access);

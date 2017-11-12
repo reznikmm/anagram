@@ -2,8 +2,8 @@ Anagram
 =======
 
 [![Build Status](https://travis-ci.org/reznikmm/anagram.svg)](https://travis-ci.org/reznikmm/anagram)
-[![Download](https://api.bintray.com/packages/reznikmm/matreshka/ada-pretty/images/download.svg) ](https://bintray.com/reznikmm/matreshka/ada-pretty/_latestVersion)
-[![reuse compliant](https://img.shields.io/badge/reuse-compliant-green.svg)](https://git.fsfe.org/fsfe/reuse-web)
+[![Download](https://api.bintray.com/packages/reznikmm/matreshka/anagram/images/download.svg) ](https://bintray.com/reznikmm/matreshka/anagram/_latestVersion)
+[![reuse compliant](https://img.shields.io/badge/reuse-compliant-green.svg)](https://reuse.software/)
 
 > Grammar handling and parser generation Ada library
 
@@ -37,7 +37,7 @@ make all install PREFIX=/path/to/install
 ```
 
 ### Dependencies
-It depends on (Matreshka)[https://forge.ada-ru.org/matreshka] library.
+It depends on [Matreshka](https://forge.ada-ru.org/matreshka) library.
 
 ### Usage
 Add `with "anagram";` in your project file.

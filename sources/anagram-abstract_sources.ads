@@ -6,7 +6,7 @@
 
 with Matreshka.Internals.Unicode;
 
-package Abstract_Sources is
+package Anagram.Abstract_Sources is
    pragma Preelaborate;
 
    subtype Code_Unit_32 is Matreshka.Internals.Unicode.Code_Unit_32;
@@ -23,4 +23,4 @@ package Abstract_Sources is
    not overriding function Get_Next
     (Self : not null access Abstract_Source) return Code_Unit_32 is abstract;
 
-end Abstract_Sources;
+end Anagram.Abstract_Sources;

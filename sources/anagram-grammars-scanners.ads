@@ -4,7 +4,7 @@
 --  License-Filename: LICENSE
 -------------------------------------------------------------
 
-with Abstract_Sources;
+with Anagram.Abstract_Sources;
 with League.Strings;
 with Anagram.Grammars.Scanner_Handlers;
 with Ag_Tokens;
@@ -18,7 +18,7 @@ package Anagram.Grammars.Scanners is
 
    procedure Set_Source
      (Self : in out Scanner'Class;
-      Source : not null Abstract_Sources.Source_Access);
+      Source : not null Anagram.Abstract_Sources.Source_Access);
 
    procedure Set_Handler
      (Self    : in out Scanner'Class;
@@ -56,7 +56,7 @@ private
 
    type Scanner is tagged limited record
       Handler : Anagram.Grammars.Scanner_Handlers.Handler_Access;
-      Source  : Abstract_Sources.Source_Access;
+      Source  : Anagram.Abstract_Sources.Source_Access;
       Start   : State := INITIAL;
       Next    : Buffer_Index := 1;
       From    : Buffer_Index := 1;
@@ -64,7 +64,7 @@ private
       Rule    : Scanner_Types.Rule_Index;
       Offset  : Buffer_Offset := (0, 0);
       Buffer  : Wide_Wide_String (Buffer_Index) :=
-        (1 => Wide_Wide_Character'Val (Abstract_Sources.End_Of_Buffer),
+        (1 => Wide_Wide_Character'Val (Anagram.Abstract_Sources.End_Of_Buffer),
          others => <>);
       Classes : Character_Class_Array := (1 => Error_Character, others => <>);
    end record;

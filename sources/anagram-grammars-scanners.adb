@@ -43,7 +43,7 @@ package body Anagram.Grammars.Scanners is
       Skip    : in out Boolean) is separate;
 
    End_Of_Buffer : constant Wide_Wide_Character :=
-     Wide_Wide_Character'Val (Abstract_Sources.End_Of_Buffer);
+     Wide_Wide_Character'Val (Anagram.Abstract_Sources.End_Of_Buffer);
 
    -------------------------
    -- Get_Start_Condition --
@@ -95,7 +95,7 @@ package body Anagram.Grammars.Scanners is
       end Next;
 
       EOF : constant Wide_Wide_Character :=
-        Wide_Wide_Character'Val (Abstract_Sources.End_Of_Input);
+        Wide_Wide_Character'Val (Anagram.Abstract_Sources.End_Of_Input);
       --  EOD : constant Wide_Wide_Character :=
       --    Wide_Wide_Character'Val (Abstract_Sources.End_Of_Data);
 
@@ -184,7 +184,7 @@ package body Anagram.Grammars.Scanners is
    -----------------
 
    procedure Read_Buffer (Self : in out Scanner'Class) is
-      use Abstract_Sources;
+      use Anagram.Abstract_Sources;
       use type Code_Unit_32;
 
       Next : Code_Unit_32;
@@ -242,7 +242,7 @@ package body Anagram.Grammars.Scanners is
 
    procedure Set_Source
      (Self : in out Scanner'Class;
-      Source : not null Abstract_Sources.Source_Access)
+      Source : not null Anagram.Abstract_Sources.Source_Access)
    is
    begin
       Self.Source := Source;

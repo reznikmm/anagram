@@ -4,18 +4,19 @@
 --  License-Filename: LICENSE
 -------------------------------------------------------------
 
-with Abstract_Sources;
+with Anagram.Abstract_Sources;
 with League.Strings;
 with League.Strings.Cursors.Characters;
 
-package String_Sources is
+package Anagram.String_Sources is
    pragma Preelaborate;
 
-   type String_Source is new Abstract_Sources.Abstract_Source with private;
+   type String_Source is new Anagram.Abstract_Sources.Abstract_Source
+     with private;
 
    overriding function Get_Next
      (Self : not null access String_Source)
-     return Abstract_Sources.Code_Unit_32;
+     return Anagram.Abstract_Sources.Code_Unit_32;
 
    procedure Create
      (Self : out String_Source;
@@ -23,9 +24,10 @@ package String_Sources is
 
 private
 
-   type String_Source is new Abstract_Sources.Abstract_Source with record
+   type String_Source is new Anagram.Abstract_Sources.Abstract_Source with
+   record
       Text   : League.Strings.Universal_String;
       Cursor : League.Strings.Cursors.Characters.Character_Cursor;
    end record;
 
-end String_Sources;
+end Anagram.String_Sources;

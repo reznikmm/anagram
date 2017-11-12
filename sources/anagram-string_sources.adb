@@ -4,7 +4,7 @@
 --  License-Filename: LICENSE
 -------------------------------------------------------------
 
-package body String_Sources is
+package body Anagram.String_Sources is
 
    --------------
    -- Get_Next --
@@ -12,17 +12,17 @@ package body String_Sources is
 
    overriding function Get_Next
      (Self : not null access String_Source)
-      return Abstract_Sources.Code_Unit_32
+      return Anagram.Abstract_Sources.Code_Unit_32
    is
    begin
       if Self.Cursor.Has_Element then
-         return Result : Abstract_Sources.Code_Unit_32 do
+         return Result : Anagram.Abstract_Sources.Code_Unit_32 do
             Result := Wide_Wide_Character'Pos
               (Self.Cursor.Element);
             Self.Cursor.Next;
          end return;
       else
-         return Abstract_Sources.End_Of_Input;
+         return Anagram.Abstract_Sources.End_Of_Input;
       end if;
    end Get_Next;
 
@@ -38,4 +38,4 @@ package body String_Sources is
       Self.Cursor.First (Self.Text);
    end Create;
 
-end String_Sources;
+end Anagram.String_Sources;
