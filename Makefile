@@ -22,3 +22,6 @@ check: all
 	set -e; export LD_LIBRARY_PATH=`pwd`/.libs;\
 	for J in tests/ts_*; do pushd $$J; ../../.objs/$$J > /tmp/got;\
 	  diff -u /tmp/got `basename $$J`.out; popd; done
+clean:
+	gprclean -q -P gnat/anagram.gpr
+	gprclean -q -P gnat/anagram_tests.gpr
