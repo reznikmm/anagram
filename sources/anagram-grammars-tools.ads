@@ -12,7 +12,7 @@ package Anagram.Grammars.Tools is
    type Terminal_Set_Indexed_By_Production is
      array (Production_Index range <>,
             Terminal_Count   range <>)
-     of Boolean with Pack;
+     of Boolean;  --  with Pack; <= Cause a bug in gcc 8 (bug 86514)
 
    type Terminal_Set_Per_Production
      (Last_Terminal   : Terminal_Count;
@@ -25,7 +25,7 @@ package Anagram.Grammars.Tools is
    type Terminal_Set_Indexed_By_Non_Terminal is
      array (Non_Terminal_Index range <>,
             Terminal_Count     range <>)
-     of Boolean with Pack;
+     of Boolean;  --  with Pack; <= Cause a bug in gcc 8 (bug 86514)
 
    type Terminal_Set_Per_Non_Terminal
      (Last_Terminal     : Terminal_Count;
@@ -38,7 +38,7 @@ package Anagram.Grammars.Tools is
    type Non_Terminal_Set_Indexed_By_Production is
      array (Production_Index range <>,
             Non_Terminal_Index   range <>)
-     of Boolean with Pack;
+     of Boolean;  --  with Pack; <= Cause a bug in gcc 8 (bug 86514)
 
    type Non_Terminal_Set_Per_Production
      (Last_Non_Terminal : Non_Terminal_Count;
@@ -51,7 +51,7 @@ package Anagram.Grammars.Tools is
    type Non_Terminal_Set_Indexed_By_Non_Terminal is
      array (Non_Terminal_Index range <>,
             Non_Terminal_Index range <>)
-     of Boolean with Pack;
+     of Boolean;  --  with Pack; <= Cause a bug in gcc 8 (bug 86514)
 
    type Non_Terminal_Set_Per_Non_Terminal
      (Last_Non_Terminal : Non_Terminal_Count) is
