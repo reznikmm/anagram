@@ -11,6 +11,8 @@ GPRINSTALL_FLAGS = --prefix=$(PREFIX) --sources-subdir=$(INSTALL_INCLUDE_DIR)\
  --lib-subdir=$(INSTALL_ALI_DIR) --project-subdir=$(INSTALL_PROJECT_DIR)\
 --link-lib-subdir=$(INSTALL_LIBRARY_DIR)
 
+SHELL = bash
+
 all:
 	gprbuild $(GPRBUILD_FLAGS) -P gnat/anagram.gpr
 	gprbuild $(GPRBUILD_FLAGS) -P gnat/anagram_tests.gpr

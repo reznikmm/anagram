@@ -965,6 +965,7 @@ package body Anagram.Grammars.Constructors is
          Result.Non_Terminal (Input.Non_Terminal'Range) := Input.Non_Terminal;
 
          declare
+            use type S.Universal_String;
             T : Grammars.Non_Terminal renames Result.Non_Terminal
               (Result.Last_Non_Terminal);
          begin
