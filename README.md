@@ -1,7 +1,7 @@
 Anagram
 =======
 
-[![Build Status](https://travis-ci.org/reznikmm/anagram.svg)](https://travis-ci.org/reznikmm/anagram)
+[![Build](https://github.com/reznikmm/anagram/workflows/Build/badge.svg)](https://github.com/reznikmm/anagram/actions)
 [![Download](https://api.bintray.com/packages/reznikmm/matreshka/anagram/images/download.svg) ](https://bintray.com/reznikmm/matreshka/anagram/_latestVersion)
 [![reuse compliant](https://img.shields.io/badge/reuse-compliant-green.svg)](https://reuse.software/)
 
