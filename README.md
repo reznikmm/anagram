@@ -2,7 +2,7 @@ Anagram
 =======
 
 [![Build](https://github.com/reznikmm/anagram/workflows/Build/badge.svg)](https://github.com/reznikmm/anagram/actions)
-[![Download](https://api.bintray.com/packages/reznikmm/matreshka/anagram/images/download.svg) ](https://bintray.com/reznikmm/matreshka/anagram/_latestVersion)
+[![Copr build status](https://copr.fedorainfracloud.org/coprs/reznik/ada/package/anagram/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/reznik/ada/)
 [![reuse compliant](https://img.shields.io/badge/reuse-compliant-green.svg)](https://reuse.software/)
 
 > Grammar handling and parser generation Ada library
